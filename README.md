@@ -16,6 +16,14 @@ Un cours interactif d'introduction à l'informatique, en français, sous forme d
 
 Une page **Propositions** liste des idées de modules à ajouter (Python, bases de données, développement web, IA, cybersécurité avancée, systèmes d'exploitation).
 
+## Leçons spéciales (`lecons/`)
+
+En plus du cours principal, `lecons/` contient des leçons "jeu" autonomes, plus riches : robot guide animé, chrono de séance, phases d'activité (Activité → Je déduis → Trace écrite → Exemple → Exercice), badges, confettis et bilan imprimable avec carte mentale. Chaque leçon est un fichier HTML unique, sans dépendance.
+
+- **`TC_M1_L3_bit_octet.html`** — Module 1, Leçon 3 : le bit et l'octet (langage binaire, bit, octet, conversion décimal ↔ binaire, unités de mesure Ko/Mo/Go/To, code ASCII), avec un convertisseur binaire interactif, un défi de rangement des unités et un mini-décodeur ASCII.
+
+Ces leçons sont accessibles depuis la page d'accueil du cours (section « Leçons spéciales ») et peuvent aussi être ouvertes directement dans un navigateur.
+
 ## Fonctionnement
 
 - Navigation par ancre (`#/`, `#/module/<id>`, `#/propositions`), pas de framework.

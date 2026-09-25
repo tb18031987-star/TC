@@ -129,6 +129,17 @@ function renderHome() {
       <a href="#/module/${COURSE.modules[0].id}" class="btn">Commencer le cours →</a>
     </div>
     <div class="module-grid">${cards}</div>
+    <div class="hero" style="padding-top:1rem">
+      <h2 style="margin-bottom:0.3rem">🎮 Leçons spéciales</h2>
+      <p>Des leçons jeu complètes, avec robot guide, chrono, badges et bilan imprimable.</p>
+    </div>
+    <div class="module-grid">
+      <a class="module-card" href="lecons/TC_M1_L3_bit_octet.html">
+        <div class="icon">🔌</div>
+        <h3>Le bit et l'octet</h3>
+        <p>Module 1, Leçon 3 — le langage binaire, l'octet, les conversions, les unités de mesure et le code ASCII.</p>
+      </a>
+    </div>
   `;
 }
 
