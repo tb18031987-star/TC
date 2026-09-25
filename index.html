@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Découvrir l'Informatique — Cours interactif</title>
+<meta name="description" content="Un cours interactif d'introduction à l'informatique : algorithmique, programmation, réseaux, sécurité, avec quiz et outils pratiques.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <button class="menu-toggle" id="menuToggle" aria-label="Ouvrir le menu">☰</button>
+    <div class="brand">
+      <span class="brand-icon">🎓</span>
+      <span class="brand-text">Découvrir l'Informatique</span>
+    </div>
+    <div class="progress-summary">
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="globalProgressFill"></div>
+      </div>
+      <span id="globalProgressLabel">0%</span>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="sidebar" id="sidebar">
+      <a href="#/" class="nav-item" data-nav="/">🏠 Accueil</a>
+      <div class="nav-section-title">Modules</div>
+      <div id="moduleNav"></div>
+      <a href="#/propositions" class="nav-item" data-nav="/propositions">✨ Propositions</a>
+    </nav>
+
+    <main class="content" id="content">
+      <!-- rendu dynamique via js/app.js -->
+    </main>
+  </div>
+
+  <footer class="footer">
+    Cours interactif d'informatique — fait pour apprendre en pratiquant. Votre progression est enregistrée localement dans votre navigateur.
+  </footer>
+
+<script src="js/course-data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
