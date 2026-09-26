@@ -16,7 +16,7 @@ module1-generalites/
 module2-logiciels/
   lecon1-systeme-exploitation/         (S6-S8 — complet)
   lecon2-traitement-texte/             (S9-S14 — complet)
-  lecon3-tableur/                      (S14-S17 — à venir)
+  lecon3-tableur/                      (S14-S17 — complet)
 module3-algo-programmation/
   algorithmique-scratch/               (S18-S23 — à venir)
   programmation-python/                (S23-S26 — à venir)
@@ -67,7 +67,13 @@ Séquences 2 à 4 sont complètes ; la Séquence 1 a son contenu principal (2 le
 
 - **`Projet_TraitementTexte_Virtuel.html`** — projet en 2 onglets : « Le projet » (choix d'un thème, cahier des charges à cocher au fur et à mesure du travail dans Word) et « Aide-mémoire » (où trouver chaque fonction dans le ruban Word, avec pour chaque fonction une version texte et un bouton « 🎬 Version visuelle » qui simule le ruban Word et anime l'effet obtenu — gras/italique, couleur, alignement, interligne, listes…).
 
-### Modules 3, 4, et Module 2 (leçon 3 — Tableur)
+**Leçon 3 — Tableur** (`module2-logiciels/lecon3-tableur/`)
+
+- **`Projet_Tableur_Virtuel.html`** — même principe que la Leçon 2 (projet + aide-mémoire), pour Excel : thème, cahier des charges (saisie et mise en forme, formules et calculs, tri et graphique, mise en page, finalisation), et pour chaque fonction une démo visuelle du ruban Excel qui anime l'effet réel obtenu (fusionner/centrer, somme automatique avec compteur animé, avant/après tri, barres de graphique qui poussent…).
+
+Le **Module 2** est ainsi complet (Leçons 1 à 3, semaines 6 à 17).
+
+### Modules 3 et 4
 
 Structure posée dans le portail avec la progression hebdomadaire prévue, contenu à rédiger.
 

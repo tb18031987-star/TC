@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projet — Fiche de présentation • Tableur</title>
+<style>
+:root{
+  --text:#2C2C2B; --text2:#7D7A75; --canvas:#FFFFFF; --soft:#F9F8F7; --soft2:#F0EFED; --border:#E6E5E3;
+  --blue:#2783DE; --blue-soft:#E5F2FC; --green:#46A171; --green-soft:#E8F1EC;
+  --orange:#D5803B; --orange-soft:#FBEBDE; --purple:#7E5FB3; --purple-soft:#F0EAF8;
+  --navy:#0F5C39; --radius:12px;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; color:var(--text); background:var(--soft); line-height:1.55; font-size:16px;}
+button{font-family:inherit; cursor:pointer;}
+.topbar{position:sticky; top:0; z-index:50; background:var(--navy); color:#fff; padding:12px 16px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+.topbar b{font-size:16px;}
+.topbar .tabs{display:flex; gap:8px; margin-left:auto;}
+.tab-btn{border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.08); color:#fff; border-radius:8px; padding:8px 14px; font-size:14px; font-weight:600;}
+.tab-btn.active{background:#fff; color:var(--navy);}
+.progress-chip{background:rgba(255,255,255,.12); border-radius:8px; padding:8px 12px; font-size:13px; font-weight:700;}
+.wrap{max-width:960px; margin:0 auto; padding:24px 16px 64px;}
+.view{display:none;}
+.view.active{display:block; animation:fade .3s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.card{background:#fff; border:1px solid var(--border); border-radius:var(--radius); padding:22px 24px; margin-bottom:16px;}
+.mission{border-left:6px solid var(--orange); background:var(--orange-soft); border-radius:0 var(--radius) var(--radius) 0; padding:20px 24px; margin-bottom:16px;}
+.mission h3{color:var(--orange); margin-bottom:8px;}
+.chips{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;}
+.chip{border:1px solid var(--border); background:var(--soft); border-radius:20px; padding:8px 16px; font-size:14px; font-weight:600; cursor:pointer;}
+.chip.selected{background:var(--navy); border-color:var(--navy); color:#fff;}
+.cdc-group{border-radius:10px; overflow:hidden; margin-bottom:14px; border:1px solid var(--border);}
+.cdc-head{padding:10px 16px; font-weight:800; color:#fff; font-size:14px; letter-spacing:.3px;}
+.cdc-item{display:flex; align-items:flex-start; gap:10px; padding:11px 16px; border-top:1px solid var(--border); font-size:15px; cursor:pointer; background:#fff;}
+.cdc-item:hover{background:var(--soft);}
+.cdc-item input{margin-top:3px; width:18px; height:18px; flex:none;}
+.cdc-item.checked{background:var(--green-soft);}
+.cdc-item.checked span{text-decoration:line-through; color:var(--text2);}
+.note{border:1px solid var(--purple); background:var(--purple-soft); color:#4a3566; border-radius:10px; padding:14px 18px; font-size:14px; font-style:italic; margin-top:10px;}
+.reset-row{text-align:right; margin-top:10px;}
+.btn{border:1px solid var(--border); background:#fff; border-radius:8px; padding:8px 14px; font-size:13px; font-weight:700; color:var(--text);}
+.btn:hover{border-color:var(--navy);}
+.aide-cat{background:var(--navy); color:#fff; font-weight:800; padding:9px 16px; border-radius:8px 8px 0 0; font-size:14px; margin-top:14px;}
+.aide-cat:first-child{margin-top:0;}
+
+/* ---- Lignes d'aide ---- */
+.aide-list{border:1px solid var(--border); border-top:none; border-radius:0 0 8px 8px; overflow:hidden; margin-bottom:14px;}
+.aide-row{border-top:1px solid var(--border); background:#fff;}
+.aide-row-main{display:grid; grid-template-columns:1fr auto; gap:4px 14px; padding:12px 14px; align-items:start;}
+.aide-row-main .comp{grid-column:1; font-weight:800; font-size:15px;}
+.aide-row-main .version-txt{grid-column:1/2; font-size:13px; color:var(--text2);}
+.aide-row-main .version-txt b{color:var(--text); font-weight:700; font-size:12px;}
+.aide-row-main .ou{color:var(--green); font-weight:700;}
+.aide-row-main .astuce{color:var(--text2); font-style:italic;}
+.demo-btn{grid-column:2; grid-row:1 / span 2; align-self:center; border:1px solid var(--green); background:var(--green-soft); color:#1E7A4C; border-radius:20px; padding:8px 14px; font-size:12px; font-weight:800; white-space:nowrap;}
+.demo-btn.open{background:var(--green); color:#fff;}
+.aide-row-demo{display:none; padding:16px; background:#EEF7F1; border-top:1px dashed #b7ddc4;}
+.aide-row-demo.show{display:block; animation:fade .25s ease;}
+@media (max-width:760px){
+  .aide-row-main{grid-template-columns:1fr;}
+  .demo-btn{grid-column:1; grid-row:auto; justify-self:start; margin-top:6px;}
+}
+
+/* ---- Démonstrations de l'EFFET (2e volet de la version visuelle) ---- */
+.td-wrap{border:1px dashed #b7ddc4; border-radius:8px; background:#fff; padding:14px; margin-top:14px; max-width:480px; margin-left:auto; margin-right:auto;}
+.td-label{font-size:11px; color:#5a7266; font-weight:800; text-align:center; margin-bottom:8px; letter-spacing:.3px;}
+.td-caption{text-align:center; font-size:12px; color:#0F5C39; font-weight:700; margin-top:10px; min-height:16px;}
+.td-cell{display:inline-block; min-width:150px; padding:9px 16px; border:1px solid #cdd7e3; border-radius:4px; background:#fff; font-size:16px;}
+
+.fusion-demo{display:flex; gap:2px; border:1px solid #cdd7e3; border-radius:4px; overflow:hidden; height:40px; max-width:300px; margin:0 auto;}
+.fusion-demo .fc{flex:1; background:#fff; border-right:1px solid #e2e6eb; display:flex; align-items:center; justify-content:center; font-size:12px; color:#8a93a0; transition:flex .5s, opacity .5s, background .5s, font-size .3s;}
+.fusion-demo.merged .fc:first-child{flex:1; font-weight:800; font-size:13px; color:#0F5C39; background:#FFF6E0;}
+.fusion-demo.merged .fc:not(:first-child){flex:0 0 0; opacity:0; border:none; padding:0;}
+
+.somme-demo{display:flex; gap:6px; justify-content:center; align-items:center; flex-wrap:wrap;}
+.somme-demo .sc{min-width:52px; height:40px; padding:0 6px; border:1px solid #cdd7e3; border-radius:4px; background:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600;}
+.somme-demo .sc.result{background:var(--green-soft); border-color:var(--green); color:#1E7A4C; font-weight:800;}
+.somme-demo .plus{font-size:16px; color:#8a93a0;}
+
+.trier-demo{position:relative; max-width:260px; margin:0 auto; min-height:130px;}
+.trier-demo .tpanel{position:absolute; inset:0; transition:opacity .5s;}
+.trier-demo .tpanel.hidden{opacity:0; pointer-events:none;}
+.trier-demo .trow{display:flex; justify-content:space-between; padding:6px 10px; border-bottom:1px solid var(--border); font-size:14px;}
+.trier-demo .trow:first-child{font-weight:800; color:#5a6472; font-size:11px; text-transform:uppercase;}
+
+.graph-demo{display:flex; align-items:flex-end; gap:14px; height:90px; justify-content:center; padding-top:6px;}
+.graph-wrap{display:flex; flex-direction:column; align-items:center;}
+.graph-demo .bar{width:28px; background:linear-gradient(180deg,#5CB88A,#1E7A4C); border-radius:4px 4px 0 0; transition:height 1s ease-in-out;}
+.graph-demo .bar-label{font-size:10px; text-align:center; color:#5a6472; margin-top:4px;}
+
+/* ---- Mode "aide visuelle" : bandeau explicatif ---- */
+.aide-mode-note{display:flex; align-items:center; gap:10px; background:var(--purple-soft); border:1px solid var(--purple); color:#4a3566; border-radius:10px; padding:12px 16px; font-size:14px; margin-bottom:16px;}
+.aide-mode-note .big{font-size:22px;}
+
+/* ---- Simulateur de ruban Excel ---- */
+.ribbon-sim{background:#fff; border:1px solid #cdd7e3; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.08); max-width:520px; margin:0 auto;}
+.ribbon-titlebar{display:flex; align-items:center; gap:12px; background:#107C41; color:#fff; padding:6px 12px; font-size:12px;}
+.ribbon-titlebar .rtb-icons{display:flex; gap:10px; font-size:13px; opacity:.85; flex:none;}
+.ribbon-titlebar .rtb-title{flex:1; text-align:center; font-weight:600; font-size:12.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.ribbon-titlebar .rtb-right{display:flex; align-items:center; gap:8px; flex:none;}
+.ribbon-titlebar .rtb-user{display:flex; align-items:center; gap:6px; font-size:11px; opacity:.95;}
+.ribbon-titlebar .rtb-avatar{width:22px; height:22px; border-radius:50%; background:#F2994A; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; letter-spacing:.2px; color:#fff;}
+.ribbon-tabs{display:flex; background:#EAF3ED; border-bottom:1px solid #cdd7e3; font-size:12px; flex-wrap:wrap;}
+.ribbon-tabs .rt{padding:8px 10px; color:#5a6472; font-weight:600;}
+.ribbon-tabs .rt.active{background:#fff; color:#107C41; font-weight:800; border-bottom:2px solid #107C41; margin-bottom:-1px;}
+.ribbon-body{display:flex; gap:4px; padding:10px 8px 6px; background:#fff; flex-wrap:wrap; position:relative; min-height:96px;}
+.ribbon-group{border-right:1px solid #e2e6eb; padding:2px 10px 18px; display:flex; flex-direction:column; align-items:center; gap:6px; position:relative; transition:background .3s;}
+.ribbon-group:last-child{border-right:none;}
+.ribbon-group.hi{background:#FFF6E0; border-radius:6px;}
+.ribbon-group-label{position:absolute; bottom:2px; left:0; right:0; text-align:center; font-size:9px; color:#8a93a0;}
+.ribbon-btns{display:flex; gap:6px;}
+.ribbon-btn{width:38px; height:38px; border-radius:6px; background:#F5F7F9; border:1px solid #dde3e9; display:flex; align-items:center; justify-content:center; font-size:15px; color:#3a4552; position:relative;}
+.ribbon-btn.target{border-color:#21A366; box-shadow:0 0 0 2px rgba(33,163,102,.25); animation:ribbonPulse 1.4s ease-in-out infinite;}
+@keyframes ribbonPulse{0%,100%{box-shadow:0 0 0 2px rgba(33,163,102,.25);}50%{box-shadow:0 0 0 6px rgba(33,163,102,.05);}}
+.ribbon-cursor{position:absolute; font-size:20px; z-index:5; filter:drop-shadow(0 2px 3px rgba(0,0,0,.35)); animation:cursorMove 2.2s ease-in-out infinite;}
+@keyframes cursorMove{0%{opacity:0; transform:translate(-40px,-30px) scale(1);}30%{opacity:1;}55%{opacity:1; transform:translate(0,0) scale(1);}68%{transform:translate(0,0) scale(.82);}80%{transform:translate(0,0) scale(1);}100%{opacity:0; transform:translate(0,0) scale(1);}}
+.ribbon-caption{text-align:center; font-size:13px; color:#107C41; font-weight:700; padding:10px 8px 2px;}
+@media (max-width:640px){
+  .topbar{flex-direction:column; align-items:flex-start;}
+  .topbar .tabs{margin-left:0;}
+}
+/* ==== Charte Bitou ==== */
+@media screen {
+  :root{
+    --ink:#1B1740; --sun:#FFD23F; --sun-l:#FFF3BF;
+    --text:#1B1740; --text2:#5B577E; --canvas:#FFFFFF; --soft:#F1EFFF; --soft2:#E6E4FF; --border:#CFCBF2;
+    --blue:#3D3BF3; --blue-soft:#DDDCFF; --green:#0B7A55; --green-soft:#D5F7EA;
+    --orange:#A14A06; --orange-soft:#FFF3BF; --red:#B4233A; --red-soft:#FFE0E5;
+    --purple:#5B3FD1; --purple-soft:#ECE8FF; --navy:#1B1740; --radius:18px;
+  }
+  body{font-family:"Arial Rounded MT Bold","Nunito","Trebuchet MS","Segoe UI",system-ui,sans-serif;
+    background-color:var(--soft); background-image:radial-gradient(var(--blue-soft) 1.5px,transparent 1.5px); background-size:26px 26px;}
+  :focus-visible{outline:4px solid var(--blue); outline-offset:3px;}
+
+  .desk-sim,.win-stage,.explorer,.ribbon-sim,.app-sim,.code-sim,.scratch-sim,.net-sim,.aide-row-demo{
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;}
+
+  .topbar{background:var(--navy); color:#fff; border-bottom:3px solid var(--ink);}
+  .tab-btn{border-radius:999px; font-weight:800;}
+  .tab-btn.active{background:var(--sun); border-color:var(--sun); color:var(--ink);}
+
+  .card,.q,.notebook{border:3px solid var(--ink); border-radius:18px; box-shadow:4px 4px 0 var(--ink);}
+  .mission,.sp{border:3px solid var(--ink); border-radius:16px; background:var(--sun-l); box-shadow:4px 4px 0 var(--ink);}
+  .mission h3,.sp h3{color:var(--ink);}
+
+  .btn{border:3px solid var(--ink); border-radius:999px; background:var(--sun); color:var(--ink); font-weight:800;
+    box-shadow:3px 3px 0 var(--ink); transition:transform .08s,box-shadow .08s;}
+  .btn:hover{border-color:var(--ink);}
+  .btn:active:not(:disabled){transform:translate(3px,3px); box-shadow:0 0 0 var(--ink);}
+  .btn.primary{background:var(--blue); border-color:var(--ink); color:#fff;}
+
+  .chip{border:2px solid var(--ink); background:#fff; border-radius:999px;}
+  .chip.selected{background:var(--blue); border-color:var(--ink); color:#fff;}
+  .opt,.order-btn,.item{border:2px solid var(--ink); background:#fff; border-radius:12px;}
+  .opt:hover,.order-btn:hover{background:var(--blue-soft); border-color:var(--ink);}
+  .opt.good,.order-btn.done{background:var(--green-soft); border-color:var(--green);}
+  .opt.bad{background:var(--red-soft); border-color:var(--red); color:var(--red); opacity:1;}
+  .verdict.ok,.feedback.ok{background:var(--green-soft); color:var(--green);}
+  .verdict.no,.feedback.err{background:var(--red-soft); color:var(--red);}
+  .feedback{border-width:2px;}
+  .feedback.info{border-color:var(--blue);}
+
+  .task-tile{border:2px solid var(--ink); background:#fff; border-radius:14px; box-shadow:3px 3px 0 var(--ink);}
+  .task-tile.revealed{background:var(--blue-soft); border-color:var(--ink);}
+  .cdc-group{border:3px solid var(--ink); border-radius:14px; box-shadow:3px 3px 0 var(--ink);}
+  .note,.aide-mode-note{border:2px solid var(--ink); background:var(--purple-soft); color:var(--ink); border-radius:12px;}
+  .aide-list{border:3px solid var(--ink); border-top:none;}
+  .demo-btn{border:2px solid var(--ink); background:var(--blue-soft); color:var(--ink); border-radius:999px;}
+  .demo-btn.open{background:var(--blue); color:#fff;}
+  .td-caption{color:var(--blue);}
+
+  .dot{border:2px solid var(--ink); border-radius:12px;}
+  .dot.active{background:var(--blue); border-color:var(--ink); color:#fff;}
+  .hud-chip,.hud-btn,.phase-tag,.phase-time{border:2px solid var(--ink);}
+  .dot,.hud-chip,.hud-btn{color:var(--ink);}
+  .dot.active{color:#fff;}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <b>🚀 Projet — Feuille de calcul</b>
+  <span class="progress-chip" id="progressChip">0 / 16 éléments</span>
+  <div class="tabs">
+    <button class="tab-btn active" id="tabProjetBtn" onclick="showView('projet')">📋 Le projet</button>
+    <button class="tab-btn" id="tabAideBtn" onclick="showView('aide')">📖 Aide-mémoire</button>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ============ VUE PROJET ============ -->
+<section class="view active" id="viewProjet">
+  <div class="mission">
+    <h3>🎯 Ta mission</h3>
+    <p>Tu vas créer, avec un tableur (Excel), une feuille de calcul sur un sujet que tu aimes : des données organisées, au moins une formule de calcul, et un graphique. Coche les éléments au fur et à mesure que tu les réalises — <b>cette page ne s'imprime pas, elle t'accompagne à l'écran pendant que tu travailles.</b></p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:10px;">🎨 Choisis ton thème</h3>
+    <div class="chips" id="themeChips"></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:6px;">📋 Cahier des charges</h3>
+    <p style="color:var(--text2); font-size:14px; margin-bottom:14px;">Clique sur chaque ligne quand c'est fait dans ta feuille Excel.</p>
+    <div id="cdcContainer"></div>
+    <div class="note">♻️ Rien n'est imprimé ni enregistré sur le serveur : tes coches restent seulement sur cet écran, pendant ta séance.</div>
+    <div class="reset-row"><button class="btn" onclick="resetChecklist()">↺ Réinitialiser (nouveau groupe)</button></div>
+  </div>
+</section>
+
+<!-- ============ VUE AIDE-MÉMOIRE ============ -->
+<section class="view" id="viewAide">
+  <div class="card">
+    <h3>📖 Aide-mémoire — Où trouver chaque fonction dans Excel ?</h3>
+    <p style="color:var(--text2); font-size:14px; margin-bottom:12px;">Consulte ce tableau chaque fois que tu ne te souviens plus comment faire.</p>
+    <div class="aide-mode-note"><span class="big">🎬</span><span>Tu ne comprends pas une consigne écrite ? Clique sur le bouton <b>« 🎬 VERSION VISUELLE »</b> à côté : une image animée te montre exactement où cliquer dans le ruban Excel.</span></div>
+  </div>
+  <div id="aideContainer"></div>
+</section>
+
+</main>
+
+<script>
+const THEMES = ["Le budget de mon anniversaire", "Les notes de ma classe", "Un sondage sur les sports préférés", "Mes dépenses de la semaine", "Le classement de mon équipe sportive"];
+
+const CDC = [
+  { cat: "SAISIE ET MISE EN FORME DES DONNÉES", color: "#3D3BF3", items: [
+    "Un titre de feuille fusionné, centré et mis en forme (gras, couleur)",
+    "Des en-têtes de colonnes en gras avec une couleur de remplissage",
+    "Au moins 8 lignes de données saisies (nombres et texte)",
+    "Des bordures autour du tableau de données"
+  ]},
+  { cat: "FORMULES ET CALCULS", color: "#0B7A55", items: [
+    "Au moins une formule de somme (=SOMME(...) ou =A1+A2+...)",
+    "Au moins une formule de moyenne, minimum ou maximum",
+    "Un format de nombre adapté (%, monétaire ou décimales)"
+  ]},
+  { cat: "TRI ET GRAPHIQUE", color: "#5B3FD1", items: [
+    "Les données triées selon une colonne",
+    "Un graphique créé à partir du tableau",
+    "(Bonus) Un filtre appliqué sur une colonne"
+  ]},
+  { cat: "MISE EN PAGE", color: "#A14A06", items: [
+    "Des largeurs de colonnes ajustées (aucun texte coupé)",
+    "Des marges définies",
+    "Une orientation de page choisie (portrait ou paysage)"
+  ]},
+  { cat: "FINALISATION", color: "#1B1740", items: [
+    "Vérification orthographique effectuée",
+    "Feuille enregistrée avec un nom clair",
+    "Aperçu avant impression vérifié"
+  ]}
+];
+
+const AIDE = [
+  { cat: "🔢 Saisie et mise en forme des données", items: [
+    { c: "Saisir une valeur dans une cellule", ou: "Clique sur la cellule, tape la valeur, appuie sur Entrée ou Tab.", a: "Un nombre s'aligne à droite, un texte à gauche — c'est normal !" },
+    { c: "Gras / italique / souligné", ou: "Accueil > groupe Police", a: "Sélectionne la ou les cellules AVANT de cliquer.", demo:{tab:'accueil',group:'police',btns:['gras','italique','souligne']}, textDemo:{type:'style'} },
+    { c: "Couleur de remplissage d'une cellule", ou: "Accueil > Police > Couleur de remplissage (🪣)", a: "Utile pour distinguer les en-têtes du reste du tableau.", demo:{tab:'accueil',group:'police',btns:['remplissage']}, textDemo:{type:'remplissage'} },
+    { c: "Bordures", ou: "Accueil > Police > Bordures", a: "Encadre ton tableau pour qu'il soit lisible à l'impression.", demo:{tab:'accueil',group:'police',btns:['bordures']} },
+    { c: "Fusionner et centrer un titre", ou: "Accueil > Alignement > Fusionner et centrer", a: "Sélectionne plusieurs cellules côte à côte avant de cliquer.", demo:{tab:'accueil',group:'alignement',btns:['fusionner']}, textDemo:{type:'fusion'} }
+  ]},
+  { cat: "🧮 Formules et calculs", items: [
+    { c: "Écrire une formule (=A1+B1)", ou: "Clique sur une cellule vide, tape =, clique sur les cellules à additionner, valide.", a: "Le signe = est indispensable, sinon Excel affiche juste du texte.", textDemo:{type:'formule'} },
+    { c: "Somme automatique", ou: "Accueil > Édition > Somme automatique (Σ)", a: "Sélectionne d'abord la plage de cellules à additionner.", demo:{tab:'accueil',group:'edition',btns:['somme']}, textDemo:{type:'somme'} },
+    { c: "Format des nombres (%, monétaire, décimales)", ou: "Accueil > groupe Nombre", a: "Choisis le format avant de saisir, ou après avoir sélectionné les cellules.", demo:{tab:'accueil',group:'nombre',btns:['formatnombre','pourcentage']} }
+  ]},
+  { cat: "📊 Tri et graphique", items: [
+    { c: "Trier des données", ou: "Données > Trier et filtrer > Trier", a: "Sélectionne tout le tableau (avec les en-têtes) avant de trier.", demo:{tab:'donnees',group:'trierfiltrer',btns:['trier']}, textDemo:{type:'trier'} },
+    { c: "Filtrer des données", ou: "Données > Trier et filtrer > Filtrer", a: "Des petites flèches apparaissent sur chaque en-tête de colonne.", demo:{tab:'donnees',group:'trierfiltrer',btns:['filtrer']} },
+    { c: "Insérer un graphique", ou: "Insertion > Graphiques recommandés", a: "Sélectionne d'abord tes données, en-têtes compris.", demo:{tab:'insertion',group:'graphiques',btns:['graphique']}, textDemo:{type:'graphique'} }
+  ]},
+  { cat: "📐 Mise en page", items: [
+    { c: "Largeur de colonne / hauteur de ligne", ou: "Place le curseur sur la bordure de la colonne/ligne, double-clique.", a: "Le double-clic ajuste automatiquement à la taille du contenu." },
+    { c: "Marges", ou: "Mise en page > Marges", a: "« Normales » conviennent bien pour un tableau simple.", demo:{tab:'miseenpage',group:'mep',btns:['marges']} },
+    { c: "Orientation", ou: "Mise en page > Orientation", a: "Paysage si ton tableau a beaucoup de colonnes.", demo:{tab:'miseenpage',group:'mep',btns:['orientation']} }
+  ]},
+  { cat: "✅ Finalisation", items: [
+    { c: "Vérifier l'orthographe", ou: "Révision > Grammaire et orthographe (F7)", a: "Utile surtout pour les titres et les en-têtes de colonnes.", demo:{tab:'revision',group:'verif',btns:['ortho']} },
+    { c: "Enregistrer", ou: "Ctrl+S, ou Fichier > Enregistrer sous", a: "Nom clair dès le début, enregistre souvent !", demo:{tab:'fichier',group:'enreg',btns:['enregistrer']} },
+    { c: "Aperçu avant impression", ou: "Fichier > Imprimer (Ctrl+P)", a: "Vérifie que le tableau tient bien sur la page.", demo:{tab:'fichier',group:'enreg',btns:['imprimer']} }
+  ]}
+];
+
+/* Simulateur simplifié du ruban Excel (Microsoft 365) — pour l'aide visuelle */
+const RIBBON = {
+  accueil: { label:"Accueil", groups:{
+    police:     { label:"Police",      btns:[{id:'gras',icon:'𝐆',label:'Gras'},{id:'italique',icon:'𝑰',label:'Italique'},{id:'souligne',icon:'S̲',label:'Souligné'},{id:'remplissage',icon:'🪣',label:'Couleur de remplissage'},{id:'bordures',icon:'⊞',label:'Bordures'},{id:'couleur',icon:'🅰️',label:'Couleur de police'}] },
+    alignement: { label:"Alignement",  btns:[{id:'aligner',icon:'☰',label:'Aligner'},{id:'fusionner',icon:'⛶',label:'Fusionner et centrer'},{id:'renvoyer',icon:'↵',label:'Renvoyer à la ligne'}] },
+    nombre:     { label:"Nombre",      btns:[{id:'formatnombre',icon:'123',label:'Format nombre'},{id:'pourcentage',icon:'%',label:'%'}] },
+    edition:    { label:"Édition",     btns:[{id:'somme',icon:'Σ',label:'Somme automatique'}] }
+  }},
+  insertion: { label:"Insertion", groups:{
+    graphiques:   { label:"Graphiques",    btns:[{id:'graphique',icon:'📊',label:'Graphique recommandé'}] },
+    illustrations:{ label:"Illustrations", btns:[{id:'image',icon:'🖼️',label:'Images'}] }
+  }},
+  miseenpage: { label:"Mise en page", groups:{
+    mep: { label:"Mise en page", btns:[{id:'marges',icon:'▭',label:'Marges'},{id:'orientation',icon:'⤾',label:'Orientation'}] }
+  }},
+  donnees: { label:"Données", groups:{
+    trierfiltrer: { label:"Trier et filtrer", btns:[{id:'trier',icon:'⇅',label:'Trier'},{id:'filtrer',icon:'▽',label:'Filtrer'}] }
+  }},
+  revision: { label:"Révision", groups:{
+    verif: { label:"Vérification", btns:[{id:'ortho',icon:'✓ABC',label:'Grammaire'}] }
+  }},
+  fichier: { label:"Fichier", groups:{
+    enreg: { label:"", btns:[{id:'enregistrer',icon:'💾',label:'Enregistrer sous'},{id:'imprimer',icon:'🖨️',label:'Imprimer'}] }
+  }}
+};
+
+function renderRibbon(demo){
+  const tabOrder = ['fichier','accueil','insertion','miseenpage','donnees','revision'];
+  const tabsHtml = tabOrder.map(id=>{
+    const t = RIBBON[id];
+    return '<div class="rt'+(id===demo.tab?' active':'')+'">'+t.label+'</div>';
+  }).join('');
+  const activeTab = RIBBON[demo.tab];
+  let cursorHtml = '';
+  const groupsHtml = Object.keys(activeTab.groups).map(gid=>{
+    const g = activeTab.groups[gid];
+    const isHi = gid===demo.group;
+    const btnsHtml = g.btns.map(b=>{
+      const isTarget = isHi && demo.btns.includes(b.id);
+      if(isTarget && !cursorHtml){
+        cursorHtml = '<div class="ribbon-cursor" data-target="'+b.id+'">👆</div>';
+      }
+      return '<div class="ribbon-btn'+(isTarget?' target':'')+'" data-btn="'+b.id+'" title="'+b.label+'">'+b.icon+'</div>';
+    }).join('');
+    return '<div class="ribbon-group'+(isHi?' hi':'')+'"><div class="ribbon-btns">'+btnsHtml+'</div>'+(g.label?'<div class="ribbon-group-label">'+g.label+'</div>':'')+'</div>';
+  }).join('');
+  const targetLabels = [];
+  Object.values(activeTab.groups).forEach(g=>g.btns.forEach(b=>{ if(demo.btns.includes(b.id)) targetLabels.push(b.label); }));
+  const titlebar = '<div class="ribbon-titlebar">'
+    + '<div class="rtb-icons">💾 <span style="opacity:.6;">↶</span> <span style="opacity:.6;">↷</span></div>'
+    + '<div class="rtb-title">Projet Excel — Excel</div>'
+    + '<div class="rtb-right"><span style="opacity:.85;">🔍</span><span class="rtb-user">Lycée<span class="rtb-avatar">LY</span></span></div>'
+    + '</div>';
+  return '<div class="ribbon-sim">'
+    + titlebar
+    + '<div class="ribbon-tabs">'+tabsHtml+'</div>'
+    + '<div class="ribbon-body" id="ribbonBody">'+groupsHtml+cursorHtml+'</div>'
+    + '<div class="ribbon-caption">👉 Onglet <b>'+activeTab.label+'</b> — clique sur <b>'+targetLabels.join(' / ')+'</b></div>'
+    + '</div>';
+}
+
+function positionCursor(container){
+  const cursor = container.querySelector('.ribbon-cursor');
+  if(!cursor) return;
+  const targetId = cursor.getAttribute('data-target');
+  const target = container.querySelector('.ribbon-btn[data-btn="'+targetId+'"]');
+  if(!target) return;
+  const bodyRect = container.querySelector('.ribbon-body').getBoundingClientRect();
+  const tRect = target.getBoundingClientRect();
+  cursor.style.left = (tRect.left - bodyRect.left + tRect.width/2 - 10) + 'px';
+  cursor.style.top = (tRect.top - bodyRect.top + tRect.height/2 - 6) + 'px';
+}
+
+function showView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(name==='projet'?'viewProjet':'viewAide').classList.add('active');
+  document.getElementById('tabProjetBtn').classList.toggle('active', name==='projet');
+  document.getElementById('tabAideBtn').classList.toggle('active', name==='aide');
+}
+
+(function buildThemes(){
+  const box = document.getElementById('themeChips');
+  THEMES.forEach(th=>{
+    const b = document.createElement('button');
+    b.className = 'chip'; b.textContent = th;
+    b.onclick = ()=>{
+      document.querySelectorAll('#themeChips .chip').forEach(c=>c.classList.remove('selected'));
+      b.classList.add('selected');
+    };
+    box.appendChild(b);
+  });
+})();
+
+let totalItems = 0, checkedCount = 0;
+function updateProgress(){
+  document.getElementById('progressChip').textContent = checkedCount + ' / ' + totalItems + ' éléments';
+}
+(function buildCdc(){
+  const box = document.getElementById('cdcContainer');
+  CDC.forEach(group=>{
+    const g = document.createElement('div'); g.className = 'cdc-group';
+    const head = document.createElement('div'); head.className = 'cdc-head'; head.style.background = group.color; head.textContent = group.cat;
+    g.appendChild(head);
+    group.items.forEach(text=>{
+      totalItems++;
+      const row = document.createElement('label'); row.className = 'cdc-item';
+      const cb = document.createElement('input'); cb.type = 'checkbox';
+      const span = document.createElement('span'); span.textContent = text;
+      cb.onchange = ()=>{
+        row.classList.toggle('checked', cb.checked);
+        checkedCount += cb.checked ? 1 : -1;
+        updateProgress();
+      };
+      row.appendChild(cb); row.appendChild(span);
+      g.appendChild(row);
+    });
+    box.appendChild(g);
+  });
+  updateProgress();
+})();
+function resetChecklist(){
+  document.querySelectorAll('#cdcContainer input[type=checkbox]').forEach(cb=>{
+    cb.checked = false;
+    cb.closest('.cdc-item').classList.remove('checked');
+  });
+  document.querySelectorAll('#themeChips .chip').forEach(c=>c.classList.remove('selected'));
+  checkedCount = 0; updateProgress();
+}
+
+(function buildAide(){
+  const box = document.getElementById('aideContainer');
+  let uid = 0;
+  AIDE.forEach(group=>{
+    const catDiv = document.createElement('div'); catDiv.className = 'aide-cat'; catDiv.textContent = group.cat;
+    box.appendChild(catDiv);
+    const list = document.createElement('div'); list.className = 'aide-list';
+    group.items.forEach(it=>{
+      uid++;
+      const row = document.createElement('div'); row.className = 'aide-row';
+      const main = document.createElement('div'); main.className = 'aide-row-main';
+      main.innerHTML = '<div class="comp">'+it.c+'</div>'
+        + '<div class="version-txt"><b>📝 VERSION TEXTE</b><br><span class="ou">'+it.ou+'</span>'+(it.a?' — <span class="astuce">'+it.a+'</span>':'')+'</div>';
+      if(it.demo || it.textDemo){
+        const demoBtn = document.createElement('button');
+        demoBtn.className = 'demo-btn'; demoBtn.type = 'button';
+        demoBtn.textContent = "🎬 VERSION VISUELLE";
+        const panelId = 'demo-'+uid;
+        demoBtn.onclick = ()=> toggleDemo(panelId, demoBtn, it.demo, it.textDemo, it.c);
+        main.appendChild(demoBtn);
+        row.appendChild(main);
+        const panel = document.createElement('div');
+        panel.className = 'aide-row-demo'; panel.id = panelId;
+        row.appendChild(panel);
+      } else {
+        row.appendChild(main);
+      }
+      list.appendChild(row);
+    });
+    box.appendChild(list);
+  });
+})();
+
+let activeDemoInterval = null;
+function stopActiveDemoAnim(){
+  if(activeDemoInterval){ clearInterval(activeDemoInterval); activeDemoInterval = null; }
+}
+
+function toggleDemo(panelId, btn, demo, textDemo, title){
+  const panel = document.getElementById(panelId);
+  const willOpen = !panel.classList.contains('show');
+  stopActiveDemoAnim();
+  document.querySelectorAll('.aide-row-demo.show').forEach(p=>{ if(p.id!==panelId){ p.classList.remove('show'); p.innerHTML=''; } });
+  document.querySelectorAll('.demo-btn.open').forEach(b=>{ if(b!==btn) b.classList.remove('open'); b.textContent='🎬 VERSION VISUELLE'; });
+  if(willOpen){
+    let html = '';
+    if(demo) html += renderRibbon(demo) + (demo.extra ? '<p style="text-align:center; font-size:12px; color:#4a5a70; margin-top:8px;">'+demo.extra+'</p>' : '');
+    if(textDemo) html += renderTextDemo(textDemo);
+    panel.innerHTML = html;
+    panel.classList.add('show');
+    btn.classList.add('open'); btn.textContent = '✕ Fermer';
+    if(demo) positionCursor(panel);
+    if(textDemo) activeDemoInterval = startTextDemoAnim(panel, textDemo);
+  } else {
+    panel.classList.remove('show'); panel.innerHTML = '';
+    btn.classList.remove('open'); btn.textContent = '🎬 VERSION VISUELLE';
+  }
+}
+
+/* ---- Rendu + animation de l'EFFET réel (au-delà du "où cliquer") ---- */
+function renderTextDemo(td){
+  let body = '';
+  if(td.type==='style'){
+    body = '<div style="text-align:center;"><span class="td-cell" id="tdSample">Alimentation</span></div><div class="td-caption" id="tdCaption">normal</div>';
+  } else if(td.type==='remplissage'){
+    body = '<div style="text-align:center;"><span class="td-cell" id="tdSample" style="font-weight:700;">Total</span></div><div class="td-caption" id="tdCaption">aucune couleur</div>';
+  } else if(td.type==='fusion'){
+    body = '<div class="fusion-demo" id="tdFusion"><div class="fc">A1</div><div class="fc">B1</div><div class="fc">C1</div></div><div class="td-caption" id="tdCaption">3 cellules séparées</div>';
+  } else if(td.type==='formule'){
+    body = '<div class="somme-demo"><div class="sc">A1 = 12</div><span class="plus">+</span><div class="sc">B1 = 23</div></div>'
+      + '<div style="text-align:center; margin-top:10px;"><span class="td-cell" id="tdFormule" style="font-family:Consolas,monospace; font-size:14px;">=A1+B1</span></div>'
+      + '<div class="td-caption" id="tdCaption">tape la formule, puis Entrée</div>';
+  } else if(td.type==='somme'){
+    body = '<div class="somme-demo"><div class="sc">12</div><span class="plus">+</span><div class="sc">8</div><span class="plus">+</span><div class="sc">15</div><span class="plus">=</span><div class="sc result" id="tdSum">0</div></div>'
+      + '<div class="td-caption">=SOMME(A1:A3)</div>';
+  } else if(td.type==='trier'){
+    body = '<div class="trier-demo" id="tdTrier">'
+      + '<div class="tpanel" id="tpBefore"><div class="trow"><span>Élève</span><span>Note</span></div><div class="trow"><span>Omar</span><span>9</span></div><div class="trow"><span>Sara</span><span>16</span></div><div class="trow"><span>Amine</span><span>14</span></div><div class="trow"><span>Yasmine</span><span>18</span></div></div>'
+      + '<div class="tpanel hidden" id="tpAfter"><div class="trow"><span>Élève</span><span>Note</span></div><div class="trow"><span>Omar</span><span>9</span></div><div class="trow"><span>Amine</span><span>14</span></div><div class="trow"><span>Sara</span><span>16</span></div><div class="trow"><span>Yasmine</span><span>18</span></div></div>'
+      + '</div><div class="td-caption" id="tdCaption">avant tri</div>';
+  } else if(td.type==='graphique'){
+    body = '<div class="graph-demo" id="tdGraph">'
+      + '<div class="graph-wrap"><div class="bar" id="b1" style="height:4px;"></div><div class="bar-label">Foot</div></div>'
+      + '<div class="graph-wrap"><div class="bar" id="b2" style="height:4px;"></div><div class="bar-label">Basket</div></div>'
+      + '<div class="graph-wrap"><div class="bar" id="b3" style="height:4px;"></div><div class="bar-label">Natation</div></div>'
+      + '<div class="graph-wrap"><div class="bar" id="b4" style="height:4px;"></div><div class="bar-label">Tennis</div></div>'
+      + '</div><div class="td-caption">le tableau devient un graphique</div>';
+  }
+  return '<div class="td-wrap"><div class="td-label">👁️ Effet réel dans la feuille</div>'+body+'</div>';
+}
+
+function startTextDemoAnim(container, td){
+  if(td.type==='style'){
+    const states = [
+      {css:'font-weight:400;font-style:normal;text-decoration:none;', label:'normal'},
+      {css:'font-weight:800;font-style:normal;text-decoration:none;', label:'gras'},
+      {css:'font-weight:400;font-style:italic;text-decoration:none;', label:'italique'},
+      {css:'font-weight:400;font-style:normal;text-decoration:underline;', label:'souligné'}
+    ];
+    let i = 0;
+    const sample = container.querySelector('#tdSample'), cap = container.querySelector('#tdCaption');
+    const base = 'display:inline-block; min-width:150px; padding:9px 16px; border:1px solid #cdd7e3; border-radius:4px; background:#fff; font-size:16px;';
+    const tick = ()=>{ sample.style.cssText = base+states[i].css; cap.textContent = states[i].label; i=(i+1)%states.length; };
+    tick();
+    return setInterval(tick, 1100);
+  }
+  if(td.type==='remplissage'){
+    const states = [ {c:'#fff', label:'aucune couleur'}, {c:'#FFF3B0', label:'jaune'}, {c:'#C6E7D4', label:'vert'}, {c:'#CFE3F7', label:'bleu'} ];
+    let i = 0;
+    const sample = container.querySelector('#tdSample'), cap = container.querySelector('#tdCaption');
+    const tick = ()=>{ sample.style.background = states[i].c; cap.textContent = states[i].label; i=(i+1)%states.length; };
+    tick();
+    return setInterval(tick, 1000);
+  }
+  if(td.type==='fusion'){
+    const wrap = container.querySelector('#tdFusion'), cap = container.querySelector('#tdCaption');
+    const tick = ()=>{
+      const isMerged = wrap.classList.toggle('merged');
+      wrap.querySelector('.fc:first-child').textContent = isMerged ? 'BUDGET DE LA CLASSE' : 'A1';
+      cap.textContent = isMerged ? 'cellules fusionnées et centrées' : '3 cellules séparées';
+    };
+    tick();
+    return setInterval(tick, 1600);
+  }
+  if(td.type==='formule'){
+    const formule = container.querySelector('#tdFormule'), cap = container.querySelector('#tdCaption');
+    let showingResult = false;
+    const tick = ()=>{
+      showingResult = !showingResult;
+      formule.textContent = showingResult ? '35' : '=A1+B1';
+      formule.style.color = showingResult ? '#1E7A4C' : 'var(--text)';
+      formule.style.fontWeight = showingResult ? '800' : '400';
+      cap.textContent = showingResult ? 'Excel calcule le résultat automatiquement' : 'tape la formule, puis Entrée';
+    };
+    tick();
+    return setInterval(tick, 1400);
+  }
+  if(td.type==='somme'){
+    const sumEl = container.querySelector('#tdSum');
+    let val = 0; const target = 35;
+    const tick = ()=>{
+      val = (val < target) ? Math.min(target, val + 5) : 0;
+      sumEl.textContent = val;
+    };
+    tick();
+    return setInterval(tick, 180);
+  }
+  if(td.type==='trier'){
+    const before = container.querySelector('#tpBefore'), after = container.querySelector('#tpAfter'), cap = container.querySelector('#tdCaption');
+    let showingAfter = false;
+    const tick = ()=>{
+      showingAfter = !showingAfter;
+      before.classList.toggle('hidden', showingAfter);
+      after.classList.toggle('hidden', !showingAfter);
+      cap.textContent = showingAfter ? 'après tri (croissant)' : 'avant tri';
+    };
+    tick();
+    return setInterval(tick, 1600);
+  }
+  if(td.type==='graphique'){
+    const ids = ['b1','b2','b3','b4'];
+    let grown = false;
+    const tick = ()=>{
+      grown = !grown;
+      const heights = grown ? [70,50,85,30] : [4,4,4,4];
+      ids.forEach((id,idx)=>{ container.querySelector('#'+id).style.height = heights[idx]+'px'; });
+    };
+    tick();
+    return setInterval(tick, 1800);
+  }
+  return null;
+}
+</script>
+</body>
+</html>
