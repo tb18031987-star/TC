@@ -14,7 +14,7 @@ module1-generalites/
   sequence3-peripheriques/             (S3 — complet)
   sequence4-logiciels-domaines/        (S4-S5 — complet)
 module2-logiciels/
-  lecon1-systeme-exploitation/         (S6-S8 — à venir)
+  lecon1-systeme-exploitation/         (S6-S8 — complet)
   lecon2-traitement-texte/             (S9-S14 — à venir)
   lecon3-tableur/                      (S14-S17 — à venir)
 module3-algo-programmation/
@@ -57,7 +57,13 @@ Les entrées grisées avec un 🔒 dans le portail correspondent à des séances
 
 Séquences 2 à 4 sont complètes ; la Séquence 1 a son contenu principal (2 leçons interactives + 5 animations) et 11 emplacements 🔒 réservés pour compléter le plan.
 
-### Modules 2, 3, 4
+### Module 2 — Les logiciels
+
+**Leçon 1 — Système d'exploitation** (`module2-logiciels/lecon1-systeme-exploitation/`)
+
+- **`Module2_Lecon1_Interactif.html`** — leçon jeu autonome en 6 ateliers (découvrir le S.E., fenêtres et applications avec une vraie fenêtre manipulable, interface graphique avec bureau/barre des tâches simulés, personnalisation, fichiers et dossiers avec explorateur simulé, organiser ses fichiers), synthèse à trous débloquant la trace écrite complète, défi final noté, espace professeur protégé par mot de passe avec fiche pédagogique imprimable.
+
+### Modules 3, 4, et Module 2 (leçons 2-3)
 
 Structure posée dans le portail avec la progression hebdomadaire prévue, contenu à rédiger.
 
