@@ -12,7 +12,7 @@ module1-generalites/
   sequence1-definitions-vocabulaire/   (S1 — complet)
   sequence2-unite-centrale-memoire/    (S2-S3 — complet)
   sequence3-peripheriques/             (S3 — complet)
-  sequence4-logiciels-domaines/        (S4-S5 — à venir)
+  sequence4-logiciels-domaines/        (S4-S5 — complet)
 module2-logiciels/
   lecon1-systeme-exploitation/         (S6-S8 — à venir)
   lecon2-traitement-texte/             (S9-S14 — à venir)
@@ -59,7 +59,14 @@ Animations autonomes (`animations/`), aussi accessibles seules depuis le portail
 - **`peripheriques.html`** — scène interactive à onglets : accueil, terminologie (voyage animé d'une information), 10 périphériques à trouver et détailler, ordinateur portable et smartphone en coupe avec pastilles cliquables, 2 exercices notés.
 - **`animations_tri_peripheriques.html`** — jeu de tri en 3 catégories : entrée, sortie, mixte.
 
-### Modules 1 (séquence 4), 2, 3, 4
+**Séquence 4 — Logiciels et domaines d'application** (`module1-generalites/sequence4-logiciels-domaines/`)
+
+- **`cours_logiciels_domaines.html`** — cours interactif complet (chrono 50 min, 5 chapitres : logiciels de base, logiciels d'application, les deux familles, domaines d'application de l'informatique, défis de groupe ; badges, cahier de traces écrites, bilan imprimable avec carte mentale).
+- **`animations_tri_logiciels.html`** — jeu de tri : logiciel de base ou logiciel d'application ?
+
+Le **Module 1** est ainsi complet (Séquences 1 à 4, semaines 1 à 5).
+
+### Modules 2, 3, 4
 
 Structure posée dans le portail avec la progression hebdomadaire prévue, contenu à rédiger.
 
