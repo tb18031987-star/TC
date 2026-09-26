@@ -15,7 +15,7 @@ module1-generalites/
   sequence4-logiciels-domaines/        (S4-S5 — complet)
 module2-logiciels/
   lecon1-systeme-exploitation/         (S6-S8 — complet)
-  lecon2-traitement-texte/             (S9-S14 — à venir)
+  lecon2-traitement-texte/             (S9-S14 — complet)
   lecon3-tableur/                      (S14-S17 — à venir)
 module3-algo-programmation/
   algorithmique-scratch/               (S18-S23 — à venir)
@@ -63,7 +63,11 @@ Séquences 2 à 4 sont complètes ; la Séquence 1 a son contenu principal (2 le
 
 - **`Module2_Lecon1_Interactif.html`** — leçon jeu autonome en 6 ateliers (découvrir le S.E., fenêtres et applications avec une vraie fenêtre manipulable, interface graphique avec bureau/barre des tâches simulés, personnalisation, fichiers et dossiers avec explorateur simulé, organiser ses fichiers), synthèse à trous débloquant la trace écrite complète, défi final noté, espace professeur protégé par mot de passe avec fiche pédagogique imprimable.
 
-### Modules 3, 4, et Module 2 (leçons 2-3)
+**Leçon 2 — Traitement de texte** (`module2-logiciels/lecon2-traitement-texte/`)
+
+- **`Projet_TraitementTexte_Virtuel.html`** — projet en 2 onglets : « Le projet » (choix d'un thème, cahier des charges à cocher au fur et à mesure du travail dans Word) et « Aide-mémoire » (où trouver chaque fonction dans le ruban Word, avec pour chaque fonction une version texte et un bouton « 🎬 Version visuelle » qui simule le ruban Word et anime l'effet obtenu — gras/italique, couleur, alignement, interligne, listes…).
+
+### Modules 3, 4, et Module 2 (leçon 3 — Tableur)
 
 Structure posée dans le portail avec la progression hebdomadaire prévue, contenu à rédiger.
 
