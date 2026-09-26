@@ -150,11 +150,18 @@ const MODULES = [
         label: "Séquence 2 — Unité centrale et mémoire",
         folder: "sequence2-unite-centrale-memoire",
         groups: [
-          { label: "Semaines 2 à 3", items: [
-            { soon: true, ic: "📘", label: "Cours : Unité centrale et mémoire", sem: "S2-S3" },
-            { soon: true, ic: "🔧", label: "Au cœur de l'unité centrale", sem: "S2" },
+          { label: "Cours", items: [
+            { file: "cours_unite_centrale_memoire.html", ic: "📘", label: "Cours : Unité centrale et mémoire", sem: "S2-S3" }
+          ]},
+          { label: "Animations", items: [
+            { file: "au_coeur_unite_centrale.html", ic: "🔧", label: "Au cœur de l'unité centrale (8 composants)", sem: "S2" },
+            { file: "calcul.html", folder: "sequence1-definitions-vocabulaire/animations", ic: "🧮", label: "Un calcul : 12 + 7 (clavier → UC → écran)", sem: "S2" },
             { soon: true, ic: "🖨️", label: "Scanner → Unité centrale → Imprimante", sem: "S2" },
+            { soon: true, ic: "🖱️", label: "Souris → Unité centrale → Écran", sem: "S2" },
             { soon: true, ic: "🧠", label: "RAM vs Stockage", sem: "S3" }
+          ]},
+          { label: "Jeux", items: [
+            { file: "animations_dedans_dehors.html", ic: "🖥️", label: "Jeu : Dedans ou dehors l'unité centrale ?", sem: "S2" }
           ]}
         ]
       },
@@ -301,7 +308,7 @@ MODULES.forEach((mod, mi) => {
         if (it.soon) {
           btn.onclick = () => openSoon(it.label, it.sem);
         } else {
-          const relPath = mod.root + '/' + sec.folder + '/' + it.file;
+          const relPath = mod.root + '/' + (it.folder || sec.folder) + '/' + it.file;
           btn.onclick = () => openDoc(relPath, it.label, btn);
         }
         secBody.appendChild(btn);

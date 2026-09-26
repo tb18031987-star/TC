@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🖥️ Au cœur de l'unité centrale</title>
+<style>
+:root{
+  --ink:#1B1740; --paper:#F1EFFF; --card:#fff;
+  --blue:#3D3BF3; --blue-l:#DDDCFF;
+  --sun:#FFD23F; --sun-l:#FFF3BF;
+  --coral:#FF5D73; --coral-l:#FFE0E5;
+  --mint:#22C58B; --mint-l:#D5F7EA;
+  --bd:3px solid var(--ink);
+  --sh:4px 4px 0 var(--ink);
+  --mono:"Consolas","SF Mono","Courier New",monospace;
+}
+*{box-sizing:border-box}
+html{font-size:16px}
+body{margin:0;color:var(--ink);background:var(--paper);min-height:100vh;
+  background-image:radial-gradient(var(--blue-l) 1.5px,transparent 1.5px);background-size:26px 26px;
+  font-family:"Arial Rounded MT Bold","Nunito","Trebuchet MS","Segoe UI",system-ui,sans-serif;line-height:1.45}
+h1,h2,h3{line-height:1.2;margin:0 0 .5rem}
+p{margin:0 0 .6rem}
+button{font:inherit;color:inherit}
+:focus-visible{outline:4px solid var(--blue);outline-offset:3px}
+.top{background:var(--ink);color:#fff;padding:.9rem 1.2rem;text-align:center;border-bottom:3px solid var(--ink)}
+.top h1{font-size:1.45rem;margin:0}
+.top p{margin:.25rem 0 0;opacity:.85;font-size:.92rem}
+.wrap{max-width:1320px;margin:0 auto;padding:1.2rem 1rem 3rem}
+
+.card{background:#fff;border:var(--bd);border-radius:18px;box-shadow:var(--sh);padding:1rem 1.1rem}
+.btn{font-weight:800;border:var(--bd);border-radius:999px;padding:.5rem 1.1rem;background:var(--sun);
+  box-shadow:3px 3px 0 var(--ink);cursor:pointer;transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--ink)}
+.btn.sm{padding:.35rem .85rem;font-size:.88rem}
+.btn.light{background:#fff}
+
+.layout{display:grid;grid-template-columns:190px 340px minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:1150px){ .layout{grid-template-columns:340px minmax(0,1fr)} .menu{grid-column:1/-1;flex-direction:row;flex-wrap:wrap} }
+@media (max-width:760px){ .layout{grid-template-columns:1fr} }
+
+.menu{display:flex;flex-direction:column;gap:4px;background:#fff;border:var(--bd);border-radius:18px;box-shadow:var(--sh);padding:8px}
+.menu button{text-align:left;border:2px solid transparent;background:none;border-radius:12px;padding:.5rem .7rem;font-weight:700;cursor:pointer;font-size:.93rem}
+.menu button:hover{background:var(--blue-l)}
+.menu button[aria-current="true"]{background:var(--sun);border-color:var(--ink)}
+.menu .sep{height:2px;background:var(--blue-l);margin:4px 6px}
+
+.tower-card{position:sticky;top:12px}
+.tower-card h2{font-size:1rem;margin-bottom:.4rem}
+#tower{width:100%;height:auto;display:block}
+#tower .part{cursor:pointer;transition:opacity .25s, filter .25s}
+#tower .part:hover{filter:brightness(1.18)}
+#tower.focus .part:not(.sel){opacity:.35}
+#tower .part.sel{animation:glow 1.3s ease-in-out infinite}
+@keyframes glow{0%,100%{filter:drop-shadow(0 0 2px #FFD23F) drop-shadow(0 0 5px #FFD23F)}50%{filter:drop-shadow(0 0 6px #FFD23F) drop-shadow(0 0 12px #FFD23F)}}
+#tower .part.flash-ok{filter:drop-shadow(0 0 6px #22C58B) drop-shadow(0 0 10px #22C58B)}
+#tower .part.flash-bad{filter:drop-shadow(0 0 6px #FF5D73) drop-shadow(0 0 10px #FF5D73)}
+.hint{font-size:.85rem;color:#5b577e;margin:.5rem 0 0;text-align:center}
+
+.info{display:grid;gap:16px}
+.desc h2{font-size:1.25rem}
+.demo-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;align-items:start}
+.anim-head{display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.5rem}
+.anim-head h3{margin:0;font-size:1.05rem}
+.anim-btns{display:flex;gap:.4rem}
+.stage{background:#2B2750;border:var(--bd);border-radius:14px;padding:6px}
+.stage svg{width:100%;height:auto;max-height:300px;display:block;margin:0 auto}
+.svgt{font-family:"Arial Rounded MT Bold","Nunito","Trebuchet MS",sans-serif;font-size:12px;font-weight:700;fill:#fff}
+.svgt.dark{fill:#1B1740}
+.svgt.big{font-size:15px}
+.ctrl{margin-top:.8rem;display:grid;gap:.8rem}
+.ctl{background:var(--paper);border:2px solid var(--ink);border-radius:14px;padding:.7rem .8rem}
+.ctrl-t{font-weight:800;display:block;margin-bottom:.4rem}
+.cap{margin:.45rem 0 0;font-size:.93rem}
+.seg{display:flex;flex-wrap:wrap;gap:.35rem}
+.seg button{border:2px solid var(--ink);background:#fff;border-radius:999px;padding:.3rem .8rem;font-weight:800;cursor:pointer;font-size:.88rem}
+.seg button[aria-pressed="true"]{background:var(--blue);color:#fff}
+input[type=range]{width:100%;accent-color:var(--blue)}
+
+.facts h3{font-size:1.05rem}
+.facts ul{margin:0;padding-left:1.15rem}
+.facts li{margin-bottom:.4rem}
+.warn{background:var(--coral-l);border:2px solid var(--ink);border-radius:12px;padding:.5rem .7rem}
+table.units,table.cmp{border-collapse:collapse;width:100%;margin:.4rem 0 .6rem;font-size:.9rem}
+table.units td,table.cmp td,table.cmp th{border:2px solid var(--ink);padding:.3rem .5rem}
+table.cmp th{background:var(--blue-l)}
+table.units td:first-child{font-weight:800;background:var(--sun-l);white-space:nowrap}
+
+/* Accueil */
+.qgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem}
+@media (max-width:560px){ .qgrid{grid-template-columns:1fr} }
+.qcard{border:var(--bd);border-radius:14px;background:var(--sun-l);box-shadow:3px 3px 0 var(--ink);padding:.8rem;cursor:pointer;text-align:left;min-height:96px;font-weight:700}
+.qcard .a{display:none;font-weight:600;margin-top:.4rem;color:#0B6446}
+.qcard.open{background:var(--mint-l)}
+.qcard.open .a{display:block}
+
+/* Défi */
+.defi-q{font-size:1.15rem;background:var(--sun-l);border:var(--bd);border-radius:14px;padding:.8rem 1rem;margin-bottom:.6rem}
+.msg{min-height:1.5rem;font-weight:800;margin:.4rem 0}
+.msg.ok{color:#0B7A55}.msg.bad{color:#B4233A}
+.bigscore{font-size:2.4rem;font-weight:900;margin:.2rem 0;color:var(--blue)}
+.note{font-size:.85rem;color:#5b577e}
+
+/* Carte mère */
+.traces path{stroke-dasharray:8 8}
+.stage.play .traces path{animation:flow .9s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-32}}
+.zone{cursor:pointer}
+.zone.hl rect{stroke:#FFD23F;stroke-width:4}
+.letters{display:flex;gap:.35rem;flex-wrap:wrap}
+
+/* Processeur */
+.stage.play .p-chip{animation:dropIn 1s cubic-bezier(.3,1.3,.6,1) both}
+.stage.play .p-heat{animation:dropIn 1s cubic-bezier(.3,1.3,.6,1) 1.2s both}
+.stage.play .p-fan{animation:dropIn .8s ease-out 2.3s both}
+.p-blades,.a-blades{transform-box:view-box}
+.p-blades{transform-origin:160px 60px}
+.stage.play .p-blades{animation:spin .55s linear 3.1s infinite}
+.p-waves{opacity:0}
+.stage.play .p-waves{animation:waves 1.4s ease .9s both}
+@keyframes dropIn{from{transform:translateY(-150px);opacity:0}25%{opacity:1}to{transform:none;opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes waves{0%{opacity:0}30%,70%{opacity:1}100%{opacity:0}}
+.coregrid{display:flex;flex-wrap:wrap;gap:3px;margin-top:.5rem}
+.coregrid span{width:16px;height:16px;border:2px solid var(--ink);border-radius:4px;background:var(--mint);animation:pop .3s ease both}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.led{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--coral);border:2px solid var(--ink);vertical-align:-1px;margin-left:.3rem;animation:blinkLed 1s steps(2) infinite}
+@keyframes blinkLed{50%{opacity:.15}}
+
+/* Mémoire */
+.stage.play .m-stick{animation:slideDown 1.3s ease-in-out both}
+@keyframes slideDown{from{transform:translateY(-75px)}75%{transform:translateY(0)}to{transform:none}}
+.m-clip{transform-box:fill-box;transform-origin:50% 100%}
+.stage.play .m-clip.l{animation:clipL 1.8s ease both}
+.stage.play .m-clip.r{animation:clipR 1.8s ease both}
+@keyframes clipL{0%,72%{transform:rotate(-32deg)}100%{transform:rotate(0)}}
+@keyframes clipR{0%,72%{transform:rotate(32deg)}100%{transform:rotate(0)}}
+.ramcells{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin:.5rem 0}
+.ramcells span{height:34px;border:2px solid var(--ink);border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:opacity .5s, background .5s}
+.ramcells.off span{opacity:.25;background:#E6E4FF;font-size:0}
+.meter{height:14px;border:2px solid var(--ink);border-radius:999px;background:#fff;overflow:hidden;margin-top:.5rem}
+.meter span{display:block;height:100%;background:var(--blue);transition:width .4s}
+
+/* Carte d'extension */
+.stage.play .e-card{animation:slideDown 1.3s ease-in-out both}
+
+/* Alimentation */
+.flow{stroke-dasharray:10 8}
+.stage.play .flow{animation:flow .8s linear infinite}
+.a-blades{transform-origin:160px 102px}
+.stage.play .a-blades{animation:spin .45s linear infinite}
+.chk{display:grid;gap:.25rem}
+.chk label{display:flex;align-items:center;gap:.5rem;cursor:pointer}
+.chk input{width:18px;height:18px;accent-color:var(--blue)}
+.total{font-weight:900;font-size:1.05rem;margin-top:.4rem}
+
+/* Lecteur-graveur */
+.g-disc{transform-box:view-box;transform-origin:120px 100px}
+.stage.play .g-disc{animation:spin 1s linear infinite}
+.stage.play .g-head{animation:head 2.2s ease-in-out infinite alternate}
+@keyframes head{from{transform:translateX(0)}to{transform:translateX(-46px)}}
+.stage.play .g-beam{animation:blinkLed .25s steps(2) infinite}
+.bars{display:grid;gap:.35rem;margin-top:.5rem}
+.bar{display:grid;grid-template-columns:62px 1fr 64px;align-items:center;gap:.4rem;font-size:.88rem;font-weight:700}
+.bar .track{height:14px;border:2px solid var(--ink);border-radius:999px;background:#fff;overflow:hidden}
+.bar .fill{display:block;height:100%;background:var(--sun);min-width:4px;transition:width .5s}
+.bar.on .fill{background:var(--blue)}
+
+/* Disque dur */
+.d-platter{transform-box:view-box;transform-origin:130px 100px}
+.stage.play .d-platter{animation:spin .7s linear infinite}
+.d-arm{transform-box:view-box;transform-origin:250px 150px}
+.stage.play .d-arm{animation:arm 1.5s ease-in-out infinite alternate}
+@keyframes arm{from{transform:rotate(-7deg)}to{transform:rotate(12deg)}}
+.files{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem}
+.files span{border:2px solid var(--ink);border-radius:8px;background:#fff;padding:.15rem .45rem;font-size:.85rem;font-weight:700}
+
+/* Lecteur de cartes */
+.stage.play .c-card{animation:cardIn 1s ease-in-out both}
+@keyframes cardIn{from{transform:translateY(-44px)}to{transform:none}}
+.c-photo,.c-count{opacity:0}
+.stage.play .c-photo{animation:fly 1.2s ease-in-out both}
+.stage.play .c-count{animation:appear .4s ease 4.4s both}
+@keyframes fly{0%{opacity:0;transform:translate(0,0)}15%,80%{opacity:1}100%{opacity:0;transform:translate(160px,12px)}}
+@keyframes appear{to{opacity:1}}
+
+@media (prefers-reduced-motion: reduce){
+  .stage.play *{animation-duration:.01ms !important;animation-delay:0s !important;animation-iteration-count:1 !important}
+  #tower .part.sel{animation:none;filter:drop-shadow(0 0 5px #FFD23F)}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>🖥️ Au cœur de l'unité centrale</h1>
+  <p>Séquence 2 — Unité centrale et mémoire · Ouvre le boîtier et découvre les composants</p>
+</header>
+
+<main class="wrap">
+  <div class="layout">
+    <nav class="menu" id="menu" aria-label="Composants de l'unité centrale"></nav>
+
+    <section class="card tower-card" aria-label="Unité centrale ouverte">
+      <h2>🔧 L'unité centrale ouverte</h2>
+      <svg id="tower" viewBox="0 0 320 440" role="group" aria-label="Unité centrale ouverte : clique sur un composant">
+        <rect x="10" y="10" width="300" height="420" rx="16" fill="#CDD1DC" stroke="#1B1740" stroke-width="4"/>
+        <rect x="26" y="26" width="268" height="388" rx="8" fill="#2B2750"/>
+        <rect x="40" y="428" width="40" height="8" rx="3" fill="#1B1740"/><rect x="240" y="428" width="40" height="8" rx="3" fill="#1B1740"/>
+        <!-- câbles -->
+        <path d="M150 110 C150 130 190 120 200 150" stroke="#FFD23F" stroke-width="4" fill="none" opacity=".8"/>
+        <path d="M196 262 C215 262 215 290 206 292" stroke="#FF5D73" stroke-width="4" fill="none" opacity=".9"/>
+        <path d="M150 110 C230 120 250 200 250 268" stroke="#FFD23F" stroke-width="3" fill="none" opacity=".7"/>
+
+        <g class="part" id="t-alimentation"><title>Alimentation</title>
+          <rect x="36" y="36" width="122" height="74" rx="6" fill="#9AA0B0" stroke="#1B1740" stroke-width="3"/>
+          <circle cx="97" cy="73" r="27" fill="#6E7487" stroke="#1B1740" stroke-width="2.5"/>
+          <path d="M97 73 L97 50 M97 73 L117 84 M97 73 L77 84" stroke="#D9DCE6" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="97" cy="73" r="5" fill="#1B1740"/>
+        </g>
+        <g class="part" id="t-graveur"><title>Lecteur-graveur</title>
+          <rect x="172" y="40" width="112" height="30" rx="4" fill="#D9DCE6" stroke="#1B1740" stroke-width="3"/>
+          <rect x="184" y="53" width="80" height="4" rx="2" fill="#1B1740"/>
+          <circle cx="272" cy="62" r="3.5" fill="#22C58B"/>
+        </g>
+        <g class="part" id="t-cartes"><title>Lecteur de cartes</title>
+          <rect x="172" y="78" width="112" height="24" rx="4" fill="#D9DCE6" stroke="#1B1740" stroke-width="3"/>
+          <rect x="186" y="87" width="26" height="5" rx="1" fill="#1B1740"/><rect x="220" y="87" width="16" height="5" rx="1" fill="#1B1740"/><rect x="244" y="86" width="30" height="7" rx="1" fill="#1B1740"/>
+        </g>
+        <g class="part" id="t-cartemere"><title>Carte mère</title>
+          <rect x="36" y="122" width="160" height="284" rx="6" fill="#1F8A5B" stroke="#1B1740" stroke-width="3"/>
+          <path d="M50 140 H70 V230 M180 140 V250 H120 M60 250 V290 H180 M150 270 V230" stroke="#63C79A" stroke-width="2" fill="none"/>
+          <rect x="48" y="292" width="136" height="7" rx="2" fill="#1B1740"/>
+          <rect x="48" y="354" width="136" height="7" rx="2" fill="#1B1740"/>
+          <rect x="48" y="378" width="136" height="7" rx="2" fill="#1B1740"/>
+          <rect x="150" y="238" width="30" height="30" rx="3" fill="#1B1740"/>
+        </g>
+        <g class="part" id="t-processeur"><title>Processeur</title>
+          <rect x="62" y="146" width="58" height="58" rx="5" fill="#C9CCD6" stroke="#1B1740" stroke-width="3"/>
+          <circle cx="91" cy="175" r="22" fill="#6E7487" stroke="#1B1740" stroke-width="2"/>
+          <path d="M91 175 L91 157 M91 175 L107 184 M91 175 L75 184" stroke="#D9DCE6" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="91" cy="175" r="4" fill="#1B1740"/>
+        </g>
+        <g class="part" id="t-memoire"><title>Mémoire vive (RAM)</title>
+          <rect x="132" y="140" width="8" height="86" rx="2" fill="#3D3BF3" stroke="#1B1740" stroke-width="2"/>
+          <rect x="144" y="140" width="8" height="86" rx="2" fill="#3D3BF3" stroke="#1B1740" stroke-width="2"/>
+          <rect x="156" y="140" width="8" height="86" rx="2" fill="#3D3BF3" stroke="#1B1740" stroke-width="2"/>
+          <rect x="168" y="140" width="8" height="86" rx="2" fill="#3D3BF3" stroke="#1B1740" stroke-width="2"/>
+        </g>
+        <g class="part" id="t-extension"><title>Carte d'extension</title>
+          <rect x="36" y="310" width="9" height="44" rx="2" fill="#D9DCE6" stroke="#1B1740" stroke-width="2"/>
+          <rect x="45" y="314" width="142" height="30" rx="4" fill="#FF5D73" stroke="#1B1740" stroke-width="3"/>
+          <circle cx="90" cy="329" r="10" fill="#1B1740"/><circle cx="140" cy="329" r="10" fill="#1B1740"/>
+        </g>
+        <g class="part" id="t-disque"><title>Disque dur</title>
+          <rect x="206" y="266" width="80" height="58" rx="5" fill="#B9BECB" stroke="#1B1740" stroke-width="3"/>
+          <circle cx="238" cy="295" r="20" fill="#E6E8EE" stroke="#1B1740" stroke-width="2"/>
+          <circle cx="238" cy="295" r="4" fill="#6E7487"/>
+          <path d="M276 314 L250 290" stroke="#6E7487" stroke-width="4" stroke-linecap="round"/>
+        </g>
+      </svg>
+      <p class="hint">👆 Clique sur un composant du PC ou dans le menu.</p>
+    </section>
+
+    <section class="info">
+      <div class="card desc" id="desc"></div>
+      <div class="demo-row">
+        <div class="card" id="anim"></div>
+        <div class="card facts" id="facts"></div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+const PARTS = ['cartemere','processeur','memoire','extension','alimentation','graveur','disque','cartes'];
+const NAMES = {cartemere:'Carte mère', processeur:'Processeur', memoire:'Mémoire vive (RAM)', extension:"Carte d'extension",
+  alimentation:'Alimentation', graveur:'Lecteur-graveur', disque:'Disque dur', cartes:'Lecteur de cartes'};
+const WITH_ART = {cartemere:'la carte mère', processeur:'le processeur', memoire:'la mémoire vive (RAM)', extension:"la carte d'extension",
+  alimentation:"l'alimentation", graveur:'le lecteur-graveur', disque:'le disque dur', cartes:'le lecteur de cartes'};
+const ICONS = {cartemere:'🟩', processeur:'🧠', memoire:'⚡', extension:'🧩', alimentation:'🔌', graveur:'💿', disque:'🗄️', cartes:'💳'};
+const INK = 'stroke="#1B1740"';
+const fmt = n => n.toLocaleString('fr-FR', {maximumFractionDigits:1});
+function shuffle(a){ const b=a.slice(); for(let i=b.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [b[i],b[j]]=[b[j],b[i]]; } return b; }
+function seg(id, items, pressed){
+  return `<div class="seg" id="${id}">` + items.map(([v,l]) => `<button type="button" data-v="${v}" aria-pressed="${v===pressed}">${l}</button>`).join('') + `</div>`;
+}
+function bindSeg(root, id, cb){
+  const box = root.querySelector('#'+id);
+  box.querySelectorAll('button').forEach(b => b.onclick = () => {
+    box.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x===b));
+    cb(b.dataset.v);
+  });
+}
+
+/* ---------------- Composants ---------------- */
+const COMP = {};
+
+COMP.cartemere = {
+  lead: "C'est le <b>grand circuit imprimé</b> de l'unité centrale. Tous les composants y sont <b>branchés</b> et communiquent grâce à elle : c'est la « mère » qui relie toute la famille !",
+  svg: `<svg viewBox="0 0 320 200" role="img" aria-label="Carte mère vue de dessus avec ses zones A à F">
+    <rect x="10" y="8" width="300" height="184" rx="10" fill="#1F8A5B" ${INK} stroke-width="3"/>
+    <g class="traces" fill="none" stroke="#FFD23F" stroke-width="3" stroke-linecap="round">
+      <path d="M120 58 H150"/><path d="M92 90 V120"/><path d="M120 42 H205"/><path d="M120 76 Q230 76 242 118"/><path d="M60 60 H38"/>
+    </g>
+    <g class="zone" data-z="A"><rect x="60" y="28" width="60" height="62" rx="4" fill="#D9DCE6" ${INK} stroke-width="3"/><rect x="76" y="44" width="28" height="30" fill="#B8BCC8"/></g>
+    <g class="zone" data-z="B"><rect x="150" y="22" width="8" height="84" fill="#1B1740" ${INK} stroke-width="2"/><rect x="162" y="22" width="8" height="84" fill="#1B1740" ${INK} stroke-width="2"/><rect x="174" y="22" width="8" height="84" fill="#1B1740" ${INK} stroke-width="2"/><rect x="186" y="22" width="8" height="84" fill="#1B1740" ${INK} stroke-width="2"/></g>
+    <g class="zone" data-z="C"><rect x="205" y="22" width="18" height="66" rx="2" fill="#F4F4F4" ${INK} stroke-width="2"/></g>
+    <g class="zone" data-z="D"><rect x="242" y="118" width="28" height="12" rx="2" fill="#FF5D73" ${INK} stroke-width="2"/><rect x="242" y="136" width="28" height="12" rx="2" fill="#FF5D73" ${INK} stroke-width="2"/><rect x="242" y="154" width="28" height="12" rx="2" fill="#FF5D73" ${INK} stroke-width="2"/></g>
+    <g class="zone" data-z="E"><rect x="44" y="120" width="170" height="10" rx="2" fill="#1B1740" ${INK} stroke-width="2"/><rect x="44" y="142" width="170" height="10" rx="2" fill="#1B1740" ${INK} stroke-width="2"/><rect x="44" y="164" width="170" height="10" rx="2" fill="#1B1740" ${INK} stroke-width="2"/></g>
+    <g class="zone" data-z="F"><rect x="14" y="18" width="24" height="94" rx="2" fill="#D9DCE6" ${INK} stroke-width="2"/><rect x="19" y="26" width="14" height="10" fill="#3D3BF3"/><rect x="19" y="44" width="14" height="10" fill="#3D3BF3"/><rect x="19" y="62" width="14" height="14" fill="#1B1740"/><circle cx="26" cy="94" r="5" fill="#22C58B"/></g>
+    <g font-size="13" font-weight="800" text-anchor="middle">
+      ${[['A',132,100],['B',172,118],['C',238,30],['D',290,142],['E',232,176],['F',26,128]].map(([l,x,y])=>`<circle cx="${x}" cy="${y}" r="11" fill="#fff" ${INK} stroke-width="2"/><text x="${x}" y="${y+4.5}" fill="#1B1740">${l}</text>`).join('')}
+    </g>
+  </svg>`,
+  controls: `<div class="ctl"><span class="ctrl-t">Clique sur une lettre (ou sur une zone de la carte) :</span>
+    <div class="seg letters" id="zl">${['A','B','C','D','E','F'].map(l=>`<button type="button" data-v="${l}" aria-pressed="false">${l}</button>`).join('')}</div>
+    <p class="cap" id="zcap"></p></div>`,
+  facts: `<ul><li>Tous les composants s'y branchent et <b>communiquent</b> grâce à elle (les pistes jaunes de l'animation).</li>
+    <li>Le <b>socket</b> (A) n'accepte qu'une famille de processeurs : c'est un critère important quand on choisit une carte mère.</li>
+    <li>À l'arrière, ses <b>ports</b> (F) servent à brancher les périphériques : clavier, souris, écran, réseau…</li></ul>`,
+  setup(stage, ctrl){
+    const TXT = {
+      A: "<b>A — Le socket</b> : l'emplacement où l'on pose le processeur.",
+      B: "<b>B — Les emplacements mémoire</b> : on y clipse les barrettes de RAM.",
+      C: "<b>C — Le connecteur d'alimentation</b> : il apporte l'énergie à la carte mère.",
+      D: "<b>D — Les connecteurs SATA</b> : on y relie le disque dur et le lecteur-graveur.",
+      E: "<b>E — Les emplacements PCI Express</b> : pour les cartes d'extension (carte graphique…).",
+      F: "<b>F — Les ports arrière</b> : USB, écran, réseau, son… pour les périphériques externes."
+    };
+    const hl = z => {
+      stage.querySelectorAll('.zone').forEach(g => g.classList.toggle('hl', g.dataset.z===z));
+      ctrl.querySelectorAll('#zl button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v===z));
+      ctrl.querySelector('#zcap').innerHTML = TXT[z];
+    };
+    ctrl.querySelectorAll('#zl button').forEach(b => b.onclick = () => hl(b.dataset.v));
+    stage.querySelectorAll('.zone').forEach(g => g.onclick = () => hl(g.dataset.z));
+    hl('A');
+  }
+};
+
+COMP.processeur = {
+  lead: "C'est le <b>« cerveau »</b> de l'ordinateur : il exécute les programmes et fait <b>tous les calculs</b>. Il contient des milliards de <b>transistors</b>. Sa vitesse se mesure en <b>hertz (Hz)</b> et il possède plusieurs unités de calcul appelées <b>cœurs</b>.",
+  svg: `<svg viewBox="0 0 320 200" role="img" aria-label="Le processeur se pose sur le socket, puis le radiateur et le ventilateur viennent le refroidir">
+    <rect x="10" y="168" width="300" height="24" rx="6" fill="#1F8A5B" ${INK} stroke-width="3"/>
+    <text x="20" y="185" class="svgt">carte mère</text>
+    <rect x="112" y="154" width="96" height="14" rx="2" fill="#D9DCE6" ${INK} stroke-width="3"/>
+    <text x="216" y="164" class="svgt">socket</text>
+    <g class="p-chip"><rect x="124" y="142" width="72" height="12" rx="2" fill="#E0B43A" ${INK} stroke-width="2.5"/><text x="160" y="152" class="svgt dark" text-anchor="middle" font-size="9">PROCESSEUR</text></g>
+    <g class="p-waves" stroke="#FF5D73" stroke-width="3" fill="none" stroke-linecap="round">
+      <path d="M140 134 q6 -8 0 -16 q-6 -8 0 -16"/><path d="M160 134 q6 -8 0 -16 q-6 -8 0 -16"/><path d="M180 134 q6 -8 0 -16 q-6 -8 0 -16"/>
+      <text x="206" y="112" class="svgt" stroke="none" fill="#FF8FA0">ça chauffe !</text>
+    </g>
+    <g class="p-heat">
+      <rect x="116" y="126" width="88" height="16" rx="2" fill="#B8BCC8" ${INK} stroke-width="2.5"/>
+      ${[0,1,2,3,4,5,6,7].map(i=>`<rect x="${120+i*10.5}" y="92" width="6" height="34" fill="#D9DCE6" ${INK} stroke-width="1.5"/>`).join('')}
+      <text x="216" y="118" class="svgt">radiateur</text>
+    </g>
+    <g class="p-fan">
+      <circle cx="160" cy="60" r="30" fill="#6E7487" ${INK} stroke-width="3"/>
+      <g class="p-blades">${[0,90,180,270].map(a=>`<path d="M160 60 L170 34 A26 26 0 0 1 185 48 Z" fill="#D9DCE6" transform="rotate(${a} 160 60)"/>`).join('')}</g>
+      <circle cx="160" cy="60" r="6" fill="#1B1740"/>
+      <text x="200" y="40" class="svgt">ventilateur</text>
+    </g>
+  </svg>`,
+  controls: `<div class="ctl"><label class="ctrl-t" for="ghz">Fréquence : <span id="ghzv"></span><span class="led" id="led"></span></label>
+      <input type="range" id="ghz" min="1" max="5" step="0.1" value="3.5"><p class="cap" id="ghzt"></p></div>
+    <div class="ctl"><span class="ctrl-t">Nombre de cœurs :</span>${seg('cores', [['1','1'],['4','4'],['8','8'],['16','16'],['64','64']], '8')}
+      <div class="coregrid" id="cgrid"></div><p class="cap" id="coret"></p></div>`,
+  facts: `<p class="warn">⚠️ Le processeur <b>chauffe</b> beaucoup : il est toujours surmonté d'un <b>radiateur</b> et d'un <b>ventilateur</b>.</p>
+    <table class="units"><tr><td>1 kHz</td><td>= 1 000 Hz (kilohertz)</td></tr><tr><td>1 MHz</td><td>= 1 000 kHz (mégahertz)</td></tr><tr><td>1 GHz</td><td>= 1 000 MHz (gigahertz)</td></tr></table>
+    <p>Aujourd'hui : de <b>4 à 16 cœurs</b> pour un ordinateur courant, jusqu'à <b>64 cœurs</b> ou plus pour les usages professionnels, avec des fréquences d'environ <b>3 à 5 GHz</b>.</p>`,
+  setup(stage, ctrl){
+    const r = ctrl.querySelector('#ghz');
+    const upd = () => {
+      const v = parseFloat(r.value);
+      ctrl.querySelector('#ghzv').textContent = fmt(v) + ' GHz';
+      ctrl.querySelector('#ghzt').innerHTML = `Soit <b>${fmt(v)} milliard${v>=2?'s':''}</b> de cycles par seconde : à chaque cycle, le processeur avance d'une petite étape de calcul.`;
+      ctrl.querySelector('#led').style.animationDuration = (1.6 / v).toFixed(2) + 's';
+    };
+    r.oninput = upd; upd();
+    const cores = n => {
+      ctrl.querySelector('#cgrid').innerHTML = '<span></span>'.repeat(n);
+      ctrl.querySelector('#coret').innerHTML = n === 1 ? "<b>1 cœur</b> : il ne mène qu'un calcul à la fois."
+        : `<b>${n} cœurs</b> : il peut mener ${n} calculs en même temps${n>=64?' (ordinateurs professionnels, serveurs)':''}.`;
+    };
+    bindSeg(ctrl, 'cores', v => cores(+v)); cores(8);
+  }
+};
+
+COMP.memoire = {
+  lead: "La <b>mémoire vive (RAM)</b> se présente sous forme de <b>barrettes</b>. Elle garde, pendant que tu travailles, les programmes ouverts et les données en cours : c'est le « bureau de travail » du processeur. Sa capacité se mesure en <b>octets</b> (Go).",
+  svg: `<svg viewBox="0 0 320 200" role="img" aria-label="Une barrette de RAM se clipse dans son emplacement sur la carte mère">
+    <text x="160" y="24" class="svgt big" text-anchor="middle">barrette de mémoire vive</text>
+    <rect x="10" y="168" width="300" height="24" rx="6" fill="#1F8A5B" ${INK} stroke-width="3"/>
+    <g class="m-stick">
+      <rect x="46" y="92" width="228" height="58" rx="3" fill="#1F8A5B" ${INK} stroke-width="3"/>
+      ${[0,1,2,3,4,5].map(i=>`<rect x="${58+i*36}" y="102" width="26" height="30" rx="2" fill="#1B1740"/>`).join('')}
+      <rect x="50" y="140" width="220" height="9" fill="#FFD23F" ${INK} stroke-width="1.5"/>
+      <rect x="146" y="140" width="8" height="10" fill="#1F8A5B"/>
+    </g>
+    <rect x="34" y="150" width="252" height="18" rx="2" fill="#1B1740"/>
+    <rect class="m-clip l" x="24" y="124" width="10" height="44" rx="3" fill="#F4F4F4" ${INK} stroke-width="2"/>
+    <rect class="m-clip r" x="286" y="124" width="10" height="44" rx="3" fill="#F4F4F4" ${INK} stroke-width="2"/>
+  </svg>`,
+  controls: `<div class="ctl"><span class="ctrl-t">Ce que contient la RAM en ce moment :</span>
+      <div class="ramcells" id="cells">${['📄','🎵','🖼️','🎮','🌐','📝','📊','🎬','💬','📧','🧮','📁'].map(e=>`<span>${e}</span>`).join('')}</div>
+      <button type="button" class="btn sm" id="pw">🔌 Éteindre l'ordinateur</button><p class="cap" id="pwt">L'ordinateur est allumé : la RAM contient les programmes et documents ouverts.</p></div>
+    <div class="ctl"><span class="ctrl-t">Quelle capacité choisir ?</span>${seg('capa', [['4','4 Go'],['8','8 Go'],['16','16 Go'],['32','32 Go']], '16')}
+      <div class="meter"><span id="mfill"></span></div><p class="cap" id="capt"></p></div>`,
+  facts: `<p class="warn">⚠️ La RAM est <b>volatile</b> : son contenu s'efface complètement quand on éteint l'ordinateur. Pense à <b>enregistrer</b> ton travail !</p>
+    <table class="units"><tr><td>1 octet</td><td>= 8 bits</td></tr><tr><td>1 Ko</td><td>= 1 000 octets</td></tr><tr><td>1 Mo</td><td>= 1 000 Ko</td></tr><tr><td>1 Go</td><td>= 1 000 Mo</td></tr></table>
+    <p>Conseil : au moins <b>8 Go</b> pour la bureautique, <b>16 Go</b> pour un usage polyvalent (jeux, montage photo).</p>`,
+  setup(stage, ctrl){
+    let on = true;
+    const cells = ctrl.querySelector('#cells'), pw = ctrl.querySelector('#pw'), t = ctrl.querySelector('#pwt');
+    pw.onclick = () => {
+      on = !on;
+      cells.classList.toggle('off', !on);
+      pw.textContent = on ? "🔌 Éteindre l'ordinateur" : "🔌 Rallumer l'ordinateur";
+      t.innerHTML = on ? "L'ordinateur redémarre : la RAM repart <b>vide</b>, il faut rouvrir les programmes."
+                       : "Coupure ! Tout le contenu de la RAM a <b>disparu</b> : c'est une mémoire <b>volatile</b>.";
+    };
+    const TXT = {4:"Tout juste : ça fonctionne pour naviguer, mais l'ordinateur ralentit vite.",
+      8:"Le minimum conseillé pour la bureautique (texte, tableur, Internet).",
+      16:"Confortable pour un usage polyvalent : jeux, montage photo, plusieurs logiciels ouverts.",
+      32:"Pour le montage vidéo, la 3D ou les usages professionnels."};
+    const capa = v => { ctrl.querySelector('#mfill').style.width = (v/32*100)+'%'; ctrl.querySelector('#capt').innerHTML = `<b>${v} Go</b> : ${TXT[v]}`; };
+    bindSeg(ctrl, 'capa', v => capa(+v)); capa(16);
+  }
+};
+
+const EXT = {
+  graphique:{fill:'#3D3BF3', label:'Carte graphique', icon:'🎮', txt:"Des images 3D fluides : jeux vidéo, montage vidéo, plusieurs écrans."},
+  son:{fill:'#FF5D73', label:'Carte son', icon:'🎧', txt:"Un son de meilleure qualité pour la musique et l'enregistrement."},
+  wifi:{fill:'#0B9A6A', label:'Carte Wi-Fi', icon:'📶', txt:"La connexion à un réseau sans fil."},
+  tv:{fill:'#C98A00', label:'Carte tuner TV', icon:'📺', txt:"Regarder la télévision ou enregistrer une vidéo sur l'ordinateur."}
+};
+COMP.extension = {
+  lead: "C'est une <b>carte électronique</b> que l'on ajoute sur la carte mère pour donner à l'ordinateur de <b>nouvelles capacités</b> : des images plus belles, un meilleur son, le Wi-Fi…",
+  svg: `<svg viewBox="0 0 320 200" role="img" aria-label="Une carte d'extension se branche dans un emplacement PCI Express">
+    <rect x="10" y="168" width="300" height="24" rx="6" fill="#1F8A5B" ${INK} stroke-width="3"/>
+    <text x="20" y="185" class="svgt">carte mère</text>
+    <g class="e-card">
+      <rect x="40" y="56" width="10" height="110" rx="2" fill="#D9DCE6" ${INK} stroke-width="2"/>
+      <rect id="eBody" x="50" y="70" width="200" height="74" rx="6" fill="#3D3BF3" ${INK} stroke-width="3"/>
+      <rect x="92" y="144" width="128" height="9" fill="#FFD23F" ${INK} stroke-width="1.5"/>
+      <text id="eLabel" x="150" y="112" class="svgt big" text-anchor="middle">Carte graphique</text>
+    </g>
+    <rect x="70" y="152" width="200" height="16" rx="2" fill="#1B1740"/>
+    <text x="276" y="164" class="svgt" font-size="10">PCIe</text>
+    <text id="eIcon" x="288" y="70" font-size="34" text-anchor="middle">🎮</text>
+  </svg>`,
+  controls: `<div class="ctl"><span class="ctrl-t">Choisis une carte à ajouter :</span>
+    ${seg('etype', [['graphique','🎮 Graphique'],['son','🎧 Son'],['wifi','📶 Wi-Fi'],['tv','📺 Tuner TV']], 'graphique')}
+    <p class="cap" id="etxt"></p></div>`,
+  facts: `<ul><li>Elle se branche dans un emplacement <b>PCI Express</b> (PCIe) de la carte mère.</li>
+    <li>Exemples : carte <b>graphique</b>, carte <b>son</b>, carte <b>Wi-Fi</b>, carte <b>tuner TV</b>.</li>
+    <li>Une carte graphique puissante est large : elle peut occuper <b>2 ou 3 emplacements</b>.</li></ul>`,
+  setup(stage, ctrl, play){
+    const set = k => {
+      const e = EXT[k];
+      stage.querySelector('#eBody').setAttribute('fill', e.fill);
+      stage.querySelector('#eLabel').textContent = e.label;
+      stage.querySelector('#eIcon').textContent = e.icon;
+      ctrl.querySelector('#etxt').innerHTML = `<b>${e.label}</b> — nouvelle capacité : ${e.txt}`;
+    };
+    bindSeg(ctrl, 'etype', k => { set(k); play(); }); set('graphique');
+  }
+};
+
+COMP.alimentation = {
+  lead: "Branchée sur la prise électrique, elle fournit le <b>courant</b> à tous les composants : carte mère, processeur, disque dur… Elle transforme la tension de la prise en tensions adaptées à chaque composant.",
+  svg: `<svg viewBox="0 0 320 200" role="img" aria-label="Le courant de la prise passe dans l'alimentation qui fournit 12 V, 5 V et 3,3 V">
+    <text x="38" y="66" class="svgt" text-anchor="middle" font-size="10">alternatif</text>
+    <text x="268" y="50" class="svgt" text-anchor="middle" font-size="10">continu</text>
+    <rect x="14" y="74" width="48" height="56" rx="8" fill="#F4F4F4" ${INK} stroke-width="3"/>
+    <circle cx="30" cy="102" r="4.5" fill="#1B1740"/><circle cx="46" cy="102" r="4.5" fill="#1B1740"/>
+    <text x="38" y="148" class="svgt" text-anchor="middle">230 V ~</text>
+    <path class="flow" d="M62 102 H112" stroke="#FF5D73" stroke-width="5" fill="none"/>
+    <rect x="112" y="58" width="96" height="88" rx="8" fill="#9AA0B0" ${INK} stroke-width="3"/>
+    <circle cx="160" cy="102" r="30" fill="#6E7487" ${INK} stroke-width="2.5"/>
+    <g class="a-blades">${[0,90,180,270].map(a=>`<path d="M160 102 L170 76 A26 26 0 0 1 185 90 Z" fill="#D9DCE6" transform="rotate(${a} 160 102)"/>`).join('')}</g>
+    <circle cx="160" cy="102" r="5" fill="#1B1740"/>
+    <text x="160" y="164" class="svgt" text-anchor="middle">bloc d'alimentation</text>
+    <path class="flow" d="M208 72 H252" stroke="#FFD23F" stroke-width="4" fill="none"/><text x="258" y="76" class="svgt">12 V</text>
+    <path class="flow" d="M208 102 H252" stroke="#FFD23F" stroke-width="4" fill="none"/><text x="258" y="106" class="svgt">5 V</text>
+    <path class="flow" d="M208 132 H252" stroke="#FFD23F" stroke-width="4" fill="none"/><text x="258" y="136" class="svgt">3,3 V</text>
+  </svg>`,
+  controls: `<div class="ctl"><span class="ctrl-t">Calcule la puissance nécessaire :</span><div class="chk" id="chk"></div>
+      <p class="total" id="tot"></p></div>
+    <div class="ctl"><span class="ctrl-t">Alimentation choisie :</span>${seg('psu', [['450','450 W'],['650','650 W'],['850','850 W']], '450')}
+      <p class="cap" id="verdict"></p></div>`,
+  facts: `<ul><li>Elle transforme le courant <b>alternatif 230 V</b> de la prise en courants <b>continus</b> de faible tension (12 V, 5 V, 3,3 V).</li>
+    <li>Sa puissance se mesure en <b>watts (W)</b> : elle doit suffire pour tous les composants, avec une marge d'environ 30 %.</li>
+    <li>Un PC de jeu avec une carte graphique puissante peut demander <b>750 à 1 000 W</b>.</li></ul>`,
+  setup(stage, ctrl){
+    const ITEMS = [['Processeur',125,true],['Carte mère',50,true],['Mémoire vive',10,true],['Disque SSD',5,true],['Ventilateurs et USB',25,true],['Carte graphique puissante',320,false]];
+    const box = ctrl.querySelector('#chk');
+    box.innerHTML = ITEMS.map(([n,w,c],i)=>`<label><input type="checkbox" data-w="${w}" ${c?'checked':''}> ${n} <b>(${w} W)</b></label>`).join('');
+    let psu = 450;
+    const upd = () => {
+      const total = [...box.querySelectorAll('input:checked')].reduce((s,i)=>s + +i.dataset.w, 0);
+      const reco = Math.ceil(total*1.3/50)*50;
+      ctrl.querySelector('#tot').textContent = `Total des composants : ${total} W → avec la marge : au moins ${reco} W`;
+      const v = ctrl.querySelector('#verdict');
+      v.innerHTML = psu >= reco ? `✅ <b>${psu} W</b> suffit pour cet ordinateur.` : `⚠️ <b>${psu} W</b> ne suffit pas : il faut au moins <b>${reco} W</b>.`;
+      v.style.color = psu >= reco ? '#0B7A55' : '#B4233A';
+    };
+    box.querySelectorAll('input').forEach(i => i.onchange = upd);
+    bindSeg(ctrl, 'psu', v => { psu = +v; upd(); }); upd();
+  }
+};
+
+const DISCS = {
+  CD:{cap:'700 Mo', mo:700, laser:'#B4233A', lname:'infrarouge (invisible)'},
+  DVD:{cap:'4,7 Go', mo:4700, laser:'#FF3B3B', lname:'rouge'},
+  BD:{cap:'25 Go', mo:25000, laser:'#6B4CFF', lname:'bleu-violet'}
+};
+COMP.graveur = {
+  lead: "Il <b>lit</b> et <b>grave</b> des disques optiques (CD, DVD, Blu-ray) grâce à un <b>laser</b>. Ces disques servent à stocker de la musique, des films, des photos ou des logiciels.",
+  svg: `<svg viewBox="0 0 320 200" role="img" aria-label="Le disque tourne pendant que la tête laser se déplace pour le lire">
+    <defs><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#EDEDF5"/><stop offset=".45" stop-color="#C9D6FF"/><stop offset=".6" stop-color="#F7D6FF"/><stop offset="1" stop-color="#E4F7EE"/></linearGradient></defs>
+    <rect x="20" y="16" width="280" height="168" rx="12" fill="#3A3566" ${INK} stroke-width="3"/>
+    <g class="g-disc"><circle cx="120" cy="100" r="66" fill="url(#dg)" ${INK} stroke-width="2.5"/><path d="M120 34 A66 66 0 0 1 186 100" stroke="#fff" stroke-opacity=".75" stroke-width="7" fill="none"/></g>
+    <circle cx="120" cy="100" r="17" fill="#3A3566" ${INK} stroke-width="2"/>
+    <text id="gType" x="120" y="104" class="svgt" text-anchor="middle" font-size="10">CD</text>
+    <rect x="168" y="152" width="120" height="6" rx="3" fill="#6E7487"/>
+    <g class="g-head"><line class="g-beam" id="gBeam" x1="236" y1="142" x2="178" y2="112" stroke="#B4233A" stroke-width="3.5"/><rect x="228" y="140" width="36" height="24" rx="3" fill="#D9DCE6" ${INK} stroke-width="2"/><text x="246" y="182" class="svgt" text-anchor="middle" font-size="10">tête laser</text></g>
+  </svg>`,
+  controls: `<div class="ctl"><span class="ctrl-t">Choisis un disque :</span>${seg('disc', [['CD','CD'],['DVD','DVD'],['BD','Blu-ray']], 'CD')}
+      <div class="bars" id="bars">${Object.entries(DISCS).map(([k,d])=>`<div class="bar" data-k="${k}"><span>${k==='BD'?'Blu-ray':k}</span><span class="track"><span class="fill" style="width:${Math.max(1, d.mo/DISCS.BD.mo*100)}%"></span></span><span>${d.cap}</span></div>`).join('')}</div>
+      <p class="cap" id="dtxt"></p></div>`,
+  facts: `<ul><li><b>Lire</b> : le laser lit les minuscules creux gravés sur le disque. <b>Graver</b> : le laser les crée.</li>
+    <li>CD : <b>700 Mo</b> · DVD : <b>4,7 Go</b> · Blu-ray : <b>25 Go</b> (par couche).</li>
+    <li>Le Blu-ray doit son nom à son laser <b>bleu-violet</b>, plus fin, qui permet de graver plus d'informations.</li>
+    <li>Il disparaît peu à peu : on utilise plutôt le <b>streaming</b>, le <b>cloud</b> et les <b>clés USB</b>.</li></ul>`,
+  setup(stage, ctrl){
+    const set = k => {
+      const d = DISCS[k];
+      stage.querySelector('#gType').textContent = k==='BD' ? 'Blu-ray' : k;
+      stage.querySelector('#gBeam').setAttribute('stroke', d.laser);
+      ctrl.querySelectorAll('.bar').forEach(b => b.classList.toggle('on', b.dataset.k===k));
+      ctrl.querySelector('#dtxt').innerHTML = `<b>${k==='BD'?'Blu-ray':k}</b> : ${d.cap}, soit environ <b>${Math.floor(d.mo/5).toLocaleString('fr-FR')} photos</b> de 5 Mo. Laser ${d.lname}.`;
+    };
+    bindSeg(ctrl, 'disc', set); set('CD');
+  }
+};
+
+COMP.disque = {
+  lead: "C'est l'<b>entrepôt</b> de l'ordinateur : il <b>stocke</b> tes documents, photos, vidéos et logiciels et les <b>conserve</b> même quand l'ordinateur est éteint. Sa capacité se mesure en octets (Go, To).",
+  svg: `<svg viewBox="0 0 320 200" role="img" aria-label="Disque dur : le plateau tourne et le bras de lecture se déplace">
+    <g id="hdd">
+      <rect x="30" y="16" width="260" height="168" rx="12" fill="#B9BECB" ${INK} stroke-width="3"/>
+      <g class="d-platter"><circle cx="130" cy="100" r="68" fill="#E6E8EE" ${INK} stroke-width="2.5"/><circle cx="130" cy="100" r="46" fill="none" stroke="#C9CCD6" stroke-width="2"/><path d="M130 32 A68 68 0 0 1 198 100" stroke="#8E7CFF" stroke-width="6" fill="none" stroke-opacity=".75"/></g>
+      <circle cx="130" cy="100" r="12" fill="#6E7487" ${INK} stroke-width="2"/>
+      <g class="d-arm"><path d="M250 150 L170 80" stroke="#6E7487" stroke-width="9" stroke-linecap="round"/><rect x="161" y="72" width="16" height="11" rx="2" fill="#1B1740"/></g>
+      <circle cx="250" cy="150" r="13" fill="#D9DCE6" ${INK} stroke-width="2.5"/>
+      <text x="252" y="40" class="svgt dark big" text-anchor="middle">HDD</text>
+    </g>
+    <g id="ssd" style="display:none">
+      <rect x="36" y="34" width="248" height="132" rx="10" fill="#1F8A5B" ${INK} stroke-width="3"/>
+      ${[0,1,2,3].map(i=>`<rect x="${54+i*50}" y="58" width="38" height="46" rx="3" fill="#1B1740"/>`).join('')}
+      <rect x="248" y="70" width="24" height="24" rx="3" fill="#6E7487" ${INK} stroke-width="2"/>
+      <text x="160" y="134" class="svgt big" text-anchor="middle">SSD — mémoire flash</text>
+      <text x="160" y="154" class="svgt" text-anchor="middle">aucune pièce mobile</text>
+    </g>
+  </svg>`,
+  controls: `<div class="ctl"><span class="ctrl-t">Deux technologies :</span>${seg('tech', [['hdd','HDD (mécanique)'],['ssd','SSD (flash)']], 'hdd')}<p class="cap" id="ttxt"></p></div>
+    <div class="ctl"><span class="ctrl-t">Tes fichiers enregistrés :</span><div class="files">${['📄 exposé.docx','🖼️ photo.jpg','🎵 chanson.mp3','🎬 vidéo.mp4'].map(f=>`<span>${f}</span>`).join('')}</div>
+      <button type="button" class="btn sm" id="off" style="margin-top:.5rem">🔌 Éteindre l'ordinateur</button><p class="cap" id="offt"></p></div>`,
+  facts: `<p>Le stockage est <b>permanent</b> : les fichiers restent même quand l'ordinateur est éteint (contrairement à la RAM).</p>
+    <table class="cmp"><tr><th></th><th>HDD</th><th>SSD</th></tr>
+      <tr><td>Fonctionnement</td><td>plateaux qui tournent et tête de lecture</td><td>mémoire flash, sans pièce mobile</td></tr>
+      <tr><td>Vitesse</td><td>plus lent</td><td>beaucoup plus rapide</td></tr>
+      <tr><td>Chocs</td><td>fragile</td><td>résistant</td></tr>
+      <tr><td>Prix par Go</td><td>moins cher</td><td>plus cher</td></tr></table>
+    <p>Unités : 1 To = 1 000 Go.</p>`,
+  setup(stage, ctrl){
+    const TXT = {hdd:"<b>HDD</b> : des plateaux magnétiques tournent très vite, un bras vient lire ou écrire les données.",
+                 ssd:"<b>SSD</b> : les données sont dans des puces de mémoire flash, sans rien qui bouge : plus rapide et plus solide."};
+    const set = k => { stage.querySelector('#hdd').style.display = k==='hdd'?'':'none'; stage.querySelector('#ssd').style.display = k==='ssd'?'':'none'; ctrl.querySelector('#ttxt').innerHTML = TXT[k]; };
+    bindSeg(ctrl, 'tech', set); set('hdd');
+    let off = false;
+    ctrl.querySelector('#off').onclick = e => {
+      off = !off;
+      e.target.textContent = off ? "🔌 Rallumer l'ordinateur" : "🔌 Éteindre l'ordinateur";
+      ctrl.querySelector('#offt').innerHTML = off ? "Ordinateur éteint… et les fichiers sont <b>toujours là</b> : le stockage est <b>permanent</b>." : "Ordinateur rallumé : tu retrouves tous tes fichiers.";
+    };
+  }
+};
+
+const CARDS = {
+  SD:{s:1, label:'SD', txt:"<b>SD</b> : appareils photo, caméras, consoles portables."},
+  micro:{s:.55, label:'µSD', txt:"<b>microSD</b> : smartphones, tablettes, caméras sport (souvent avec un adaptateur SD)."},
+  CF:{s:1.25, label:'CF', txt:"<b>CompactFlash</b> : plus grande, utilisée surtout par des appareils photo professionnels."}
+};
+COMP.cartes = {
+  lead: "Il permet de lire (et d'écrire) les données des <b>cartes mémoire</b>, comme les photos d'un appareil photo ou d'un smartphone, et de les copier sur l'ordinateur.",
+  svg: `<svg viewBox="0 0 320 200" role="img" aria-label="Une carte mémoire entre dans le lecteur, puis les photos sont copiées dans un dossier">
+    <g class="c-card"><g id="cShape"><path d="M62 30 H96 V88 H52 V40 Z" fill="#3D3BF3" ${INK} stroke-width="2.5"/><text id="cLabel" x="74" y="66" class="svgt" text-anchor="middle">SD</text></g></g>
+    <rect x="24" y="80" width="110" height="44" rx="6" fill="#D9DCE6" ${INK} stroke-width="3"/>
+    <rect x="46" y="86" width="60" height="6" rx="2" fill="#1B1740"/>
+    <text x="79" y="115" class="svgt dark" text-anchor="middle">lecteur de cartes</text>
+    ${[0,1,2].map(i=>`<g class="c-photo" style="animation-delay:${1.2+i*1.1}s"><rect x="${62+i*4}" y="${58+i*3}" width="34" height="26" rx="3" fill="#fff" ${INK} stroke-width="2"/><path d="M${66+i*4} ${80+i*3} l9 -10 l7 7 l5 -5 l7 8 z" fill="#22C58B"/><circle cx="${88+i*4}" cy="${65+i*3}" r="3" fill="#FFD23F"/></g>`).join('')}
+    <rect x="214" y="64" width="34" height="14" rx="3" fill="#FFD23F" ${INK} stroke-width="3"/>
+    <rect x="214" y="74" width="84" height="58" rx="5" fill="#FFD23F" ${INK} stroke-width="3"/>
+    <text x="256" y="108" class="svgt dark" text-anchor="middle">Mes photos</text>
+    <text class="c-count" x="256" y="158" fill="#7BE3A8" font-size="13" font-weight="800" text-anchor="middle">3 photos copiées ✓</text>
+  </svg>`,
+  controls: `<div class="ctl"><span class="ctrl-t">Les formats de cartes :</span>${seg('fmt', [['SD','SD'],['micro','microSD'],['CF','CompactFlash']], 'SD')}<p class="cap" id="ftxt"></p></div>`,
+  facts: `<ul><li>Il lit et écrit sur les <b>cartes mémoire</b> des appareils photo, caméras, consoles ou smartphones.</li>
+    <li>Formats courants : <b>SD</b>, <b>microSD</b> (souvent avec un adaptateur), <b>CompactFlash</b> (appareils photo professionnels).</li>
+    <li>On s'en sert pour <b>copier</b> ses photos sur l'ordinateur… ou dans l'autre sens.</li></ul>`,
+  setup(stage, ctrl){
+    const set = k => {
+      const c = CARDS[k];
+      stage.querySelector('#cShape').setAttribute('transform', `translate(74 88) scale(${c.s}) translate(-74 -88)`);
+      stage.querySelector('#cLabel').textContent = c.label;
+      ctrl.querySelector('#ftxt').innerHTML = c.txt;
+    };
+    bindSeg(ctrl, 'fmt', set); set('SD');
+  }
+};
+PARTS.forEach(p => { COMP[p].icon = ICONS[p]; });
+
+/* ---------------- Navigation ---------------- */
+const menu = $('#menu'), tower = $('#tower'), desc = $('#desc'), anim = $('#anim'), facts = $('#facts');
+let current = null;
+const MENU = [['accueil','🏠 Accueil'], ...PARTS.map(p => [p, ICONS[p]+' '+NAMES[p]]), ['sep'], ['defi','🎯 Défi']];
+MENU.forEach(([id,label]) => {
+  if (id === 'sep') { const s = document.createElement('div'); s.className = 'sep'; menu.appendChild(s); return; }
+  const b = document.createElement('button'); b.type = 'button'; b.dataset.id = id; b.textContent = label; b.onclick = () => select(id);
+  menu.appendChild(b);
+});
+PARTS.forEach(p => { tower.querySelector('#t-'+p).onclick = () => current === 'defi' ? defiAnswer(p) : select(p); });
+
+function select(id){
+  current = id;
+  menu.querySelectorAll('button').forEach(b => b.setAttribute('aria-current', b.dataset.id === id ? 'true' : 'false'));
+  tower.classList.toggle('focus', PARTS.includes(id));
+  PARTS.forEach(p => tower.querySelector('#t-'+p).classList.toggle('sel', p === id));
+  if (id === 'accueil') return renderAccueil();
+  if (id === 'defi') return renderDefi();
+  renderComp(id);
+}
+
+function renderComp(id){
+  const c = COMP[id];
+  desc.innerHTML = `<h2>${c.icon} ${NAMES[id]}</h2><p>${c.lead}</p>`;
+  anim.innerHTML = `<div class="anim-head"><h3>🎬 Animation</h3><div class="anim-btns"><button type="button" class="btn sm" id="bPlay">▶ Animer</button><button type="button" class="btn sm light" id="bStop">■ Arrêter</button></div></div>
+    <div class="stage" id="stage">${c.svg}</div><div class="ctrl" id="ctrl">${c.controls || ''}</div>`;
+  facts.innerHTML = `<h3>📌 À retenir</h3>${c.facts}`;
+  const stage = $('#stage');
+  const play = () => { stage.classList.remove('play'); void stage.offsetWidth; stage.classList.add('play'); };
+  $('#bPlay').onclick = play;
+  $('#bStop').onclick = () => stage.classList.remove('play');
+  if (c.setup) c.setup(stage, $('#ctrl'), play);
+  play();
+}
+
+function renderAccueil(){
+  desc.innerHTML = `<h2>🏠 Bienvenue au cœur de l'unité centrale</h2><p>On a retiré le panneau du boîtier ! Découvre les <b>8 composants</b> cachés à l'intérieur de l'unité centrale : clique sur un composant dans le PC ou dans le menu.</p>`;
+  const Q = [
+    ["Que trouve-t-on à l'intérieur d'une unité centrale ?", "Des composants électroniques : carte mère, processeur, mémoire, disque dur, alimentation…"],
+    ["À quoi sert chaque composant ?", "Chacun a un rôle : calculer, mémoriser, stocker, alimenter… Explore les fiches pour le découvrir !"],
+    ["C'est quoi, une carte mère ?", "Le grand circuit sur lequel tous les composants sont branchés."],
+    ["Et une barrette de RAM ?", "Une mémoire rapide mais temporaire : elle s'efface quand on éteint l'ordinateur."]
+  ];
+  anim.innerHTML = `<div class="anim-head"><h3>🤔 Questions pour démarrer</h3></div><p class="note">Clique sur une question pour voir la réponse.</p>
+    <div class="qgrid">${Q.map(([q,a]) => `<button type="button" class="qcard" aria-expanded="false">❓ ${q}<span class="a">💡 ${a}</span></button>`).join('')}</div>`;
+  anim.querySelectorAll('.qcard').forEach(b => b.onclick = () => { b.classList.toggle('open'); b.setAttribute('aria-expanded', b.classList.contains('open')); });
+  facts.innerHTML = `<h3>🧭 Comment ça marche ?</h3><ul><li>Clique sur un composant : il <b>s'allume</b> dans le PC.</li>
+    <li>Chaque fiche a une <b>animation</b> (▶ Animer / ■ Arrêter) et des <b>manipulations</b>.</li>
+    <li>Termine par le <b>🎯 Défi</b> : retrouve chaque composant dans le PC.</li></ul>`;
+}
+
+/* ---------------- Défi ---------------- */
+const DEFI = [
+  {id:'processeur', q:'le composant qui fait tous les calculs (le « cerveau »)'},
+  {id:'memoire', q:"la mémoire qui s'efface quand on éteint l'ordinateur"},
+  {id:'cartemere', q:'le circuit sur lequel tous les composants sont branchés'},
+  {id:'alimentation', q:'le composant qui transforme le courant de la prise'},
+  {id:'disque', q:"le composant qui garde tes fichiers même quand l'ordinateur est éteint"},
+  {id:'graveur', q:'le lecteur qui lit les CD, DVD et Blu-ray'},
+  {id:'cartes', q:"le lecteur des cartes SD d'un appareil photo"},
+  {id:'extension', q:'la carte qui ajoute une nouvelle capacité (par exemple une carte graphique)'}
+];
+let dq = [], di = 0, dscore = 0, dtries = 0;
+function renderDefi(){
+  dq = shuffle(DEFI); di = 0; dscore = 0; dtries = 0;
+  desc.innerHTML = `<h2>🎯 Défi : retrouve les composants</h2><p>Lis la consigne, puis <b>clique sur le bon composant dans le PC</b> (à gauche).</p>`;
+  anim.innerHTML = `<div class="defi-q" id="dq" aria-live="polite"></div><p class="msg" id="dmsg" aria-live="polite"></p><p class="note" id="dprog"></p><button type="button" class="btn sm" id="drestart">↺ Recommencer</button>`;
+  facts.innerHTML = `<h3>🏆 Score</h3><p class="bigscore" id="dscore">0 / ${DEFI.length}</p><p class="note">Un point quand tu trouves du premier coup.</p>`;
+  $('#drestart').onclick = renderDefi;
+  showQ();
+}
+function showQ(){
+  if (di >= dq.length) {
+    $('#dq').innerHTML = '🎉 Défi terminé !';
+    const m = $('#dmsg'); m.className = 'msg ok'; m.textContent = `Tu as trouvé ${dscore} composant${dscore>1?'s':''} sur ${dq.length} du premier coup.`;
+    $('#dprog').textContent = ''; return;
+  }
+  $('#dq').innerHTML = `Clique sur <b>${dq[di].q}</b>.`;
+  $('#dprog').textContent = `Question ${di+1} / ${dq.length}`;
+  dtries = 0;
+}
+function flash(g, cls){ g.classList.add(cls); setTimeout(() => g.classList.remove(cls), 800); }
+function defiAnswer(p){
+  if (di >= dq.length) return;
+  const g = tower.querySelector('#t-'+p), m = $('#dmsg');
+  if (p === dq[di].id) {
+    if (dtries === 0) dscore++;
+    flash(g, 'flash-ok'); m.className = 'msg ok'; m.textContent = `✅ Bravo, c'est ${WITH_ART[p]} !`;
+    $('#dscore').textContent = `${dscore} / ${dq.length}`;
+    di++; setTimeout(() => { if (current === 'defi') showQ(); }, 900);
+  } else {
+    dtries++; flash(g, 'flash-bad'); m.className = 'msg bad'; m.textContent = `❌ Non, ça c'est ${WITH_ART[p]}. Essaie encore !`;
+  }
+}
+
+select('accueil');
+</script>
+<!-- a11y-clavier -->
+<script>
+(function(){
+  // Rend utilisables au clavier (Tab, Entrée/Espace, flèches) les éléments cliquables qui ne sont pas des boutons natifs.
+  var NATIVE = 'button,a[href],input,select,textarea,summary';
+  function enhance(){
+    document.querySelectorAll('body *').forEach(function(el){
+      if (typeof el.onclick !== 'function' || el.matches(NATIVE) || el.hasAttribute('data-kbd')) return;
+      el.setAttribute('data-kbd', '');
+      if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+      if (!el.hasAttribute('role')) el.setAttribute('role', 'button');
+      if (!el.textContent.trim() && !el.hasAttribute('aria-label')) {
+        el.setAttribute('aria-label', 'Case ' + (Array.prototype.indexOf.call(el.parentNode.children, el) + 1));
+      }
+    });
+  }
+  document.addEventListener('keydown', function(e){
+    var el = e.target;
+    if (!(el instanceof Element) || !el.hasAttribute('data-kbd')) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      el.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true}));
+      return;
+    }
+    var dir = {ArrowRight: 1, ArrowLeft: -1, ArrowDown: 'down', ArrowUp: 'up'}[e.key];
+    if (!dir) return;
+    var sibs = Array.prototype.filter.call(el.parentNode.children, function(s){ return s.hasAttribute('data-kbd'); });
+    if (sibs.length < 2) return;
+    var cols = getComputedStyle(el.parentNode).gridTemplateColumns.split(' ').filter(function(c){ return c && c !== 'none'; }).length || 1;
+    var step = dir === 'down' ? cols : dir === 'up' ? -cols : dir;
+    var next = sibs[sibs.indexOf(el) + step];
+    if (next) { e.preventDefault(); next.focus(); }
+  });
+  document.querySelectorAll('#msg,.msg,#progress,.progress,.narr').forEach(function(el){
+    if (!el.hasAttribute('aria-live')) el.setAttribute('aria-live', 'polite');
+  });
+  var pending = false;
+  new MutationObserver(function(){
+    if (pending) return;
+    pending = true;
+    setTimeout(function(){ pending = false; enhance(); }, 0);
+  }).observe(document.body, {childList: true, subtree: true});
+  enhance();
+})();
+</script>
+
+</body>
+</html>

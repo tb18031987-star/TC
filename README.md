@@ -10,7 +10,7 @@ Le portail (`index.html`, à la racine) affiche une barre latérale à deux nive
 index.html                          ← portail général (page d'accueil)
 module1-generalites/
   sequence1-definitions-vocabulaire/   (S1 — complet)
-  sequence2-unite-centrale-memoire/    (S2-S3 — à venir)
+  sequence2-unite-centrale-memoire/    (S2-S3 — complet)
   sequence3-peripheriques/             (S3 — à venir)
   sequence4-logiciels-domaines/        (S4-S5 — à venir)
 module2-logiciels/
@@ -46,7 +46,14 @@ Animations autonomes (`animations/`), aussi accessibles seules depuis le portail
 - `image.html` — codage/décodage d'une image en pixels 0/1
 - `combien-1to.html` — compteurs animés (photos, chansons, films, documents dans 1 To)
 
-### Modules 1 (séquences 2 à 4), 2, 3, 4
+**Séquence 2 — Unité centrale et mémoire** (`module1-generalites/sequence2-unite-centrale-memoire/`)
+
+- **`cours_unite_centrale_memoire.html`** — cours interactif complet (chrono 50 min, 5 chapitres : unité centrale, mémoire RAM/ROM, unités de mesure, synthèse, défis de groupe ; badges, cahier de traces écrites, bilan imprimable avec carte mentale).
+- **`au_coeur_unite_centrale.html`** — exploration interactive du boîtier ouvert : 8 composants cliquables (carte mère, processeur, RAM, carte d'extension, alimentation, lecteur-graveur, disque dur, lecteur de cartes), chacun avec son animation, ses réglages et ses explications.
+- **`animations_dedans_dehors.html`** — jeu de tri : dans l'unité centrale ou périphérique dehors ?
+- L'animation « Un calcul : 12 + 7 » de la Séquence 1 est référencée aussi ici (même fichier, deux entrées dans le portail).
+
+### Modules 1 (séquences 3 et 4), 2, 3, 4
 
 Structure posée dans le portail avec la progression hebdomadaire prévue, contenu à rédiger.
 
