@@ -353,7 +353,7 @@ canvas#confetti{position:fixed;inset:0;pointer-events:none;z-index:90}
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const wait=ms=>new Promise(r=>setTimeout(r,RM?Math.min(ms,60):ms));
-const S={step:0,visited:0,unlocked:{},score:0,max:0,marked:{},errors:[],sound:true,mode:'groupe',members:[],classe:'',groupe:'',left:50*60,started:false,badges:[],ls:0};
+const S={step:0,visited:0,unlocked:{},score:0,max:0,marked:{},errors:[],sound:true,left:50*60,started:false,badges:[],ls:0};
 
 /* ================= outils génériques (moteur d'activités) ================= */
 let AC;
@@ -567,30 +567,13 @@ add(0,el=>{
     <span class="lvl">Tronc commun</span>
     <p class="mod" style="margin-top:.8rem">Module 1 : Généralités sur les systèmes informatiques</p>
     <h1>Leçon 3 : Le bit et l’octet</h1>
-    <p class="teacher">Enseignante : Kezad Fatima</p>
+    <p class="teacher">Enseignant : EL MOUTAOUAKIL Khalid</p>
     <p class="lead">🚀 Mission du jour : découvrir le langage secret que comprend l’ordinateur — fait uniquement de 0 et de 1 ! Octet, le petit robot, va te guider.</p><div class="steps5">${PH.map((p,i)=>`<span style="animation-delay:${1.4+i*.15}s">${p.i} ${p.t}</span>`).join('')}</div>
     <div class="panel form">
-      <div class="seg" role="group" aria-label="Mode de travail"><button data-m="indiv">Individuel</button><button data-m="groupe" class="on">En groupe</button></div>
-      <div class="row" style="margin-top:.6rem">
-        <div class="grow"><label for="cl">Classe</label><select id="cl"><option value="">— choisir —</option><option>TC SF-1</option><option>TC LSHF-1</option><option>TC LSHF-2</option><option>TC LSHF-3</option><option>Autre</option></select></div>
-        <div class="grow"><label for="gr">Groupe n°</label><input id="gr" type="text" placeholder="ex. 3"></div>
-      </div>
-      <label>Nom et prénom <span id="mlab">des membres du groupe</span></label>
-      <div class="members" id="mem"></div>
-      <p class="hint" id="covhint"></p>
       <button class="btn go" id="startBtn">🚀 Commencer la mission (chrono 50 min)</button>
     </div></div>${orbitHTML()}</div>`;
   { const h1=$('h1',el); let k=0; h1.innerHTML=h1.textContent.split(' ').map(w=>`<span style="display:inline-block;white-space:nowrap">${[...w].map(c=>`<span class="l" style="animation-delay:${(k++)*.035}s">${c}</span>`).join('')}</span>`).join(' '); }
-  const mem=$('#mem',el);
-  const rows=n=>{ mem.innerHTML=''; for(let i=0;i<n;i++) mem.insertAdjacentHTML('beforeend',`<input placeholder="Nom" aria-label="Nom ${i+1}"><input placeholder="Prénom" aria-label="Prénom ${i+1}">`); };
-  rows(4);
-  $$('.seg button',el).forEach(b=>b.onclick=()=>{ $$('.seg button',el).forEach(x=>x.classList.toggle('on',x===b)); S.mode=b.dataset.m; rows(S.mode==='groupe'?4:1);
-    $('#mlab',el).textContent=S.mode==='groupe'?'des membres du groupe':'de l’élève'; $('#gr',el).closest('.grow').classList.toggle('hidden',S.mode!=='groupe'); });
   $('#startBtn',el).onclick=()=>{
-    const ins=$$('#mem input',el); S.members=[];
-    for(let i=0;i<ins.length;i+=2){ const n=ins[i].value.trim(),p=ins[i+1].value.trim(); if(n||p) S.members.push((n+' '+p).trim()); }
-    S.classe=$('#cl',el).value; S.groupe=$('#gr',el).value.trim();
-    if(!S.members.length||!S.classe){ $('#covhint',el).textContent='Écris au moins un nom et choisis la classe.'; return; }
     startTimer(); S.unlocked[0]=true; go(1);
   };
 });
@@ -803,15 +786,14 @@ function renderBilan(el){
   const app=pct>=90?'Excellent travail ! 🏆':pct>=70?'Très bien ! 👏':pct>=50?'Bien, quelques points à revoir. 🙂':'À retravailler : relis la trace écrite. 💪';
   const used=Math.max(50*60-S.left,0), mm=String(Math.floor(used/60)).padStart(2,'0'), ss=String(used%60).padStart(2,'0');
   el.innerHTML=`<div class="kicker noprint">Fin du cours</div><h2>Bilan : Le bit et l’octet</h2>
-   <div class="panel"><div class="idbox"><div><b>Classe :</b> ${S.classe}</div>${S.mode==='groupe'?`<div><b>Groupe :</b> ${S.groupe||'…'}</div>`:''}<div><b>Date :</b> ${new Date().toLocaleDateString('fr-FR')}</div><div><b>Durée :</b> ${mm} min ${ss} s</div></div>
-    <p style="margin:.4rem 0 0"><b>${S.mode==='groupe'?'Membres du groupe':'Élève'} :</b> ${S.members.join(' ; ')}</p></div>
+   <div class="panel"><div class="idbox"><div><b>Date :</b> ${new Date().toLocaleDateString('fr-FR')}</div><div><b>Durée :</b> ${mm} min ${ss} s</div></div></div>
    <div class="panel row"><div><div class="scorebig">${S.score} / ${S.max}</div><div>Réussite au premier essai : <b>${pct} %</b>, soit <b>${note} / 20</b></div></div><div class="grow"><h3>${app}</h3><p>${S.errors.length?`${S.errors.length} erreur(s) au premier essai. Relis-les ci-dessous.`:'Aucune erreur au premier essai. Bravo !'}</p></div></div>
    ${S.errors.length?`<div class="panel"><h3>Mes erreurs à revoir</h3><table class="err"><tr><th>Question</th><th>Ma réponse</th><th>Bonne réponse</th></tr>${S.errors.map(e=>`<tr><td>${e.q}</td><td>${e.given}</td><td><b>${e.right}</b></td></tr>`).join('')}</table></div>`:''}
    <div class="panel"><h3>🏅 Mes badges : ${S.badges.length} / 6</h3><div class="shelf">${Object.keys(BADGES).map(g=>`<div class="bd ${S.badges.includes(+g)?'':'off'}" title="${BADGES[g][1]}">${BADGES[g][0]}</div>`).join('')}</div></div>
    <div class="panel"><h3>Carte mentale à retenir</h3>${mind()}</div>
-   <div class="noprint" style="display:flex;gap:.6rem;flex-wrap:wrap"><button class="btn go" id="pr">🖨 Imprimer le bilan</button><button class="btn ghost" id="rs">↺ Nouveau groupe</button></div>`;
+   <div class="noprint" style="display:flex;gap:.6rem;flex-wrap:wrap"><button class="btn go" id="pr">🖨 Imprimer le bilan</button><button class="btn ghost" id="rs">↺ Recommencer</button></div>`;
   $('#pr',el).onclick=()=>print();
-  $('#rs',el).onclick=()=>{ if(confirm('Effacer ce bilan et recommencer avec un nouveau groupe ?')){ window.onbeforeunload=null; location.reload(); } };
+  $('#rs',el).onclick=()=>{ if(confirm('Effacer ce bilan et recommencer ?')){ window.onbeforeunload=null; location.reload(); } };
   confetti();
 }
 function mind(){
@@ -863,7 +845,7 @@ function go(i){ if(i>S.visited+(S.unlocked[S.visited]?1:0)) return;
   if(fresh){ stagger(built[i]); if(st.ph!==null) splash(PH[st.ph].i,PH[st.ph].t,`Notion ${st.g-1} : ${GROUPS[st.g]}`); else if(st.g===8||st.g===9) splash(GICON[st.g],GROUPS[st.g],'Dernière ligne droite !'); }
   setTimeout(()=>say(botLine(st,built[i]),'wave',true),fresh&&st.ph!==null?1350:350); }
 const PHMSG=['🔍 Activité : observe, essaie et découvre !','💡 Je déduis : trouve toi-même la règle !','✍ Trace écrite : recopie ce texte dans ton cahier, puis coche la case jaune.','📌 Exemple : regarde bien l’exemple.','✏️ Exercice : montre ce que tu as appris !'];
-function botLine(st,el){ if(st.g===0) return 'Salut ! Je suis Octet 🤖, ton guide. Écris vos noms, choisis la classe, puis clique sur « Commencer la mission ».';
+function botLine(st,el){ if(st.g===0) return 'Salut ! Je suis Octet 🤖, ton guide. Clique sur « Commencer la mission » pour démarrer !';
   if(st.g===1) return 'Échauffement ! Réponds à deux questions sur la leçon précédente. 🧠';
   if(st.g===10) return 'Mission terminée ! 🏆 Bravo ! Clique sur « Imprimer le bilan ».';
   if(st.g===9) return 'Dernier défi : le QCM ! Lis bien chaque question avant de cliquer. ❓';
