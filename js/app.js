@@ -134,6 +134,11 @@ function renderHome() {
       <p>Des leçons jeu complètes, avec robot guide, chrono, badges et bilan imprimable.</p>
     </div>
     <div class="module-grid">
+      <a class="module-card" href="lecons/TC_M1_L1_definitions.html">
+        <div class="icon">📋</div>
+        <h3>Définitions et vocabulaire de base</h3>
+        <p>Module 1, Leçon 1 — donnée et information, les notions clés de l'informatique, les unités de mesure.</p>
+      </a>
       <a class="module-card" href="lecons/TC_M1_L3_bit_octet.html">
         <div class="icon">🔌</div>
         <h3>Le bit et l'octet</h3>
