@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🔢 Animation — Coder, calculer, décoder</title>
+<style>
+:root{
+  --ink:#1B1740; --paper:#F1EFFF; --card:#fff;
+  --blue:#3D3BF3; --blue-l:#DDDCFF;
+  --sun:#FFD23F; --sun-l:#FFF3BF;
+  --coral:#FF5D73; --coral-l:#FFE0E5;
+  --mint:#22C58B; --mint-l:#D5F7EA;
+  --bd:3px solid var(--ink);
+  --sh:4px 4px 0 var(--ink);
+  --mono:"Consolas","SF Mono","Courier New",monospace;
+}
+*{box-sizing:border-box}
+html{font-size:17px}
+body{margin:0;color:var(--ink);background:var(--paper);min-height:100vh;
+  background-image:radial-gradient(var(--blue-l) 1.5px,transparent 1.5px);background-size:26px 26px;
+  font-family:"Arial Rounded MT Bold","Nunito","Trebuchet MS","Segoe UI",system-ui,sans-serif;line-height:1.5}
+h1,h2,h3{line-height:1.2;margin:0 0 .5rem}
+p{margin:0 0 .7rem}
+button{font:inherit;color:inherit}
+:focus-visible{outline:4px solid var(--blue);outline-offset:3px}
+
+.top{background:var(--ink);color:#fff;padding:.9rem 1.2rem;text-align:center}
+.top h1{font-size:1.5rem;margin:0}
+.top p{margin:.3rem 0 0;opacity:.85;font-size:.95rem}
+
+.wrap{max-width:920px;margin:0 auto;padding:1.4rem 1rem 4rem}
+
+.btn{font-weight:800;border:var(--bd);border-radius:999px;padding:.6rem 1.4rem;background:var(--sun);
+  box-shadow:3px 3px 0 var(--ink);cursor:pointer;transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--ink)}
+.btn.blue{background:var(--blue);color:#fff}
+.btn.big{font-size:1.1rem;padding:.75rem 1.6rem}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+.card{background:var(--card);border:var(--bd);border-radius:18px;box-shadow:var(--sh);padding:1.2rem 1.4rem;margin-bottom:1.2rem}
+.instr{background:var(--sun-l);border:var(--bd);border-radius:14px;padding:.9rem 1.1rem;margin-bottom:1.2rem;font-size:1.02rem}
+.instr b{color:var(--blue)}
+
+.phase-title{display:flex;align-items:center;gap:.6rem;font-size:1.15rem;margin-bottom:.8rem}
+.phase-badge{background:var(--ink);color:#fff;border-radius:50%;width:2rem;height:2rem;display:flex;align-items:center;justify-content:center;font-weight:800;flex:none}
+.phase-badge.mint{background:var(--mint)}
+.phase-badge.coral{background:var(--coral)}
+
+.track{position:relative;padding-top:4.4rem;margin:.8rem 0 1.2rem}
+.stns{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem}
+.stn{border:var(--bd);border-radius:14px;background:#fff;text-align:center;padding:.6rem .3rem;transition:background .2s,transform .2s}
+.stn .em{display:block;font-size:2.1rem}
+.stn .lb{font-size:.85rem;font-weight:800}
+.stn.on{background:var(--sun);transform:translateY(-4px)}
+.packet{position:absolute;top:0;left:16.6%;transform:translateX(-50%);opacity:0;min-width:3.4rem;text-align:center;padding:.35rem .8rem;
+  background:var(--coral);color:#fff;border:var(--bd);border-radius:14px;box-shadow:3px 3px 0 var(--ink);font-family:var(--mono);font-weight:800;font-size:1.05rem;
+  transition:left .6s ease-in-out,opacity .3s;white-space:nowrap}
+
+.narr{min-height:2.6rem;font-weight:700;background:var(--sun-l);border:var(--bd);border-radius:12px;padding:.5rem .9rem;margin:.7rem 0;text-align:center}
+
+.wordcards{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;margin:.9rem 0}
+.wordcard{display:inline-flex;flex-direction:column;align-items:center;gap:.15rem;border:var(--bd);border-radius:12px;padding:.5rem .8rem;background:#fff;animation:pop .35s both}
+.wordcard .N{font-size:1.4rem;font-weight:800;font-family:var(--mono)}
+.wordcard .lab{font-size:.7rem;color:#7D7A75}
+.wordcard .B{font-size:.85rem;font-family:var(--mono);font-weight:800;color:var(--blue)}
+@keyframes pop{from{transform:scale(.3);opacity:.2}70%{transform:scale(1.15)}to{transform:scale(1);opacity:1}}
+
+.calcbox{border:var(--bd);border-radius:14px;background:var(--sun-l);padding:1rem;margin:1rem auto;max-width:340px;text-align:center;font-family:var(--mono);font-weight:800;font-size:1.4rem}
+.calcbox .op{opacity:.4}
+
+.screen-display{border:var(--bd);border-radius:14px;background:var(--ink);padding:1.4rem;text-align:center;margin:1rem auto;max-width:260px;box-shadow:var(--sh)}
+.screen-display .big{font-family:var(--mono);font-weight:800;font-size:3rem;color:var(--mint);min-height:3.6rem;display:flex;align-items:center;justify-content:center}
+.screen-display small{color:#fff;opacity:.7;font-size:.75rem}
+
+.msg{margin-top:1rem;font-weight:800;font-size:1.05rem;min-height:1.6rem;text-align:center}
+.msg.ok{color:#0B7A55}
+.actions{display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap;margin-top:1.2rem}
+.note{font-size:.9rem;color:#5b577e;text-align:center;margin-top:.6rem}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>🔢 Coder, calculer, décoder</h1>
+  <p>Séquence 1 — Définitions et vocabulaire de base · Clavier → Unité centrale (codage + calcul) → Écran</p>
+</header>
+
+<main class="wrap">
+  <div class="instr">
+    <p>On tape deux nombres au clavier. L'unité centrale doit les <b>coder</b> en binaire, les <b>additionner</b>, puis <b>décoder</b> le résultat pour l'afficher à l'écran.</p>
+    <p>On va calculer : <b>12 + 7</b></p>
+  </div>
+
+  <div class="card">
+    <div class="track">
+      <div class="packet" id="packet"></div>
+      <div class="stns">
+        <div class="stn" id="stnClavier"><span class="em">⌨️</span><span class="lb">Clavier</span></div>
+        <div class="stn" id="stnUC"><span class="em">🖥️</span><span class="lb">Unité centrale</span></div>
+        <div class="stn" id="stnEcran"><span class="em">🖵</span><span class="lb">Écran</span></div>
+      </div>
+    </div>
+
+    <div class="phase-title"><span class="phase-badge" id="badge1">1</span> Codage : les deux nombres sont tapés</div>
+    <button class="btn blue big" id="btnPhase1">⌨️ Taper 12 et 7</button>
+    <div class="narr" id="narr1" style="display:none"></div>
+    <div class="wordcards" id="wordcards1"></div>
+
+    <div id="phase2Block" style="display:none; margin-top:1.2rem;">
+      <div class="phase-title"><span class="phase-badge mint" id="badge2">2</span> Traitement : l'unité centrale calcule</div>
+      <button class="btn blue big" id="btnPhase2">⚙️ Additionner 12 + 7</button>
+      <div class="narr" id="narr2" style="display:none"></div>
+      <div class="calcbox" id="calcbox" style="display:none"></div>
+    </div>
+
+    <div id="phase3Block" style="display:none; margin-top:1.2rem;">
+      <div class="phase-title"><span class="phase-badge coral" id="badge3">3</span> Décodage : le résultat s'affiche à l'écran</div>
+      <button class="btn blue big" id="btnPhase3">🖥️ Décoder et afficher le résultat</button>
+      <div class="narr" id="narr3" style="display:none"></div>
+      <div class="wordcards" id="wordcards3"></div>
+      <div class="screen-display" id="screenDisplay" style="display:none">
+        <div class="big" id="screenBig"></div>
+        <small>Écran</small>
+      </div>
+    </div>
+
+    <div class="msg" id="msg"></div>
+    <div class="actions">
+      <button class="btn" id="resetBtn">↺ Recommencer</button>
+    </div>
+    <p class="note">Rien n'est enregistré : cette page sert de démonstration à revoir autant de fois que tu veux.</p>
+  </div>
+</main>
+
+<script>
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+const toBin5 = n => n.toString(2).padStart(5,'0');
+
+const A = 12, B = 7, R = A + B; // 19
+
+const stnClavier = document.getElementById('stnClavier');
+const stnUC = document.getElementById('stnUC');
+const stnEcran = document.getElementById('stnEcran');
+const packet = document.getElementById('packet');
+const stns = [stnClavier, stnUC, stnEcran];
+
+function moveTo(i, txt){
+  if (txt != null) packet.textContent = txt;
+  packet.style.left = ((i + .5) * 100 / 3) + '%';
+  stns.forEach((s, j) => s.classList.toggle('on', j === i));
+}
+function hidePacket(){ packet.style.opacity = 0; stns.forEach(s => s.classList.remove('on')); }
+
+const btnPhase1 = document.getElementById('btnPhase1');
+const btnPhase2 = document.getElementById('btnPhase2');
+const btnPhase3 = document.getElementById('btnPhase3');
+const narr1 = document.getElementById('narr1');
+const narr2 = document.getElementById('narr2');
+const narr3 = document.getElementById('narr3');
+const wordcards1 = document.getElementById('wordcards1');
+const wordcards3 = document.getElementById('wordcards3');
+const calcbox = document.getElementById('calcbox');
+const phase2Block = document.getElementById('phase2Block');
+const phase3Block = document.getElementById('phase3Block');
+const msg = document.getElementById('msg');
+const screenDisplay = document.getElementById('screenDisplay');
+const screenBig = document.getElementById('screenBig');
+const resetBtn = document.getElementById('resetBtn');
+
+function wordcard(host, n, bin, order){
+  const card = document.createElement('div');
+  card.className = 'wordcard';
+  card.innerHTML = order === 'nb'
+    ? '<span class="N">'+n+'</span><span class="lab">binaire</span><span class="B">'+bin+'</span>'
+    : '<span class="B">'+bin+'</span><span class="lab">décimal</span><span class="N">'+n+'</span>';
+  host.appendChild(card);
+}
+
+btnPhase1.onclick = async () => {
+  btnPhase1.disabled = true;
+  narr1.style.display = 'block';
+  packet.style.opacity = 1;
+
+  for (const n of [A, B]){
+    narr1.textContent = 'Le nombre ' + n + ' part du clavier…';
+    moveTo(0, String(n));
+    await sleep(250);
+    moveTo(1, String(n));
+    await sleep(600);
+    wordcard(wordcards1, n, toBin5(n), 'nb');
+    narr1.textContent = n + ' codé en binaire : ' + toBin5(n);
+    await sleep(400);
+  }
+
+  narr1.textContent = '✅ Les deux nombres sont codés en binaire dans l\'unité centrale.';
+  hidePacket();
+  phase2Block.style.display = 'block';
+  phase2Block.scrollIntoView({ behavior:'smooth', block:'nearest' });
+};
+
+btnPhase2.onclick = async () => {
+  btnPhase2.disabled = true;
+  narr2.style.display = 'block';
+  calcbox.style.display = 'block';
+  narr2.textContent = 'L\'unité centrale additionne les deux nombres…';
+  calcbox.innerHTML = toBin5(A) + ' <span class="op">+</span> ' + toBin5(B) + ' <span class="op">= ?</span>';
+  await sleep(1300);
+  calcbox.innerHTML = A + ' <span class="op">+</span> ' + B + ' <span class="op">=</span> ' + R;
+  narr2.textContent = '✅ Résultat du calcul : ' + A + ' + ' + B + ' = ' + R;
+  phase3Block.style.display = 'block';
+  phase3Block.scrollIntoView({ behavior:'smooth', block:'nearest' });
+};
+
+btnPhase3.onclick = async () => {
+  btnPhase3.disabled = true;
+  narr3.style.display = 'block';
+  screenDisplay.style.display = 'block';
+  packet.style.opacity = 1;
+
+  narr3.textContent = 'Le résultat ' + R + ' est codé en binaire : ' + toBin5(R) + '…';
+  moveTo(1, toBin5(R));
+  await sleep(600);
+  wordcard(wordcards3, R, toBin5(R), 'bin');
+  moveTo(2, toBin5(R));
+  await sleep(700);
+  hidePacket();
+
+  screenBig.textContent = R;
+  narr3.textContent = '✅ ' + toBin5(R) + ' décodé → ' + R + ' affiché à l\'écran !';
+  msg.textContent = '🎉 Bravo ! 12 + 7 a été codé, calculé, décodé, puis affiché : ' + R + ' !';
+  msg.className = 'msg ok';
+};
+
+resetBtn.onclick = () => {
+  btnPhase1.disabled = false; btnPhase2.disabled = false; btnPhase3.disabled = false;
+  narr1.style.display = 'none'; narr1.textContent = '';
+  narr2.style.display = 'none'; narr2.textContent = '';
+  narr3.style.display = 'none'; narr3.textContent = '';
+  wordcards1.innerHTML = ''; wordcards3.innerHTML = '';
+  calcbox.style.display = 'none'; calcbox.innerHTML = '';
+  phase2Block.style.display = 'none'; phase3Block.style.display = 'none';
+  screenDisplay.style.display = 'none'; screenBig.textContent = '';
+  msg.textContent = ''; msg.className = 'msg';
+  hidePacket();
+};
+
+hidePacket();
+</script>
+<!-- a11y-clavier -->
+<script>
+(function(){
+  // Rend utilisables au clavier (Tab, Entrée/Espace, flèches) les éléments cliquables qui ne sont pas des boutons natifs.
+  var NATIVE = 'button,a[href],input,select,textarea,summary';
+  function enhance(){
+    document.querySelectorAll('body *').forEach(function(el){
+      if (typeof el.onclick !== 'function' || el.matches(NATIVE) || el.hasAttribute('data-kbd')) return;
+      el.setAttribute('data-kbd', '');
+      if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+      if (!el.hasAttribute('role')) el.setAttribute('role', 'button');
+      if (!el.textContent.trim() && !el.hasAttribute('aria-label')) {
+        el.setAttribute('aria-label', 'Case ' + (Array.prototype.indexOf.call(el.parentNode.children, el) + 1));
+      }
+    });
+  }
+  document.addEventListener('keydown', function(e){
+    var el = e.target;
+    if (!(el instanceof Element) || !el.hasAttribute('data-kbd')) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      el.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true}));
+      return;
+    }
+    var dir = {ArrowRight: 1, ArrowLeft: -1, ArrowDown: 'down', ArrowUp: 'up'}[e.key];
+    if (!dir) return;
+    var sibs = Array.prototype.filter.call(el.parentNode.children, function(s){ return s.hasAttribute('data-kbd'); });
+    if (sibs.length < 2) return;
+    var cols = getComputedStyle(el.parentNode).gridTemplateColumns.split(' ').filter(function(c){ return c && c !== 'none'; }).length || 1;
+    var step = dir === 'down' ? cols : dir === 'up' ? -cols : dir;
+    var next = sibs[sibs.indexOf(el) + step];
+    if (next) { e.preventDefault(); next.focus(); }
+  });
+  document.querySelectorAll('#msg,.msg,#progress,.progress,.narr').forEach(function(el){
+    if (!el.hasAttribute('aria-live')) el.setAttribute('aria-live', 'polite');
+  });
+  var pending = false;
+  new MutationObserver(function(){
+    if (pending) return;
+    pending = true;
+    setTimeout(function(){ pending = false; enhance(); }, 0);
+  }).observe(document.body, {childList: true, subtree: true});
+  enhance();
+})();
+</script>
+</body>
+</html>

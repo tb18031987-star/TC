@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>📦 Animation — Combien ça tient dans 1 To ?</title>
+<style>
+:root{
+  --ink:#1B1740; --paper:#F1EFFF; --card:#fff;
+  --blue:#3D3BF3; --blue-l:#DDDCFF;
+  --sun:#FFD23F; --sun-l:#FFF3BF;
+  --coral:#FF5D73; --coral-l:#FFE0E5;
+  --mint:#22C58B; --mint-l:#D5F7EA;
+  --bd:3px solid var(--ink);
+  --sh:4px 4px 0 var(--ink);
+  --mono:"Consolas","SF Mono","Courier New",monospace;
+}
+*{box-sizing:border-box}
+html{font-size:17px}
+body{margin:0;color:var(--ink);background:var(--paper);min-height:100vh;
+  background-image:radial-gradient(var(--blue-l) 1.5px,transparent 1.5px);background-size:26px 26px;
+  font-family:"Arial Rounded MT Bold","Nunito","Trebuchet MS","Segoe UI",system-ui,sans-serif;line-height:1.5}
+h1,h2,h3{line-height:1.2;margin:0 0 .5rem}
+p{margin:0 0 .7rem}
+button{font:inherit;color:inherit}
+:focus-visible{outline:4px solid var(--blue);outline-offset:3px}
+
+.top{background:var(--ink);color:#fff;padding:.9rem 1.2rem;text-align:center}
+.top h1{font-size:1.5rem;margin:0}
+.top p{margin:.3rem 0 0;opacity:.85;font-size:.95rem}
+
+.wrap{max-width:980px;margin:0 auto;padding:1.4rem 1rem 4rem}
+
+.btn{font-weight:800;border:var(--bd);border-radius:999px;padding:.55rem 1.2rem;background:var(--sun);
+  box-shadow:3px 3px 0 var(--ink);cursor:pointer;transition:transform .08s,box-shadow .08s;font-size:.95rem}
+.btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--ink)}
+.btn.blue{background:var(--blue);color:#fff}
+.btn.big{font-size:1.05rem;padding:.7rem 1.5rem}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+.instr{background:var(--sun-l);border:var(--bd);border-radius:14px;padding:.9rem 1.1rem;margin-bottom:1.2rem;font-size:1.02rem}
+.instr b{color:var(--blue)}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.2rem}
+@media (max-width:640px){ .grid2{grid-template-columns:1fr;} }
+
+.catCard{background:#fff;border:var(--bd);border-radius:18px;box-shadow:var(--sh);padding:1.1rem 1.2rem;text-align:center}
+.catCard .ic{font-size:2.6rem;margin-bottom:.3rem}
+.catCard h3{font-size:1.1rem;margin-bottom:.2rem}
+.catCard .hyp{font-size:.78rem;color:#7D7A75;margin-bottom:.8rem}
+.counterVal{font-family:var(--mono);font-weight:800;font-size:1.7rem;color:var(--blue);min-height:2.2rem}
+.counterUnit{font-size:.82rem;font-weight:700;color:#7D7A75;margin-bottom:.7rem}
+
+.allBtnRow{text-align:center;margin-bottom:1.2rem}
+
+.summary{background:var(--blue-l);border:var(--bd);border-radius:16px;padding:1.1rem 1.3rem;text-align:center;font-weight:800;display:none}
+.summary.show{display:block}
+
+.note{font-size:.9rem;color:#5b577e;text-align:center;margin-top:1rem}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>📦 Combien ça tient dans 1 To ?</h1>
+  <p>Séquence 1 — Définitions et vocabulaire de base · Rendre un nombre énorme plus concret</p>
+</header>
+
+<main class="wrap">
+  <div class="instr">
+    <p>8 000 milliards de bits, c'est difficile à imaginer ! Voyons plutôt ce qu'on peut <b>vraiment stocker</b> sur une carte mémoire de 1 To. Clique sur chaque catégorie.</p>
+  </div>
+
+  <div class="grid2" id="catsGrid"></div>
+
+  <div class="allBtnRow">
+    <button class="btn blue big" id="allBtn">▶ Tout calculer en même temps</button>
+  </div>
+
+  <div class="summary" id="summary"></div>
+  <p class="note">Rien n'est enregistré : cette page sert de démonstration à revoir autant de fois que tu veux. Les tailles moyennes utilisées sont des estimations réalistes.</p>
+</main>
+
+<script>
+function fmt(n){ return Math.round(n).toLocaleString('fr-FR'); }
+
+function animateCounter(el, target, duration){
+  return new Promise(resolve => {
+    const start = performance.now();
+    function tick(now){
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3); // ease-out : rapide au début, ralentit à la fin
+      const val = Math.floor(eased * target);
+      el.textContent = fmt(val);
+      if (t < 1) requestAnimationFrame(tick);
+      else { el.textContent = fmt(target); resolve(); }
+    }
+    requestAnimationFrame(tick);
+  });
+}
+
+const TO_EN_MO = 1000 * 1000;   // 1 To en Mo
+const TO_EN_GO = 1000;          // 1 To en Go
+const TO_EN_KO = 1000 * 1000 * 1000; // 1 To en Ko
+
+const CATS = [
+  { id:'photos', ic:'📷', label:'Photos', hyp:'≈ 5 Mo par photo', unit:'photos', target: TO_EN_MO / 5 },
+  { id:'chansons', ic:'🎵', label:'Chansons', hyp:'≈ 4 Mo par chanson', unit:'chansons', target: TO_EN_MO / 4 },
+  { id:'films', ic:'🎬', label:'Films (HD)', hyp:'≈ 2 Go par film', unit:'films', target: TO_EN_GO / 2 },
+  { id:'docs', ic:'📄', label:'Documents', hyp:'≈ 100 Ko par document', unit:'documents', target: TO_EN_KO / 100 }
+];
+
+const catsGrid = document.getElementById('catsGrid');
+CATS.forEach(c => {
+  const card = document.createElement('div');
+  card.className = 'catCard';
+  card.innerHTML = `
+    <div class="ic">${c.ic}</div>
+    <h3>${c.label}</h3>
+    <div class="hyp">${c.hyp}</div>
+    <div class="counterVal" id="val-${c.id}">0</div>
+    <div class="counterUnit">${c.unit}</div>
+    <button class="btn" id="btn-${c.id}">▶ Calculer</button>
+  `;
+  catsGrid.appendChild(card);
+  document.getElementById('btn-'+c.id).onclick = async (e) => {
+    e.target.disabled = true;
+    await animateCounter(document.getElementById('val-'+c.id), c.target, 1400);
+    e.target.disabled = false;
+  };
+});
+
+document.getElementById('allBtn').onclick = async () => {
+  const btn = document.getElementById('allBtn');
+  btn.disabled = true;
+  await Promise.all(CATS.map(c => {
+    document.getElementById('btn-'+c.id).disabled = true;
+    return animateCounter(document.getElementById('val-'+c.id), c.target, 1600);
+  }));
+  CATS.forEach(c => document.getElementById('btn-'+c.id).disabled = false);
+  const summary = document.getElementById('summary');
+  summary.className = 'summary show';
+  summary.innerHTML = '🎉 Avec 1 To, tu pourrais garder <b>' + fmt(CATS[0].target) + ' photos</b>, OU <b>' + fmt(CATS[1].target) + ' chansons</b>, OU <b>' + fmt(CATS[2].target) + ' films</b>, OU <b>' + fmt(CATS[3].target) + ' documents</b> — au choix, pas tout en même temps !';
+  btn.disabled = false;
+};
+</script>
+<!-- a11y-clavier -->
+<script>
+(function(){
+  // Rend utilisables au clavier (Tab, Entrée/Espace, flèches) les éléments cliquables qui ne sont pas des boutons natifs.
+  var NATIVE = 'button,a[href],input,select,textarea,summary';
+  function enhance(){
+    document.querySelectorAll('body *').forEach(function(el){
+      if (typeof el.onclick !== 'function' || el.matches(NATIVE) || el.hasAttribute('data-kbd')) return;
+      el.setAttribute('data-kbd', '');
+      if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+      if (!el.hasAttribute('role')) el.setAttribute('role', 'button');
+      if (!el.textContent.trim() && !el.hasAttribute('aria-label')) {
+        el.setAttribute('aria-label', 'Case ' + (Array.prototype.indexOf.call(el.parentNode.children, el) + 1));
+      }
+    });
+  }
+  document.addEventListener('keydown', function(e){
+    var el = e.target;
+    if (!(el instanceof Element) || !el.hasAttribute('data-kbd')) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      el.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true}));
+      return;
+    }
+    var dir = {ArrowRight: 1, ArrowLeft: -1, ArrowDown: 'down', ArrowUp: 'up'}[e.key];
+    if (!dir) return;
+    var sibs = Array.prototype.filter.call(el.parentNode.children, function(s){ return s.hasAttribute('data-kbd'); });
+    if (sibs.length < 2) return;
+    var cols = getComputedStyle(el.parentNode).gridTemplateColumns.split(' ').filter(function(c){ return c && c !== 'none'; }).length || 1;
+    var step = dir === 'down' ? cols : dir === 'up' ? -cols : dir;
+    var next = sibs[sibs.indexOf(el) + step];
+    if (next) { e.preventDefault(); next.focus(); }
+  });
+  document.querySelectorAll('#msg,.msg,#progress,.progress,.narr').forEach(function(el){
+    if (!el.hasAttribute('aria-live')) el.setAttribute('aria-live', 'polite');
+  });
+  var pending = false;
+  new MutationObserver(function(){
+    if (pending) return;
+    pending = true;
+    setTimeout(function(){ pending = false; enhance(); }, 0);
+  }).observe(document.body, {childList: true, subtree: true});
+  enhance();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>💡 Animation — Du circuit électrique au bit</title>
+<style>
+:root{
+  --ink:#1B1740; --paper:#F1EFFF; --card:#fff;
+  --blue:#3D3BF3; --blue-l:#DDDCFF;
+  --sun:#FFD23F; --sun-l:#FFF3BF;
+  --coral:#FF5D73; --coral-l:#FFE0E5;
+  --mint:#22C58B; --mint-l:#D5F7EA;
+  --bd:3px solid var(--ink);
+  --sh:4px 4px 0 var(--ink);
+  --mono:"Consolas","SF Mono","Courier New",monospace;
+}
+*{box-sizing:border-box}
+html{font-size:17px}
+body{margin:0;color:var(--ink);background:var(--paper);min-height:100vh;
+  background-image:radial-gradient(var(--blue-l) 1.5px,transparent 1.5px);background-size:26px 26px;
+  font-family:"Arial Rounded MT Bold","Nunito","Trebuchet MS","Segoe UI",system-ui,sans-serif;line-height:1.5}
+h1,h2,h3{line-height:1.2;margin:0 0 .5rem}
+p{margin:0 0 .7rem}
+button{font:inherit;color:inherit}
+:focus-visible{outline:4px solid var(--blue);outline-offset:3px}
+
+.top{background:var(--ink);color:#fff;padding:.9rem 1.2rem;text-align:center}
+.top h1{font-size:1.5rem;margin:0}
+.top p{margin:.3rem 0 0;opacity:.85;font-size:.95rem}
+
+.wrap{max-width:920px;margin:0 auto;padding:1.4rem 1rem 4rem}
+
+.btn{font-weight:800;border:var(--bd);border-radius:999px;padding:.6rem 1.4rem;background:var(--sun);
+  box-shadow:3px 3px 0 var(--ink);cursor:pointer;transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--ink)}
+.btn.blue{background:var(--blue);color:#fff}
+.btn.big{font-size:1.1rem;padding:.75rem 1.6rem}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+.card{background:var(--card);border:var(--bd);border-radius:18px;box-shadow:var(--sh);padding:1.2rem 1.4rem;margin-bottom:1.2rem}
+.instr{background:var(--sun-l);border:var(--bd);border-radius:14px;padding:.9rem 1.1rem;margin-bottom:1.2rem;font-size:1.02rem}
+.instr b{color:var(--blue)}
+
+.chs{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}
+.ch{flex:1;min-width:120px;border:var(--bd);border-radius:14px;padding:.5rem .7rem;text-align:center;background:#fff;font-weight:800;font-size:.85rem}
+.ch.cur{background:var(--blue);color:#fff}
+.ch.done{background:var(--mint-l)}
+.ch.lock{opacity:.5}
+
+.stepbox{min-height:280px}
+.stepTitle{display:flex;align-items:center;gap:.6rem;font-size:1.3rem;margin-bottom:1rem}
+.stepBadge{background:var(--ink);color:#fff;border-radius:50%;width:2.2rem;height:2.2rem;display:flex;align-items:center;justify-content:center;font-weight:800;flex:none}
+
+.circuitRow{display:flex;align-items:center;justify-content:center;gap:.7rem;flex-wrap:wrap;margin:1.4rem 0}
+.comp{display:flex;flex-direction:column;align-items:center;gap:.3rem}
+.comp .ic{font-size:2.4rem}
+.comp .lb{font-size:.8rem;font-weight:800;color:#7D7A75}
+.wire{width:3.2rem;height:5px;background:#c9c9c9;border-radius:3px;transition:background .2s}
+.wire.on{background:var(--sun)}
+.switchBtn{cursor:pointer;border:none;background:none;padding:0}
+.switchBtn svg{width:5.6rem;height:2.6rem}
+.lampIcon{font-size:3rem;transition:filter .2s, opacity .2s}
+.lampIcon.off{opacity:.35; filter:grayscale(1)}
+.stateTag{display:inline-block;margin:0 auto;font-family:var(--mono);font-weight:800;font-size:1.5rem;border:var(--bd);border-radius:12px;padding:.3rem 1rem;background:#fff}
+
+.narr{min-height:2.4rem;font-weight:700;background:var(--sun-l);border:var(--bd);border-radius:12px;padding:.5rem .9rem;margin:1rem 0;text-align:center}
+
+.transWrap{text-align:center;margin:1.2rem 0}
+.transBox{display:inline-block;border:var(--bd);border-radius:12px;background:#fff;padding:1rem 1.4rem;position:relative}
+.transBox .tlabel{font-size:.75rem;font-weight:700;color:#7D7A75;margin-bottom:.4rem}
+.transBox svg{width:9rem;height:6rem}
+.gateBtn{margin-top:.8rem}
+
+.factbox{border:var(--bd);border-radius:14px;background:var(--blue-l);padding:1rem 1.2rem;text-align:center;font-weight:800;margin:1rem 0}
+
+.lamps{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center;margin:1rem 0}
+.lampbtn{border:var(--bd);border-radius:12px;background:#fff;padding:.5rem .3rem;text-align:center;cursor:pointer;width:3.6rem}
+.lampbtn .bulb{width:2rem;height:2rem;margin:0 auto .25rem;border-radius:50%;border:var(--bd);background:#ddd;transition:background .15s,box-shadow .15s}
+.lampbtn.on .bulb{background:var(--sun);box-shadow:0 0 0 4px var(--sun-l),0 0 14px 4px var(--sun)}
+.lampbtn b{display:block;font-size:1rem}
+.total{text-align:center;font-size:1.3rem;font-weight:800;margin:.6rem 0}
+
+.msg{margin-top:1rem;font-weight:800;font-size:1.05rem;min-height:1.6rem;text-align:center}
+.msg.ok{color:#0B7A55}
+.foot{margin-top:1.4rem;display:flex;justify-content:space-between;gap:.7rem;flex-wrap:wrap}
+.note{font-size:.9rem;color:#5b577e;text-align:center;margin-top:.6rem}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>💡 Du circuit électrique au bit</h1>
+  <p>Séquence 1 — Définitions et vocabulaire de base · D'où viennent vraiment le 0 et le 1 ?</p>
+</header>
+
+<main class="wrap">
+  <div class="instr">
+    <p>On a appris à coder du texte, des images, des sons… mais <b>pourquoi</b> l'ordinateur utilise-t-il seulement <b>0 et 1</b> ? La réponse est physique : découvrons-la étape par étape !</p>
+  </div>
+
+  <div class="chs" id="chs"></div>
+
+  <div class="card">
+    <div class="stepbox" id="stepbox"></div>
+    <div class="msg" id="msg"></div>
+    <div class="foot">
+      <button class="btn" id="prevBtn">◀ Précédent</button>
+      <button class="btn" id="resetBtn">↺ Recommencer</button>
+      <button class="btn blue" id="nextBtn" disabled>Suivant ▶</button>
+    </div>
+    <p class="note">Rien n'est enregistré : cette page sert de démonstration à revoir autant de fois que tu veux.</p>
+  </div>
+</main>
+
+<script>
+const stepbox = document.getElementById('stepbox');
+const chs = document.getElementById('chs');
+const msg = document.getElementById('msg');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const resetBtn = document.getElementById('resetBtn');
+
+const STEPS = ['Le circuit électrique', 'Le transistor', 'Du bit à l’octet'];
+let cur = 0;
+let unlocked = [true, false, false];
+let seen = [new Set(), new Set(), false]; // step0: états vus (0/1) ; step1: états vus (0/1) ; step2: bool "exploré"
+
+function drawChs(){
+  chs.innerHTML = '';
+  STEPS.forEach((t, i) => {
+    const el = document.createElement('div');
+    el.className = 'ch ' + (i === cur ? 'cur' : unlocked[i] ? '' : 'lock');
+    if (unlocked[i] && i < cur) el.className = 'ch done';
+    el.textContent = (i+1) + '. ' + t;
+    chs.appendChild(el);
+  });
+}
+
+function goStep(i){
+  cur = i;
+  msg.textContent = ''; msg.className = 'msg';
+  drawChs();
+  prevBtn.disabled = (i === 0);
+  nextBtn.disabled = true;
+  nextBtn.textContent = (i === STEPS.length - 1) ? 'Terminé ✓' : 'Suivant ▶';
+  if (i === 0) renderStep0();
+  if (i === 1) renderStep1();
+  if (i === 2) renderStep2();
+}
+
+/* ---------- Étape 1 : le circuit électrique ---------- */
+function renderStep0(){
+  let closed = false;
+  stepbox.innerHTML = `
+    <div class="stepTitle"><span class="stepBadge">1</span> Le circuit électrique</div>
+    <p>Un circuit électrique tout simple : une pile, un interrupteur, une lampe. Clique sur l'interrupteur pour l'ouvrir ou le fermer.</p>
+    <div class="circuitRow">
+      <div class="comp"><span class="ic">🔋</span><span class="lb">Pile</span></div>
+      <div class="wire" id="wire1"></div>
+      <button class="switchBtn" id="switchBtn" title="Cliquer pour actionner l'interrupteur">
+        <svg viewBox="0 0 100 50">
+          <line x1="6" y1="25" x2="30" y2="25" stroke="#1B1740" stroke-width="5"/>
+          <circle cx="30" cy="25" r="4" fill="#1B1740"/>
+          <g id="lever" style="transform-origin:30px 25px; transition:transform .25s; transform:rotate(-28deg);">
+            <line x1="30" y1="25" x2="70" y2="25" stroke="#1B1740" stroke-width="5"/>
+          </g>
+          <line x1="70" y1="25" x2="94" y2="25" stroke="#1B1740" stroke-width="5"/>
+          <circle cx="70" cy="25" r="3" fill="#1B1740"/>
+        </svg>
+      </button>
+      <div class="wire" id="wire2"></div>
+      <div class="comp"><span class="ic lampIcon off" id="lampIcon">💡</span><span class="lb">Lampe</span></div>
+    </div>
+    <div style="text-align:center;">
+      <span class="stateTag" id="stateTag">0</span>
+    </div>
+    <div class="narr" id="narr0">L'interrupteur est <b>ouvert</b> : le courant ne passe pas. La lampe est éteinte : <b>0</b>.</div>
+  `;
+  const lever = document.getElementById('lever');
+  const wire1 = document.getElementById('wire1');
+  const wire2 = document.getElementById('wire2');
+  const lampIcon = document.getElementById('lampIcon');
+  const stateTag = document.getElementById('stateTag');
+  const narr0 = document.getElementById('narr0');
+  document.getElementById('switchBtn').onclick = () => {
+    closed = !closed;
+    lever.style.transform = closed ? 'rotate(0deg)' : 'rotate(-28deg)';
+    wire1.classList.toggle('on', closed);
+    wire2.classList.toggle('on', closed);
+    lampIcon.classList.toggle('off', !closed);
+    stateTag.textContent = closed ? '1' : '0';
+    narr0.innerHTML = closed
+      ? 'L\'interrupteur est <b>fermé</b> : le courant passe. La lampe s\'allume : <b>1</b>.'
+      : 'L\'interrupteur est <b>ouvert</b> : le courant ne passe pas. La lampe est éteinte : <b>0</b>.';
+    seen[0].add(closed ? '1' : '0');
+    if (seen[0].size >= 2){
+      unlocked[1] = true;
+      nextBtn.disabled = false;
+      msg.textContent = '✅ Tu as vu les 2 états : circuit ouvert (0) et fermé (1) — exactement comme un bit !';
+      msg.className = 'msg ok';
+    }
+  };
+}
+
+/* ---------- Étape 2 : le transistor ---------- */
+function renderStep1(){
+  let on = false;
+  stepbox.innerHTML = `
+    <div class="stepTitle"><span class="stepBadge">2</span> Le transistor</div>
+    <p>Dans un ordinateur, on ne peut pas actionner des milliards d'interrupteurs à la main ! Le <b>transistor</b> est un interrupteur électronique minuscule, commandé par un signal électrique.</p>
+    <div class="transWrap">
+      <div class="transBox">
+        <div class="tlabel">Transistor</div>
+        <svg viewBox="0 0 140 100">
+          <circle cx="70" cy="50" r="34" fill="#F5F3FA" stroke="#1B1740" stroke-width="3"/>
+          <line x1="70" y1="6" x2="70" y2="30" stroke="#1B1740" stroke-width="4"/>
+          <text x="70" y="6" text-anchor="middle" font-size="10" fill="#7D7A75">grille (signal)</text>
+          <line x1="40" y1="70" x2="55" y2="55" stroke="#1B1740" stroke-width="4"/>
+          <line x1="100" y1="70" x2="85" y2="55" stroke="#1B1740" stroke-width="4"/>
+          <line id="tgap" x1="55" y1="55" x2="85" y2="55" stroke="#C21F3A" stroke-width="4" stroke-dasharray="4 4"/>
+          <text x="30" y="86" font-size="10" fill="#7D7A75">entrée</text>
+          <text x="92" y="86" font-size="10" fill="#7D7A75">sortie</text>
+        </svg>
+      </div>
+    </div>
+    <div style="text-align:center;">
+      <span class="stateTag" id="stateTagT">0</span>
+    </div>
+    <div class="narr" id="narrT">Aucun signal sur la grille : le transistor est <b>bloqué</b>, le courant ne passe pas : <b>0</b>.</div>
+    <div style="text-align:center;">
+      <button class="btn blue gateBtn" id="gateBtn">⚡ Envoyer un signal sur la grille</button>
+    </div>
+  `;
+  const tgap = document.getElementById('tgap');
+  const stateTagT = document.getElementById('stateTagT');
+  const narrT = document.getElementById('narrT');
+  const gateBtn = document.getElementById('gateBtn');
+  gateBtn.onclick = () => {
+    on = !on;
+    tgap.setAttribute('stroke', on ? '#22C58B' : '#C21F3A');
+    tgap.setAttribute('stroke-dasharray', on ? '0' : '4 4');
+    stateTagT.textContent = on ? '1' : '0';
+    narrT.innerHTML = on
+      ? 'Un signal arrive sur la grille : le transistor devient <b>passant</b>, le courant passe : <b>1</b>.'
+      : 'Aucun signal sur la grille : le transistor est <b>bloqué</b>, le courant ne passe pas : <b>0</b>.';
+    gateBtn.textContent = on ? '⚡ Couper le signal' : '⚡ Envoyer un signal sur la grille';
+    seen[1].add(on ? '1' : '0');
+    if (seen[1].size >= 2){
+      unlocked[2] = true;
+      nextBtn.disabled = false;
+      msg.textContent = '✅ Bloqué (0) ou passant (1) : le transistor fait exactement comme l\'interrupteur, en beaucoup plus petit et plus rapide !';
+      msg.className = 'msg ok';
+    }
+  };
+}
+
+/* ---------- Étape 3 : du bit à l'octet ---------- */
+function renderStep2(){
+  const W = [128,64,32,16,8,4,2,1];
+  const on = new Array(8).fill(0);
+  stepbox.innerHTML = `
+    <div class="stepTitle"><span class="stepBadge">3</span> Du bit à l'octet</div>
+    <p><b>1 transistor = 1 bit</b> (0 ou 1). En alignant <b>8 transistors</b>, on obtient <b>1 octet</b>. Clique sur les lampes pour allumer/éteindre des bits, comme des transistors !</p>
+    <div class="lamps" id="lamps"></div>
+    <div class="total" id="total">Valeur : 0</div>
+    <div class="factbox">💡 Un processeur moderne contient plus de <b>10 milliards</b> de transistors, chacun capable de coder 1 bit !</div>
+  `;
+  const lampsBox = document.getElementById('lamps');
+  const total = document.getElementById('total');
+  let interacted = new Set();
+  W.forEach((w, i) => {
+    const b = document.createElement('div');
+    b.className = 'lampbtn';
+    b.innerHTML = '<div class="bulb"></div><b>0</b><small>'+w+'</small>';
+    b.onclick = () => {
+      on[i] ^= 1;
+      b.classList.toggle('on', !!on[i]);
+      b.querySelector('b').textContent = on[i];
+      const sum = on.reduce((s,v,j)=>s+v*W[j],0);
+      total.textContent = 'Valeur : ' + sum + ' (' + on.join('') + '₂)';
+      interacted.add(i);
+      if (interacted.size >= 3 && nextBtn.disabled){
+        nextBtn.disabled = false;
+        msg.textContent = '✅ Bravo ! 8 transistors (8 bits) forment un octet, et permettent de coder n\'importe quelle valeur de 0 à 255.';
+        msg.className = 'msg ok';
+      }
+    };
+    lampsBox.appendChild(b);
+  });
+}
+
+nextBtn.onclick = () => {
+  if (cur < STEPS.length - 1 && unlocked[cur+1]) goStep(cur+1);
+  else if (cur === STEPS.length - 1) {
+    msg.textContent = '🎉 Voyage terminé : interrupteur → transistor → bit → octet. Tu sais maintenant pourquoi l\'ordinateur ne connaît que le 0 et le 1 !';
+    msg.className = 'msg ok';
+  }
+};
+prevBtn.onclick = () => { if (cur > 0) goStep(cur-1); };
+resetBtn.onclick = () => {
+  unlocked = [true, false, false];
+  seen = [new Set(), new Set(), false];
+  goStep(0);
+};
+
+goStep(0);
+</script>
+<!-- a11y-clavier -->
+<script>
+(function(){
+  // Rend utilisables au clavier (Tab, Entrée/Espace, flèches) les éléments cliquables qui ne sont pas des boutons natifs.
+  var NATIVE = 'button,a[href],input,select,textarea,summary';
+  function enhance(){
+    document.querySelectorAll('body *').forEach(function(el){
+      if (typeof el.onclick !== 'function' || el.matches(NATIVE) || el.hasAttribute('data-kbd')) return;
+      el.setAttribute('data-kbd', '');
+      if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+      if (!el.hasAttribute('role')) el.setAttribute('role', 'button');
+      if (!el.textContent.trim() && !el.hasAttribute('aria-label')) {
+        el.setAttribute('aria-label', 'Case ' + (Array.prototype.indexOf.call(el.parentNode.children, el) + 1));
+      }
+    });
+  }
+  document.addEventListener('keydown', function(e){
+    var el = e.target;
+    if (!(el instanceof Element) || !el.hasAttribute('data-kbd')) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      el.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true}));
+      return;
+    }
+    var dir = {ArrowRight: 1, ArrowLeft: -1, ArrowDown: 'down', ArrowUp: 'up'}[e.key];
+    if (!dir) return;
+    var sibs = Array.prototype.filter.call(el.parentNode.children, function(s){ return s.hasAttribute('data-kbd'); });
+    if (sibs.length < 2) return;
+    var cols = getComputedStyle(el.parentNode).gridTemplateColumns.split(' ').filter(function(c){ return c && c !== 'none'; }).length || 1;
+    var step = dir === 'down' ? cols : dir === 'up' ? -cols : dir;
+    var next = sibs[sibs.indexOf(el) + step];
+    if (next) { e.preventDefault(); next.focus(); }
+  });
+  document.querySelectorAll('#msg,.msg,#progress,.progress,.narr').forEach(function(el){
+    if (!el.hasAttribute('aria-live')) el.setAttribute('aria-live', 'polite');
+  });
+  var pending = false;
+  new MutationObserver(function(){
+    if (pending) return;
+    pending = true;
+    setTimeout(function(){ pending = false; enhance(); }, 0);
+  }).observe(document.body, {childList: true, subtree: true});
+  enhance();
+})();
+</script>
+</body>
+</html>

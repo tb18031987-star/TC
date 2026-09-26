@@ -475,7 +475,7 @@ function revealTiles(root,{key,items,doneMsg,onDone}){
 }
 
 /* ================= étapes de la leçon ================= */
-const GROUPS=['Accueil','Donnée et information','Notions clés','Unités d’information','Activités finales','QCM','Bilan'];
+const GROUPS=['Accueil','Donnée et information','Notions clés','Unités d’information','Animations','Activités finales','QCM','Bilan'];
 const PH=[{i:'🔍',t:'Activité'},{i:'💡',t:'Je déduis'},{i:'✍',t:'Trace écrite'},{i:'📌',t:'Exemple'},{i:'✏️',t:'Exercice'}];
 const STEPS=[];
 function add(g,build,ph=null){ STEPS.push({g,build,ph}); }
@@ -618,8 +618,35 @@ notion(3,3,[
     {q:'Dans quel ordre range-t-on ces unités, du plus petit au plus grand ?',o:['bit, octet, Ko','octet, bit, Ko','Ko, octet, bit'],a:0,e:'Le bit est plus petit que l’octet, qui est plus petit que le Ko.'}],onDone:()=>unlock('Notion 3 terminée ! Continue.')}); }
 ]);
 
-/* ---------- Activités finales ---------- */
+/* ---------- Animations : pour aller plus loin ---------- */
 add(4,el=>{
+  el.innerHTML=`<div class="kicker">Pour aller plus loin</div><h2>🎬 Anime tes notions !</h2>
+   <p class="intro-notion">Cinq animations interactives pour revoir en images tout ce que tu viens d’apprendre. Clique sur une carte pour la lancer.</p>
+   <div class="excards" id="animGallery"></div>`;
+  const ANIMS=[
+   {ico:'💡',title:'Du circuit électrique au bit',desc:'D’où viennent vraiment le 0 et le 1 ? Interrupteur → transistor → octet.',file:'animations/circuit-bit.html',c:'#2F7BFF'},
+   {ico:'⌨️',title:'Du clavier à l’écran',desc:'Suis la lettre A : codée en binaire, puis décodée pour s’afficher.',file:'animations/clavier-ecran.html',c:'#FF8A00'},
+   {ico:'🔢',title:'Coder, calculer, décoder',desc:'12 + 7 : le voyage complet d’un calcul dans l’unité centrale.',file:'animations/calcul.html',c:'#00B39A'},
+   {ico:'🖼️',title:'Coder et décoder une image',desc:'Transforme une image en 0 et 1, puis envoie-la à un autre ordinateur.',file:'animations/image.html',c:'#E0317A'},
+   {ico:'📦',title:'Combien ça tient dans 1 To ?',desc:'Photos, chansons, films, documents : rends les unités concrètes.',file:'animations/combien-1to.html',c:'#8B5CF6'}
+  ];
+  const box=$('#animGallery',el);
+  ANIMS.forEach(a=>{
+    const card=document.createElement('button'); card.className='exc'; card.type='button'; card.style.setProperty('--c',a.c);
+    card.innerHTML=`<span class="ico">${a.ico}</span><b>${a.title}</b><span>${a.desc}</span>`;
+    card.onclick=()=>openAnim(a);
+    box.appendChild(card);
+  });
+  unlock('Explore les animations, puis clique sur « Continuer ».');
+});
+function openAnim(a){
+  modal(`<h3 style="margin-bottom:.6rem">${a.ico} ${a.title}</h3>
+   <iframe src="${a.file}" title="${a.title}" style="width:100%;height:min(70vh,640px);border:3px solid var(--ink);border-radius:14px;background:#fff" loading="lazy"></iframe>
+   <p style="margin-top:.7rem"><a href="${a.file}" target="_blank" rel="noopener" style="font-weight:800;color:var(--in)">↗ Ouvrir dans un nouvel onglet</a></p>`);
+}
+
+/* ---------- Activités finales ---------- */
+add(5,el=>{
   el.innerHTML=`<div class="kicker">Activités finales</div><h2>Vrai ou faux ?</h2><p class="consigne">Un petit récapitulatif avant le grand défi !</p><div class="panel" id="e"></div>`;
   series($('#e',el),{key:'f1_',list:vf([
     ['Un chiffre seul, sans contexte, est déjà une information.',false,'Faux : c’est une simple donnée.'],
@@ -630,7 +657,7 @@ add(4,el=>{
 });
 
 /* ---------- QCM ---------- */
-add(5,el=>{
+add(6,el=>{
   el.innerHTML=`<div class="kicker">Évaluation</div><h2>QCM : teste-toi !</h2><div class="panel" id="p"></div>`;
   series($('#p',el),{key:'qcm',list:[
     {q:'Une information, c’est…',o:['N’importe quel chiffre, même sans contexte','Une donnée à laquelle on donne du sens','Toujours un texte écrit'],a:1,e:'Une information est une donnée à laquelle on donne du sens.'},
@@ -644,7 +671,7 @@ add(5,el=>{
 });
 
 /* ---------- Bilan ---------- */
-add(6,el=>el.classList.add('bilan'));
+add(7,el=>el.classList.add('bilan'));
 function renderBilan(el){
   const pct=S.max?Math.round(100*S.score/S.max):0, note=Math.round(pct/5*10)/10;
   const app=pct>=90?'Excellent travail ! 🏆':pct>=70?'Très bien ! 👏':pct>=50?'Bien, quelques points à revoir. 🙂':'À retravailler : relis la trace écrite. 💪';
@@ -681,7 +708,7 @@ function confetti(){ if(RM) return; const c=$('#confetti'),x=c.getContext('2d');
 /* ================= navigation ================= */
 const main=$('#main'), built={};
 const firstOf=g=>STEPS.findIndex(s=>s.g===g);
-const GICON=['🏁','📋','💻','📏','🎮','❓','🏆'];
+const GICON=['🏁','📋','💻','📏','🎬','🎮','❓','🏆'];
 function buildTrack(){ const tr=$('#track');
   GROUPS.forEach((t,g)=>{ const b=document.createElement('button'); b.className='node'; b.dataset.g=g; b.style.left=(g/(GROUPS.length-1)*100)+'%'; b.innerHTML=`${GICON[g]}<span class="tip">${t}</span>`; b.setAttribute('aria-label',t);
     b.onclick=()=>{ const i=firstOf(g); if(i<=S.visited) go(i); }; tr.appendChild(b); }); }
@@ -704,12 +731,13 @@ function go(i){ if(i>S.visited+(S.unlocked[S.visited]?1:0)) return;
   if(i===STEPS.length-1){ S.unlocked[i]=true; renderBilan(built[i]); }
   built[i].classList.add('show'); scrollTo({top:0,behavior:RM?'auto':'smooth'}); refreshNav();
   const st=STEPS[i];
-  if(fresh){ stagger(built[i]); if(st.ph!==null) splash(PH[st.ph].i,PH[st.ph].t,`Notion ${st.g} : ${GROUPS[st.g]}`); else if(st.g===4||st.g===5) splash(GICON[st.g],GROUPS[st.g],'Dernière ligne droite !'); }
+  if(fresh){ stagger(built[i]); if(st.ph!==null) splash(PH[st.ph].i,PH[st.ph].t,`Notion ${st.g} : ${GROUPS[st.g]}`); else if(st.g===4||st.g===5||st.g===6) splash(GICON[st.g],GROUPS[st.g],'Dernière ligne droite !'); }
   setTimeout(()=>say(botLine(st,built[i]),'wave',true),fresh&&st.ph!==null?1350:350); }
 const PHMSG=['🔍 Activité : observe, essaie et découvre !','💡 Je déduis : trouve toi-même la règle !','✍ Trace écrite : recopie ce texte dans ton cahier, puis coche la case jaune.','📌 Exemple : regarde bien l’exemple.','✏️ Exercice : montre ce que tu as appris !'];
 function botLine(st,el){ if(st.g===0) return 'Salut ! Je suis Octet 🤖, ton guide. Écris vos noms, choisis la classe, puis clique sur « Commencer la mission ».';
-  if(st.g===6) return 'Mission terminée ! 🏆 Bravo ! Clique sur « Imprimer le bilan ».';
-  if(st.g===5) return 'Dernier défi : le QCM ! Lis bien chaque question avant de cliquer. ❓';
+  if(st.g===7) return 'Mission terminée ! 🏆 Bravo ! Clique sur « Imprimer le bilan ».';
+  if(st.g===6) return 'Dernier défi : le QCM ! Lis bien chaque question avant de cliquer. ❓';
+  if(st.g===4) return 'Amuse-toi avec les animations, puis clique sur « Continuer » quand tu es prêt. 🎬';
   const c=$('.consigne',el), t=c?c.textContent.trim():'';
   return (st.ph!==null?PHMSG[st.ph]+' ':'')+(t&&!(st.ph===2)?t:''); }
 $('#next').onclick=()=>{ if(S.unlocked[S.step]) go(S.step+1); };

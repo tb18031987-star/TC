@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⌨️ Animation — Du clavier à l'écran</title>
+<style>
+:root{
+  --ink:#1B1740; --paper:#F1EFFF; --card:#fff;
+  --blue:#3D3BF3; --blue-l:#DDDCFF;
+  --sun:#FFD23F; --sun-l:#FFF3BF;
+  --coral:#FF5D73; --coral-l:#FFE0E5;
+  --mint:#22C58B; --mint-l:#D5F7EA;
+  --bd:3px solid var(--ink);
+  --sh:4px 4px 0 var(--ink);
+  --mono:"Consolas","SF Mono","Courier New",monospace;
+}
+*{box-sizing:border-box}
+html{font-size:17px}
+body{margin:0;color:var(--ink);background:var(--paper);min-height:100vh;
+  background-image:radial-gradient(var(--blue-l) 1.5px,transparent 1.5px);background-size:26px 26px;
+  font-family:"Arial Rounded MT Bold","Nunito","Trebuchet MS","Segoe UI",system-ui,sans-serif;line-height:1.5}
+h1,h2,h3{line-height:1.2;margin:0 0 .5rem}
+p{margin:0 0 .7rem}
+button{font:inherit;color:inherit}
+:focus-visible{outline:4px solid var(--blue);outline-offset:3px}
+
+.top{background:var(--ink);color:#fff;padding:.9rem 1.2rem;text-align:center}
+.top h1{font-size:1.5rem;margin:0}
+.top p{margin:.3rem 0 0;opacity:.85;font-size:.95rem}
+
+.wrap{max-width:900px;margin:0 auto;padding:1.4rem 1rem 4rem}
+
+.btn{font-weight:800;border:var(--bd);border-radius:999px;padding:.6rem 1.4rem;background:var(--sun);
+  box-shadow:3px 3px 0 var(--ink);cursor:pointer;transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--ink)}
+.btn.blue{background:var(--blue);color:#fff}
+.btn.mint{background:var(--mint)}
+.btn.big{font-size:1.1rem;padding:.75rem 1.6rem}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+.card{background:var(--card);border:var(--bd);border-radius:18px;box-shadow:var(--sh);padding:1.2rem 1.4rem;margin-bottom:1.2rem}
+.instr{background:var(--sun-l);border:var(--bd);border-radius:14px;padding:.9rem 1.1rem;margin-bottom:1.2rem;font-size:1.02rem}
+.instr b{color:var(--blue)}
+
+.phase-title{display:flex;align-items:center;gap:.6rem;font-size:1.15rem;margin-bottom:.8rem}
+.phase-badge{background:var(--ink);color:#fff;border-radius:50%;width:2rem;height:2rem;display:flex;align-items:center;justify-content:center;font-weight:800;flex:none}
+.phase-badge.mint{background:var(--mint)}
+.phase-badge.coral{background:var(--coral)}
+
+.track{position:relative;padding-top:4.4rem;margin:.8rem 0 1.2rem}
+.stns{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem}
+.stn{border:var(--bd);border-radius:14px;background:#fff;text-align:center;padding:.6rem .3rem;transition:background .2s,transform .2s}
+.stn .em{display:block;font-size:2.1rem}
+.stn .lb{font-size:.85rem;font-weight:800}
+.stn.on{background:var(--sun);transform:translateY(-4px)}
+.packet{position:absolute;top:0;left:16.6%;transform:translateX(-50%);opacity:0;min-width:3.4rem;text-align:center;padding:.35rem .8rem;
+  background:var(--coral);color:#fff;border:var(--bd);border-radius:14px;box-shadow:3px 3px 0 var(--ink);font-family:var(--mono);font-weight:800;font-size:1.2rem;
+  transition:left .9s ease-in-out,opacity .3s;white-space:nowrap}
+
+.narr{min-height:2.6rem;font-weight:700;background:var(--sun-l);border:var(--bd);border-radius:12px;padding:.5rem .9rem;margin:.7rem 0}
+
+.chain{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.5rem;margin:.9rem 0}
+.lnk{border:var(--bd);border-radius:14px;padding:.4rem 1rem;text-align:center;background:var(--blue-l);animation:pop .4s both}
+.lnk small{display:block;font-size:.72rem;font-weight:700}
+.lnk b{font-size:1.25rem;font-family:var(--mono)}
+.arrow{font-size:1.4rem;font-weight:800;animation:pop .4s both}
+@keyframes pop{from{transform:scale(.2);opacity:0}70%{transform:scale(1.2)}to{transform:scale(1);opacity:1}}
+
+.screen-display{border:var(--bd);border-radius:14px;background:var(--ink);padding:1.4rem;text-align:center;margin:1rem auto;max-width:220px;box-shadow:var(--sh)}
+.screen-display .big{font-family:var(--mono);font-weight:800;font-size:3.5rem;color:var(--mint);min-height:4.2rem;display:flex;align-items:center;justify-content:center}
+.screen-display small{color:#fff;opacity:.7;font-size:.75rem}
+
+.msg{margin-top:1rem;font-weight:800;font-size:1.05rem;min-height:1.6rem;text-align:center}
+.msg.ok{color:#0B7A55}
+.actions{display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap;margin-top:1.2rem}
+.note{font-size:.9rem;color:#5b577e;text-align:center;margin-top:.6rem}
+.summary{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem}
+@media (max-width:600px){ .summary{grid-template-columns:1fr;} }
+.summary .s{border:var(--bd);border-radius:14px;padding:.8rem 1rem;background:#fff}
+.summary .s.enc{border-color:var(--blue)}
+.summary .s.dec{border-color:var(--coral)}
+.summary h3{font-size:.95rem}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>⌨️ Du clavier à l'écran</h1>
+  <p>Séquence 1 — Définitions et vocabulaire de base · Codage et décodage de la lettre A</p>
+</header>
+
+<main class="wrap">
+  <div class="instr">
+    <p>Quand tu tapes une touche, l'information doit être <b>CODÉE</b> (transformée en 0 et 1) pour voyager jusqu'à l'unité centrale.</p>
+    <p>Pour l'afficher à l'écran, elle doit ensuite être <b>DÉCODÉE</b> (retransformée en lettre) !</p>
+  </div>
+
+  <div class="card">
+    <div class="track">
+      <div class="packet" id="packet"></div>
+      <div class="stns">
+        <div class="stn" id="stnClavier"><span class="em">⌨️</span><span class="lb">Clavier</span></div>
+        <div class="stn" id="stnUC"><span class="em">🖥️</span><span class="lb">Unité centrale</span></div>
+        <div class="stn" id="stnEcran"><span class="em">🖵</span><span class="lb">Écran</span></div>
+      </div>
+    </div>
+
+    <div class="phase-title"><span class="phase-badge" id="badge1">1</span> Codage : du clavier vers l'unité centrale</div>
+    <p>Appuie sur la touche <b>A</b> du clavier, et regarde comment l'information est codée.</p>
+    <button class="btn blue big" id="btnPhase1">⌨️ Taper la touche A</button>
+    <div class="narr" id="narr1" style="display:none"></div>
+    <div class="chain" id="chain1"></div>
+
+    <div id="phase2Block" style="display:none; margin-top:1.4rem;">
+      <div class="phase-title"><span class="phase-badge coral" id="badge2">2</span> Décodage : de l'unité centrale vers l'écran</div>
+      <p>L'unité centrale a le code binaire. Il faut maintenant le <b>décoder</b> pour l'afficher !</p>
+      <button class="btn blue big" id="btnPhase2">🖥️ Décoder et afficher à l'écran</button>
+      <div class="narr" id="narr2" style="display:none"></div>
+      <div class="chain" id="chain2"></div>
+      <div class="screen-display" id="screenDisplay" style="display:none">
+        <div class="big" id="screenBig"></div>
+        <small>Écran</small>
+      </div>
+    </div>
+
+    <div class="msg" id="msg"></div>
+
+    <div class="summary" id="summary" style="display:none">
+      <div class="s enc"><h3>➡️ CODAGE</h3>Clavier → Unité centrale<br><span style="font-family:var(--mono);">A → 65 → 01000001</span></div>
+      <div class="s dec"><h3>⬅️ DÉCODAGE</h3>Unité centrale → Écran<br><span style="font-family:var(--mono);">01000001 → 65 → A</span></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn" id="resetBtn">↺ Recommencer</button>
+    </div>
+    <p class="note">Rien n'est enregistré : cette page sert de démonstration à revoir autant de fois que tu veux.</p>
+  </div>
+</main>
+
+<script>
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+const stnClavier = document.getElementById('stnClavier');
+const stnUC = document.getElementById('stnUC');
+const stnEcran = document.getElementById('stnEcran');
+const packet = document.getElementById('packet');
+const stns = [stnClavier, stnUC, stnEcran];
+
+function moveTo(i, txt){
+  if (txt != null) packet.textContent = txt;
+  packet.style.left = ((i + .5) * 100 / 3) + '%';
+  stns.forEach((s, j) => s.classList.toggle('on', j === i));
+}
+function resetTrack(txt){
+  packet.style.transition = 'none';
+  moveTo(0, txt);
+  void packet.offsetWidth;
+  packet.style.transition = '';
+  packet.style.opacity = 1;
+}
+
+async function buildChain(host, items){
+  host.innerHTML = '';
+  for (let i = 0; i < items.length; i++){
+    if (i) host.appendChild(Object.assign(document.createElement('span'), {className:'arrow', textContent:'→'}));
+    const lnk = document.createElement('div');
+    lnk.className = 'lnk';
+    lnk.innerHTML = '<small>'+items[i][0]+'</small><b>'+items[i][1]+'</b>';
+    host.appendChild(lnk);
+    await sleep(650);
+  }
+}
+
+const btnPhase1 = document.getElementById('btnPhase1');
+const btnPhase2 = document.getElementById('btnPhase2');
+const narr1 = document.getElementById('narr1');
+const narr2 = document.getElementById('narr2');
+const chain1 = document.getElementById('chain1');
+const chain2 = document.getElementById('chain2');
+const phase2Block = document.getElementById('phase2Block');
+const msg = document.getElementById('msg');
+const screenDisplay = document.getElementById('screenDisplay');
+const screenBig = document.getElementById('screenBig');
+const summary = document.getElementById('summary');
+const resetBtn = document.getElementById('resetBtn');
+
+btnPhase1.onclick = async () => {
+  btnPhase1.disabled = true;
+  resetTrack('A');
+  moveTo(0, 'A');
+  await sleep(300);
+  moveTo(1, 'A');
+  await sleep(1100);
+
+  narr1.style.display = 'block';
+  narr1.textContent = "L'unité centrale reçoit la lettre A et doit la coder…";
+  await sleep(900);
+
+  await buildChain(chain1, [
+    ['la touche pressée', 'A'],
+    ['son code ASCII', '65'],
+    ['écrit en binaire', '01000001']
+  ]);
+
+  narr1.textContent = "✅ La lettre A a été CODÉE : elle est maintenant 01000001 dans l'unité centrale.";
+  msg.textContent = '';
+  phase2Block.style.display = 'block';
+  btnPhase2.disabled = false;
+  phase2Block.scrollIntoView({ behavior:'smooth', block:'nearest' });
+};
+
+btnPhase2.onclick = async () => {
+  btnPhase2.disabled = true;
+  moveTo(1, '01000001');
+  await sleep(300);
+  moveTo(2, '01000001');
+  await sleep(1100);
+
+  narr2.style.display = 'block';
+  narr2.textContent = "L'écran reçoit le code binaire et doit le décoder pour l'afficher…";
+  await sleep(900);
+
+  await buildChain(chain2, [
+    ['reçu en binaire', '01000001'],
+    ['son code ASCII', '65'],
+    ['la lettre affichée', 'A']
+  ]);
+
+  narr2.textContent = '✅ Le code a été DÉCODÉ : la lettre A peut être affichée !';
+  screenDisplay.style.display = 'block';
+  screenBig.textContent = '';
+  await sleep(300);
+  screenBig.textContent = 'A';
+  msg.textContent = "🎉 Bravo ! Tu as suivi tout le voyage : A → codé en 01000001 → décodé → affiché à l'écran.";
+  msg.className = 'msg ok';
+  summary.style.display = 'grid';
+};
+
+resetBtn.onclick = () => {
+  resetTrack('');
+  packet.style.opacity = 0;
+  stns.forEach(s => s.classList.remove('on'));
+  btnPhase1.disabled = false;
+  btnPhase2.disabled = true;
+  narr1.style.display = 'none'; narr1.textContent = '';
+  narr2.style.display = 'none'; narr2.textContent = '';
+  chain1.innerHTML = ''; chain2.innerHTML = '';
+  phase2Block.style.display = 'none';
+  screenDisplay.style.display = 'none'; screenBig.textContent = '';
+  msg.textContent = ''; msg.className = 'msg';
+  summary.style.display = 'none';
+};
+
+resetTrack('');
+packet.style.opacity = 0;
+stns.forEach(s => s.classList.remove('on'));
+</script>
+<!-- a11y-clavier -->
+<script>
+(function(){
+  // Rend utilisables au clavier (Tab, Entrée/Espace, flèches) les éléments cliquables qui ne sont pas des boutons natifs.
+  var NATIVE = 'button,a[href],input,select,textarea,summary';
+  function enhance(){
+    document.querySelectorAll('body *').forEach(function(el){
+      if (typeof el.onclick !== 'function' || el.matches(NATIVE) || el.hasAttribute('data-kbd')) return;
+      el.setAttribute('data-kbd', '');
+      if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+      if (!el.hasAttribute('role')) el.setAttribute('role', 'button');
+      if (!el.textContent.trim() && !el.hasAttribute('aria-label')) {
+        el.setAttribute('aria-label', 'Case ' + (Array.prototype.indexOf.call(el.parentNode.children, el) + 1));
+      }
+    });
+  }
+  document.addEventListener('keydown', function(e){
+    var el = e.target;
+    if (!(el instanceof Element) || !el.hasAttribute('data-kbd')) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      el.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true}));
+      return;
+    }
+    var dir = {ArrowRight: 1, ArrowLeft: -1, ArrowDown: 'down', ArrowUp: 'up'}[e.key];
+    if (!dir) return;
+    var sibs = Array.prototype.filter.call(el.parentNode.children, function(s){ return s.hasAttribute('data-kbd'); });
+    if (sibs.length < 2) return;
+    var cols = getComputedStyle(el.parentNode).gridTemplateColumns.split(' ').filter(function(c){ return c && c !== 'none'; }).length || 1;
+    var step = dir === 'down' ? cols : dir === 'up' ? -cols : dir;
+    var next = sibs[sibs.indexOf(el) + step];
+    if (next) { e.preventDefault(); next.focus(); }
+  });
+  document.querySelectorAll('#msg,.msg,#progress,.progress,.narr').forEach(function(el){
+    if (!el.hasAttribute('aria-live')) el.setAttribute('aria-live', 'polite');
+  });
+  var pending = false;
+  new MutationObserver(function(){
+    if (pending) return;
+    pending = true;
+    setTimeout(function(){ pending = false; enhance(); }, 0);
+  }).observe(document.body, {childList: true, subtree: true});
+  enhance();
+})();
+</script>
+</body>
+</html>
