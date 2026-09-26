@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🖱️ Animation — Trie les périphériques</title>
+<style>
+:root{
+  --ink:#1B1740; --paper:#F1EFFF; --card:#fff;
+  --blue:#3D3BF3; --blue-l:#DDDCFF;
+  --sun:#FFD23F; --sun-l:#FFF3BF;
+  --coral:#FF5D73; --coral-l:#FFE0E5;
+  --mint:#22C58B; --mint-l:#D5F7EA;
+  --bd:3px solid var(--ink);
+  --sh:4px 4px 0 var(--ink);
+  --mono:"Consolas","SF Mono","Courier New",monospace;
+}
+*{box-sizing:border-box}
+html{font-size:17px}
+body{margin:0;color:var(--ink);background:var(--paper);min-height:100vh;
+  background-image:radial-gradient(var(--blue-l) 1.5px,transparent 1.5px);background-size:26px 26px;
+  font-family:"Arial Rounded MT Bold","Nunito","Trebuchet MS","Segoe UI",system-ui,sans-serif;line-height:1.5}
+h1,h2,h3{line-height:1.2;margin:0 0 .5rem}
+p{margin:0 0 .7rem}
+button{font:inherit;color:inherit}
+:focus-visible{outline:4px solid var(--blue);outline-offset:3px}
+.top{background:var(--ink);color:#fff;padding:.9rem 1.2rem;text-align:center}
+.top h1{font-size:1.5rem;margin:0}
+.top p{margin:.3rem 0 0;opacity:.85;font-size:.95rem}
+.wrap{max-width:960px;margin:0 auto;padding:1.4rem 1rem 4rem}
+.btn{font-weight:800;border:var(--bd);border-radius:999px;padding:.55rem 1.3rem;background:var(--sun);
+  box-shadow:3px 3px 0 var(--ink);cursor:pointer;transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--ink)}
+.card{background:#fff;border:var(--bd);border-radius:18px;box-shadow:var(--sh);padding:1.2rem 1.4rem;margin-bottom:1.2rem}
+.instr{background:var(--sun-l);border:var(--bd);border-radius:14px;padding:.9rem 1.1rem;margin-bottom:1.2rem;font-size:1.02rem}
+.instr b{color:var(--blue)}
+.progress{text-align:center;font-weight:800;color:var(--blue);margin-bottom:.8rem}
+
+.pool{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center;margin-bottom:1.4rem;min-height:3rem}
+.chip{border:var(--bd);border-radius:14px;background:#fff;padding:.6rem 1rem;cursor:pointer;font-weight:700;display:flex;align-items:center;gap:.4rem;
+  box-shadow:2px 2px 0 var(--ink); transition:transform .12s}
+.chip:hover{transform:translateY(-2px)}
+.chip.selected{background:var(--sun); box-shadow:0 0 0 3px var(--ink)}
+.chip .ic{font-size:1.3rem}
+
+.bins{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.8rem}
+@media (max-width:700px){ .bins{grid-template-columns:1fr;} }
+.bin{border:3px dashed var(--ink);border-radius:16px;padding:.9rem;min-height:170px;background:#fff;transition:background .2s,border-color .2s}
+.bin h3{text-align:center;margin-bottom:.6rem;font-size:1rem}
+.bin.flash-ok{background:var(--mint-l); border-style:solid;}
+.bin.flash-bad{background:var(--coral-l); border-style:solid;}
+.binItems{display:flex;flex-wrap:wrap;gap:.35rem;justify-content:center}
+.binItem{border:2px solid var(--ink);border-radius:10px;background:var(--mint-l);padding:.25rem .5rem;font-size:.78rem;font-weight:700}
+
+.msg{margin-top:1.1rem;font-weight:800;font-size:1.05rem;min-height:1.6rem;text-align:center}
+.msg.ok{color:#0B7A55}
+.actions{text-align:center;margin-top:1rem}
+.note{font-size:.9rem;color:#5b577e;text-align:center;margin-top:.7rem}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>🖱️ Trie les périphériques</h1>
+  <p>Séquence 3 — Les périphériques · Jeu de tri</p>
+</header>
+
+<main class="wrap">
+  <div class="instr">
+    <p>Clique sur un périphérique, puis clique sur la bonne case : <b>Entrée</b>, <b>Sortie</b>, ou <b>Mixte</b> (les deux à la fois) ?</p>
+  </div>
+
+  <div class="progress" id="progress">0 / 10 classés</div>
+
+  <div class="card">
+    <div class="pool" id="pool"></div>
+    <div class="bins">
+      <div class="bin" id="binEntree"><h3>📥 Entrée</h3><div class="binItems" id="binEntreeItems"></div></div>
+      <div class="bin" id="binSortie"><h3>📤 Sortie</h3><div class="binItems" id="binSortieItems"></div></div>
+      <div class="bin" id="binMixte"><h3>🔀 Mixte</h3><div class="binItems" id="binMixteItems"></div></div>
+    </div>
+    <div class="msg" id="msg"></div>
+    <div class="actions"><button class="btn" id="resetBtn">↺ Recommencer</button></div>
+    <p class="note">Rien n'est enregistré : cette page sert de démonstration à revoir autant de fois que tu veux.</p>
+  </div>
+</main>
+
+<script>
+const ITEMS = [
+  { label:'Clavier', ic:'⌨️', cat:'entree' },
+  { label:'Souris', ic:'🖱️', cat:'entree' },
+  { label:'Scanner', ic:'🖨️', cat:'entree' },
+  { label:'Microphone', ic:'🎙️', cat:'entree' },
+  { label:'Webcam', ic:'📷', cat:'entree' },
+  { label:'Écran (non tactile)', ic:'🖥️', cat:'sortie' },
+  { label:'Imprimante', ic:'🖶', cat:'sortie' },
+  { label:'Haut-parleurs', ic:'🔊', cat:'sortie' },
+  { label:'Écran tactile', ic:'📱', cat:'mixte' },
+  { label:'Casque avec micro', ic:'🎧', cat:'mixte' }
+];
+
+function shuffle(a){ const b=a.slice(); for(let i=b.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [b[i],b[j]]=[b[j],b[i]]; } return b; }
+
+const pool = document.getElementById('pool');
+const binEntreeItems = document.getElementById('binEntreeItems');
+const binSortieItems = document.getElementById('binSortieItems');
+const binMixteItems = document.getElementById('binMixteItems');
+const binEntree = document.getElementById('binEntree');
+const binSortie = document.getElementById('binSortie');
+const binMixte = document.getElementById('binMixte');
+const progress = document.getElementById('progress');
+const msg = document.getElementById('msg');
+const resetBtn = document.getElementById('resetBtn');
+
+let selected = null;
+let placed = 0;
+
+function build(){
+  pool.innerHTML = '';
+  binEntreeItems.innerHTML = ''; binSortieItems.innerHTML = ''; binMixteItems.innerHTML = '';
+  selected = null; placed = 0;
+  progress.textContent = '0 / ' + ITEMS.length + ' classés';
+  msg.textContent = ''; msg.className = 'msg';
+  shuffle(ITEMS).forEach(it => {
+    const chip = document.createElement('button');
+    chip.className = 'chip'; chip.type = 'button';
+    chip.innerHTML = '<span class="ic">'+it.ic+'</span>'+it.label;
+    chip.dataset.cat = it.cat;
+    chip.onclick = () => {
+      if (selected === chip) { chip.classList.remove('selected'); selected = null; return; }
+      document.querySelectorAll('.chip.selected').forEach(c=>c.classList.remove('selected'));
+      chip.classList.add('selected');
+      selected = chip;
+    };
+    pool.appendChild(chip);
+  });
+}
+
+function tryDrop(bin, wantCat, itemsHost){
+  bin.onclick = () => {
+    if (!selected) return;
+    if (selected.dataset.cat === wantCat){
+      const label = selected.innerHTML;
+      const badge = document.createElement('div');
+      badge.className = 'binItem'; badge.innerHTML = label;
+      itemsHost.appendChild(badge);
+      selected.remove();
+      selected = null;
+      placed++;
+      progress.textContent = placed + ' / ' + ITEMS.length + ' classés';
+      msg.textContent = ''; msg.className = 'msg';
+      bin.classList.add('flash-ok'); setTimeout(()=>bin.classList.remove('flash-ok'), 350);
+      if (placed === ITEMS.length){
+        msg.textContent = '🎉 Bravo ! Tu sais reconnaître les périphériques d\'entrée, de sortie et mixtes.';
+        msg.className = 'msg ok';
+      }
+    } else {
+      bin.classList.add('flash-bad'); setTimeout(()=>bin.classList.remove('flash-bad'), 350);
+      msg.textContent = '❌ Ce n\'est pas la bonne case, réessaie !';
+      msg.className = 'msg';
+    }
+  };
+}
+tryDrop(binEntree, 'entree', binEntreeItems);
+tryDrop(binSortie, 'sortie', binSortieItems);
+tryDrop(binMixte, 'mixte', binMixteItems);
+
+resetBtn.onclick = build;
+build();
+</script>
+<!-- a11y-clavier -->
+<script>
+(function(){
+  // Rend utilisables au clavier (Tab, Entrée/Espace, flèches) les éléments cliquables qui ne sont pas des boutons natifs.
+  var NATIVE = 'button,a[href],input,select,textarea,summary';
+  function enhance(){
+    document.querySelectorAll('body *').forEach(function(el){
+      if (typeof el.onclick !== 'function' || el.matches(NATIVE) || el.hasAttribute('data-kbd')) return;
+      el.setAttribute('data-kbd', '');
+      if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+      if (!el.hasAttribute('role')) el.setAttribute('role', 'button');
+      if (!el.textContent.trim() && !el.hasAttribute('aria-label')) {
+        el.setAttribute('aria-label', 'Case ' + (Array.prototype.indexOf.call(el.parentNode.children, el) + 1));
+      }
+    });
+  }
+  document.addEventListener('keydown', function(e){
+    var el = e.target;
+    if (!(el instanceof Element) || !el.hasAttribute('data-kbd')) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      el.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true}));
+      return;
+    }
+    var dir = {ArrowRight: 1, ArrowLeft: -1, ArrowDown: 'down', ArrowUp: 'up'}[e.key];
+    if (!dir) return;
+    var sibs = Array.prototype.filter.call(el.parentNode.children, function(s){ return s.hasAttribute('data-kbd'); });
+    if (sibs.length < 2) return;
+    var cols = getComputedStyle(el.parentNode).gridTemplateColumns.split(' ').filter(function(c){ return c && c !== 'none'; }).length || 1;
+    var step = dir === 'down' ? cols : dir === 'up' ? -cols : dir;
+    var next = sibs[sibs.indexOf(el) + step];
+    if (next) { e.preventDefault(); next.focus(); }
+  });
+  document.querySelectorAll('#msg,.msg,#progress,.progress,.narr').forEach(function(el){
+    if (!el.hasAttribute('aria-live')) el.setAttribute('aria-live', 'polite');
+  });
+  var pending = false;
+  new MutationObserver(function(){
+    if (pending) return;
+    pending = true;
+    setTimeout(function(){ pending = false; enhance(); }, 0);
+  }).observe(document.body, {childList: true, subtree: true});
+  enhance();
+})();
+</script>
+</body>
+</html>

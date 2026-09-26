@@ -11,7 +11,7 @@ index.html                          ← portail général (page d'accueil)
 module1-generalites/
   sequence1-definitions-vocabulaire/   (S1 — complet)
   sequence2-unite-centrale-memoire/    (S2-S3 — complet)
-  sequence3-peripheriques/             (S3 — à venir)
+  sequence3-peripheriques/             (S3 — complet)
   sequence4-logiciels-domaines/        (S4-S5 — à venir)
 module2-logiciels/
   lecon1-systeme-exploitation/         (S6-S8 — à venir)
@@ -53,7 +53,13 @@ Animations autonomes (`animations/`), aussi accessibles seules depuis le portail
 - **`animations_dedans_dehors.html`** — jeu de tri : dans l'unité centrale ou périphérique dehors ?
 - L'animation « Un calcul : 12 + 7 » de la Séquence 1 est référencée aussi ici (même fichier, deux entrées dans le portail).
 
-### Modules 1 (séquences 3 et 4), 2, 3, 4
+**Séquence 3 — Les périphériques** (`module1-generalites/sequence3-peripheriques/`)
+
+- **`cours_peripheriques.html`** — cours interactif complet (chrono 50 min, 5 chapitres : qu'est-ce qu'un périphérique, entrée, sortie, synthèse entrée/sortie/mixte, défis de groupe ; badges, cahier de traces écrites, bilan imprimable avec carte mentale).
+- **`peripheriques.html`** — scène interactive à onglets : accueil, terminologie (voyage animé d'une information), 10 périphériques à trouver et détailler, ordinateur portable et smartphone en coupe avec pastilles cliquables, 2 exercices notés.
+- **`animations_tri_peripheriques.html`** — jeu de tri en 3 catégories : entrée, sortie, mixte.
+
+### Modules 1 (séquence 4), 2, 3, 4
 
 Structure posée dans le portail avec la progression hebdomadaire prévue, contenu à rédiger.
 

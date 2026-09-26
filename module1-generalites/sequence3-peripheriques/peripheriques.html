@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🖱️ Les périphériques</title>
+<style>
+:root{
+  --ink:#1B1740; --paper:#F1EFFF; --card:#fff;
+  --blue:#3D3BF3; --blue-l:#DDDCFF;
+  --sun:#FFD23F; --sun-l:#FFF3BF;
+  --coral:#FF5D73; --coral-l:#FFE0E5;
+  --mint:#22C58B; --mint-l:#D5F7EA;
+  --bd:3px solid var(--ink);
+  --sh:4px 4px 0 var(--ink);
+}
+*{box-sizing:border-box}
+html{font-size:16px}
+body{margin:0;color:var(--ink);background:var(--paper);min-height:100vh;
+  background-image:radial-gradient(var(--blue-l) 1.5px,transparent 1.5px);background-size:26px 26px;
+  font-family:"Arial Rounded MT Bold","Nunito","Trebuchet MS","Segoe UI",system-ui,sans-serif;line-height:1.45}
+h1,h2,h3{line-height:1.2;margin:0 0 .5rem}
+p{margin:0 0 .6rem}
+button{font:inherit;color:inherit}
+:focus-visible{outline:4px solid var(--blue);outline-offset:3px}
+.top{background:var(--ink);color:#fff;padding:.9rem 1.2rem;text-align:center;border-bottom:3px solid var(--ink)}
+.top h1{font-size:1.45rem;margin:0}
+.top p{margin:.25rem 0 0;opacity:.85;font-size:.92rem}
+.wrap{max-width:1240px;margin:0 auto;padding:1.2rem 1rem 3rem}
+.layout{display:grid;grid-template-columns:200px minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:820px){ .layout{grid-template-columns:1fr} .menu{flex-direction:row;flex-wrap:wrap} }
+
+.card{background:#fff;border:var(--bd);border-radius:18px;box-shadow:var(--sh);padding:1rem 1.2rem;margin-bottom:16px}
+.btn{font-weight:800;border:var(--bd);border-radius:999px;padding:.5rem 1.1rem;background:var(--sun);
+  box-shadow:3px 3px 0 var(--ink);cursor:pointer;transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--ink)}
+.btn.sm{padding:.35rem .85rem;font-size:.88rem}
+.btn.light{background:#fff}
+.btn.blue{background:var(--blue);color:#fff}
+.row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+
+.menu{display:flex;flex-direction:column;gap:4px;background:#fff;border:var(--bd);border-radius:18px;box-shadow:var(--sh);padding:8px;position:sticky;top:12px}
+.menu button{text-align:left;border:2px solid transparent;background:none;border-radius:12px;padding:.55rem .7rem;font-weight:700;cursor:pointer}
+.menu button:hover{background:var(--blue-l)}
+.menu button[aria-current="true"]{background:var(--sun);border-color:var(--ink)}
+
+.pane{display:none}
+.pane.active{display:block;animation:fade .3s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.lead{font-size:1.05rem}
+.scene-box{background:#fff;border:var(--bd);border-radius:16px;overflow:hidden}
+.scene-box svg{width:100%;height:auto;display:block}
+.svgt{font-family:"Arial Rounded MT Bold","Nunito","Trebuchet MS",sans-serif;font-weight:700;font-size:13px;fill:#1B1740}
+.legend{display:flex;gap:1rem;flex-wrap:wrap;margin:.6rem 0 0;font-weight:700;font-size:.92rem}
+.legend span::before{content:"";display:inline-block;width:28px;height:0;border-top:5px dashed;vertical-align:middle;margin-right:.4rem}
+.legend .in::before{border-color:#16A374}
+.legend .out::before{border-color:#FF5D73}
+
+/* questions */
+.qgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.7rem;margin-top:.8rem}
+@media (max-width:760px){ .qgrid{grid-template-columns:1fr} }
+.qcard{border:var(--bd);border-radius:14px;background:var(--sun-l);box-shadow:3px 3px 0 var(--ink);padding:.8rem;cursor:pointer;text-align:left;font-weight:800;min-height:90px}
+.qcard .a{display:none;font-weight:600;margin-top:.4rem;color:#0B6446}
+.qcard.open{background:var(--mint-l)}
+.qcard.open .a{display:block}
+
+/* scène */
+.counter{font-weight:900;color:var(--blue);font-size:1.05rem}
+.dev{cursor:pointer;transition:transform .15s}
+.dev:hover{filter:drop-shadow(0 0 5px #FFD23F) drop-shadow(0 0 2px #FFD23F)}
+.dev .ok{display:none}
+.dev.found .ok{display:inline}
+.done-msg{font-weight:800;color:#0B7A55;min-height:1.4rem;margin:.5rem 0 0}
+.badge{display:inline-block;border:2px solid var(--ink);border-radius:999px;padding:.2rem .7rem;font-weight:800;font-size:.9rem}
+.t-in{background:var(--mint-l)}
+.t-out{background:var(--coral-l)}
+.t-both{background:var(--blue-l)}
+.dir{font-weight:700;margin:.5rem 0 0}
+
+/* lignes animées */
+.ln{fill:none;stroke-width:5;stroke-dasharray:10 8;stroke-linecap:round}
+.ln.out{stroke:#FF5D73;animation:toDev .9s linear infinite}
+.ln.in{stroke:#16A374;animation:toUc .9s linear infinite}
+@keyframes toDev{to{stroke-dashoffset:-36}}
+@keyframes toUc{to{stroke-dashoffset:36}}
+
+/* mini-animations des fiches */
+.vid rect{opacity:0;animation:frames 3s infinite}
+.vid .f2{animation-delay:1s}.vid .f3{animation-delay:2s}
+@keyframes frames{0%,33%{opacity:1}34%,100%{opacity:0}}
+.paper{animation:paperOut 3.2s ease-in-out infinite}
+@keyframes paperOut{0%{transform:translateY(-40px);opacity:0}15%{opacity:1}70%,100%{transform:translateY(0);opacity:1}}
+.eq rect{transform-box:fill-box;transform-origin:50% 100%;animation:eq .7s ease-in-out infinite alternate}
+@keyframes eq{from{transform:scaleY(.2)}to{transform:scaleY(1)}}
+.note{animation:noteUp 2.2s ease-out infinite;opacity:0}
+@keyframes noteUp{0%{opacity:0;transform:translate(0,0)}20%{opacity:1}100%{opacity:0;transform:translate(14px,-46px)}}
+.cur{animation:curMove 3.2s ease-in-out infinite}
+.mouseMove{animation:mouseMove 3.2s ease-in-out infinite}
+@keyframes curMove{0%,100%{transform:translate(0,0)}33%{transform:translate(70px,30px)}66%{transform:translate(-40px,40px)}}
+@keyframes mouseMove{0%,100%{transform:translate(0,0)}33%{transform:translate(21px,9px)}66%{transform:translate(-12px,12px)}}
+.buzz{animation:buzz 2.4s linear infinite}
+@keyframes buzz{0%,60%,100%{transform:translate(0,0)}62%,70%,78%{transform:translate(-4px,0)}66%,74%,82%{transform:translate(4px,0)}}
+.bob{animation:bob 2s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-4px)}}
+.blink{animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:.15}}
+
+/* hotspots portable / smartphone */
+.hs{cursor:pointer}
+.hs .pin circle{fill:var(--sun);stroke:var(--ink);stroke-width:2.5}
+.hs.seen .pin circle{fill:var(--mint)}
+.hs.cur .pin circle{fill:var(--blue)}
+.hs.cur .pin text{fill:#fff}
+.hs:hover .pin circle{filter:drop-shadow(0 0 4px #FFD23F)}
+.hs-info{min-height:5.5rem;background:var(--paper);border:2px solid var(--ink);border-radius:14px;padding:.7rem .9rem;margin-top:.7rem}
+.two{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:900px){ .two{grid-template-columns:1fr} }
+.ctl{background:var(--paper);border:2px solid var(--ink);border-radius:14px;padding:.7rem .8rem}
+.chips{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.4rem}
+.chips span{border:2px solid var(--ink);border-radius:10px;padding:.15rem .5rem;font-weight:700;font-size:.85rem;background:#fff}
+
+/* exercices */
+.ex-q{font-size:1.2rem;font-weight:800;background:var(--sun-l);border:var(--bd);border-radius:14px;padding:.8rem 1rem;margin:.4rem 0 .7rem;display:flex;align-items:center;gap:.6rem}
+.ex-q .ico{font-size:2rem}
+.answers{display:grid;gap:.5rem}
+.ans{border:var(--bd);border-radius:14px;background:#fff;padding:.6rem .9rem;text-align:left;font-weight:800;cursor:pointer;box-shadow:3px 3px 0 var(--ink)}
+.ans:hover{background:var(--blue-l)}
+.ans.good{background:var(--mint-l)}
+.ans.bad{background:var(--coral-l)}
+.msg{min-height:1.5rem;font-weight:800;margin:.6rem 0}
+.msg.ok{color:#0B7A55}.msg.no{color:#B4233A}
+.score{font-weight:900;color:var(--blue)}
+
+@media (prefers-reduced-motion: reduce){
+  .ln,.vid rect,.paper,.eq rect,.note,.cur,.mouseMove,.buzz,.bob,.blink{animation:none !important}
+  .vid .f1,.note{opacity:1}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="s-uc" viewBox="0 0 100 100"><rect x="18" y="4" width="64" height="92" rx="6" fill="#D9DCE6" stroke="#1B1740" stroke-width="4"/><rect x="27" y="14" width="46" height="9" rx="2" fill="#9AA0B0" stroke="#1B1740" stroke-width="2"/><rect x="27" y="28" width="46" height="5" rx="2" fill="#9AA0B0"/><path d="M30 44 H70 M30 52 H70 M30 60 H70" stroke="#B8BCC8" stroke-width="3"/><circle cx="50" cy="80" r="6" fill="#3D3BF3" stroke="#1B1740" stroke-width="2"/></symbol>
+    <symbol id="s-ecran" viewBox="0 0 100 100"><rect x="4" y="8" width="92" height="62" rx="5" fill="#1B1740"/><rect x="9" y="13" width="82" height="52" rx="2" fill="#3D3BF3"/><rect x="44" y="70" width="12" height="13" fill="#9AA0B0"/><rect x="28" y="82" width="44" height="7" rx="3" fill="#9AA0B0" stroke="#1B1740" stroke-width="2"/></symbol>
+    <symbol id="s-clavier" viewBox="0 0 100 100"><rect x="2" y="28" width="96" height="44" rx="6" fill="#D9DCE6" stroke="#1B1740" stroke-width="3"/><g fill="#1B1740">
+      <rect x="9" y="35" width="8" height="7" rx="1"/><rect x="20" y="35" width="8" height="7" rx="1"/><rect x="31" y="35" width="8" height="7" rx="1"/><rect x="42" y="35" width="8" height="7" rx="1"/><rect x="53" y="35" width="8" height="7" rx="1"/><rect x="64" y="35" width="8" height="7" rx="1"/><rect x="75" y="35" width="8" height="7" rx="1"/><rect x="86" y="35" width="6" height="7" rx="1"/>
+      <rect x="12" y="46" width="8" height="7" rx="1"/><rect x="23" y="46" width="8" height="7" rx="1"/><rect x="34" y="46" width="8" height="7" rx="1"/><rect x="45" y="46" width="8" height="7" rx="1"/><rect x="56" y="46" width="8" height="7" rx="1"/><rect x="67" y="46" width="8" height="7" rx="1"/><rect x="78" y="46" width="12" height="7" rx="1"/>
+      <rect x="24" y="57" width="52" height="8" rx="1"/></g></symbol>
+    <symbol id="s-souris" viewBox="0 0 100 100"><rect x="28" y="10" width="44" height="80" rx="22" fill="#FF5D73" stroke="#1B1740" stroke-width="4"/><path d="M50 10 V40" stroke="#1B1740" stroke-width="3"/><rect x="46" y="20" width="8" height="12" rx="4" fill="#1B1740"/></symbol>
+    <symbol id="s-imprimante" viewBox="0 0 100 100"><rect x="26" y="12" width="48" height="26" fill="#fff" stroke="#1B1740" stroke-width="3"/><rect x="8" y="34" width="84" height="42" rx="7" fill="#B9BECB" stroke="#1B1740" stroke-width="4"/><rect x="8" y="34" width="84" height="12" rx="6" fill="#5B3FD1" stroke="#1B1740" stroke-width="3"/><rect x="20" y="70" width="60" height="10" rx="2" fill="#6E7487" stroke="#1B1740" stroke-width="2"/><circle cx="80" cy="58" r="4" fill="#22C58B"/></symbol>
+    <symbol id="s-enceinte" viewBox="0 0 100 100"><rect x="22" y="6" width="56" height="88" rx="7" fill="#1B1740"/><circle cx="50" cy="28" r="11" fill="#6E7487" stroke="#9AA0B0" stroke-width="3"/><circle cx="50" cy="64" r="19" fill="#6E7487" stroke="#9AA0B0" stroke-width="3"/><circle cx="50" cy="64" r="6" fill="#1B1740"/></symbol>
+    <symbol id="s-webcam" viewBox="0 0 100 100"><path d="M50 60 V80 M32 90 H68" stroke="#1B1740" stroke-width="5" stroke-linecap="round"/><circle cx="50" cy="36" r="27" fill="#D9DCE6" stroke="#1B1740" stroke-width="4"/><circle cx="50" cy="36" r="12" fill="#1B1740"/><circle cx="50" cy="36" r="5" fill="#3D3BF3"/><circle cx="68" cy="20" r="3.5" fill="#22C58B"/></symbol>
+    <symbol id="s-scanner" viewBox="0 0 100 100"><rect x="4" y="30" width="92" height="16" rx="5" fill="#4A4570" stroke="#1B1740" stroke-width="3"/><rect x="4" y="44" width="92" height="32" rx="6" fill="#2B2750" stroke="#1B1740" stroke-width="3"/><circle cx="86" cy="64" r="3.5" fill="#22C58B"/></symbol>
+    <symbol id="s-manette" viewBox="0 0 100 100"><path d="M22 36 Q22 24 36 24 H64 Q78 24 78 36 L88 68 Q91 82 78 82 Q70 82 64 70 H36 Q30 82 22 82 Q9 82 12 68 Z" fill="#F4F4F4" stroke="#1B1740" stroke-width="4"/><path d="M33 40 V56 M25 48 H41" stroke="#1B1740" stroke-width="5" stroke-linecap="round"/><circle cx="66" cy="42" r="4.5" fill="#22C58B"/><circle cx="74" cy="50" r="4.5" fill="#FF5D73"/><circle cx="58" cy="50" r="4.5" fill="#3D3BF3"/><circle cx="66" cy="58" r="4.5" fill="#FFD23F"/></symbol>
+    <symbol id="s-box" viewBox="0 0 100 100"><path d="M26 44 L18 12 M74 44 L82 12 M50 44 V16" stroke="#1B1740" stroke-width="4" stroke-linecap="round"/><rect x="8" y="42" width="84" height="34" rx="9" fill="#1B1740"/><circle cx="26" cy="60" r="3.5" fill="#22C58B"/><circle cx="38" cy="60" r="3.5" fill="#22C58B"/><circle cx="50" cy="60" r="3.5" fill="#FFD23F"/><circle cx="62" cy="60" r="3.5" fill="#22C58B"/></symbol>
+    <symbol id="s-disque" viewBox="0 0 100 100"><path d="M92 58 Q100 58 100 70" stroke="#1B1740" stroke-width="3" fill="none"/><rect x="6" y="34" width="86" height="40" rx="9" fill="#D9DCE6" stroke="#1B1740" stroke-width="4"/><rect x="16" y="48" width="44" height="6" rx="3" fill="#B8BCC8"/><circle cx="80" cy="54" r="4" fill="#3D3BF3"/></symbol>
+    <symbol id="s-check" viewBox="0 0 30 30"><circle cx="15" cy="15" r="13" fill="#22C58B" stroke="#1B1740" stroke-width="3"/><path d="M8 15 L13 20 L22 9" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </defs>
+</svg>
+
+<header class="top">
+  <h1>🖱️ Les périphériques</h1>
+  <p>Séquence 3 — Les périphériques · Entrée, sortie, et les deux à la fois</p>
+</header>
+
+<main class="wrap">
+  <div class="layout">
+    <nav class="menu" id="menu" aria-label="Parties">
+      <button type="button" data-p="accueil">🏠 Accueil</button>
+      <button type="button" data-p="termino">📚 Terminologie</button>
+      <button type="button" data-p="scene">🔍 Les 10 périphériques</button>
+      <button type="button" data-p="portable">💻 Ordinateur portable</button>
+      <button type="button" data-p="smartphone">📱 Smartphone</button>
+      <button type="button" data-p="exos">✏️ Exercices</button>
+    </nav>
+
+    <div>
+      <!-- ============ ACCUEIL ============ -->
+      <section class="pane" id="p-accueil">
+        <div class="card">
+          <h2>🏠 Un périphérique… qu'est-ce que c'est ?</h2>
+          <div class="scene-box">
+            <svg viewBox="0 0 800 270" role="img" aria-label="Un poste informatique posé sur un bureau">
+              <rect x="30" y="206" width="740" height="12" rx="4" fill="#9AA0B0" stroke="#1B1740" stroke-width="3"/>
+              <rect x="60" y="218" width="14" height="48" fill="#9AA0B0" stroke="#1B1740" stroke-width="2"/><rect x="726" y="218" width="14" height="48" fill="#9AA0B0" stroke="#1B1740" stroke-width="2"/>
+              <use href="#s-uc" x="60" y="56" width="120" height="150"/>
+              <use href="#s-enceinte" x="230" y="118" width="54" height="88"/>
+              <g class="bob"><use href="#s-ecran" x="290" y="20" width="220" height="186"/></g>
+              <use href="#s-enceinte" x="516" y="118" width="54" height="88"/>
+              <use href="#s-clavier" x="320" y="81" width="170" height="170"/>
+              <use href="#s-souris" x="495" y="168" width="36" height="40"/>
+              <use href="#s-imprimante" x="600" y="110" width="140" height="110"/>
+              <text x="400" y="100" text-anchor="middle" class="svgt" fill="#fff" style="fill:#fff" font-size="20">?</text>
+            </svg>
+          </div>
+          <p class="lead" style="margin-top:.8rem">Clique sur chaque question pour découvrir la réponse.</p>
+          <div class="qgrid" id="qgrid"></div>
+        </div>
+      </section>
+
+      <!-- ============ TERMINOLOGIE ============ -->
+      <section class="pane" id="p-termino">
+        <div class="card">
+          <h2>📚 Unité centrale et périphériques</h2>
+          <p class="lead">Un ordinateur se compose d'une <b>unité centrale</b> et de <b>périphériques</b>. Tous les périphériques sont <b>branchés sur l'unité centrale</b>, avec un câble ou sans fil.</p>
+          <div class="scene-box">
+            <svg viewBox="0 0 800 320" id="tSvg" role="img" aria-label="Des périphériques d'entrée à gauche envoient des informations à l'unité centrale, qui les envoie aux périphériques de sortie à droite">
+              <text x="110" y="24" text-anchor="middle" class="svgt">ENTRÉE</text>
+              <text x="400" y="24" text-anchor="middle" class="svgt">UNITÉ CENTRALE</text>
+              <text x="690" y="24" text-anchor="middle" class="svgt">SORTIE</text>
+              <path class="ln in" d="M345 110 L160 70"/><path class="ln in" d="M345 160 L150 165"/><path class="ln in" d="M345 210 L150 262"/>
+              <path class="ln out" d="M455 110 L620 80"/><path class="ln out" d="M455 160 L640 185"/><path class="ln out" d="M455 210 L650 268"/>
+              <use href="#s-clavier" x="40" y="10" width="130" height="130"/>
+              <use href="#s-souris" x="100" y="135" width="50" height="60"/>
+              <use href="#s-webcam" x="80" y="222" width="70" height="80"/>
+              <use href="#s-uc" x="320" y="40" width="160" height="250"/>
+              <use href="#s-ecran" x="610" y="30" width="160" height="110"/>
+              <use href="#s-imprimante" x="630" y="150" width="120" height="80"/>
+              <use href="#s-enceinte" x="650" y="236" width="60" height="70"/>
+              <g id="tPacket" opacity="0"><circle r="14" fill="#FFD23F" stroke="#1B1740" stroke-width="3"/><text y="5" text-anchor="middle" class="svgt" font-size="14">A</text></g>
+              <text id="tA" x="690" y="98" text-anchor="middle" font-size="30" font-weight="900" fill="#fff" opacity="0">A</text>
+            </svg>
+          </div>
+          <div class="legend"><span class="in">Entrée : l'information va VERS l'unité centrale</span><span class="out">Sortie : l'information va VERS le périphérique</span></div>
+          <div class="row" style="margin-top:.8rem"><button type="button" class="btn blue" id="tGo">▶ Suis le trajet d'une information</button><span id="tCap" class="dir"></span></div>
+        </div>
+      </section>
+
+      <!-- ============ SCÈNE ============ -->
+      <section class="pane" id="p-scene">
+        <div class="card" id="sceneView">
+          <div class="row" style="justify-content:space-between"><h2 style="margin:0">🔍 Clique sur les périphériques ! Il y en a 10.</h2><span class="counter" id="count">Trouvés : 0 / 10</span></div>
+          <div class="scene-box" style="margin-top:.7rem">
+            <svg viewBox="0 0 800 360" id="sceneSvg" role="group" aria-label="Scène avec 10 périphériques à trouver"></svg>
+          </div>
+          <p class="done-msg" id="doneMsg" aria-live="polite"></p>
+        </div>
+        <div class="card" id="detailView" hidden>
+          <div class="row" style="justify-content:space-between">
+            <button type="button" class="btn sm light" id="back">← Retour à la scène</button>
+            <span class="counter" id="count2"></span>
+          </div>
+          <h2 id="dTitle" style="margin-top:.8rem"></h2>
+          <p id="dDesc" class="lead"></p>
+          <p><span class="badge" id="dBadge"></span></p>
+          <div class="scene-box"><svg viewBox="0 0 800 300" id="dSvg" role="img"></svg></div>
+          <div class="legend"><span class="in">Entrée : vers l'unité centrale</span><span class="out">Sortie : vers le périphérique</span></div>
+          <p class="dir" id="dDir"></p>
+        </div>
+      </section>
+
+      <!-- ============ PORTABLE ============ -->
+      <section class="pane" id="p-portable">
+        <div class="card">
+          <h2>💻 L'ordinateur portable</h2>
+          <p class="lead">Un ordinateur portable réunit, dans un boîtier compact et facile à transporter, <b>l'unité centrale</b> et plusieurs <b>périphériques</b>. Clique sur les pastilles numérotées.</p>
+          <div class="two">
+            <div class="scene-box"><svg viewBox="0 0 600 380" id="lapSvg" role="group" aria-label="Ordinateur portable légendé"></svg></div>
+            <div><p class="counter" id="lapCount"></p><div class="hs-info" id="lapInfo" aria-live="polite">👆 Clique sur une pastille.</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SMARTPHONE ============ -->
+      <section class="pane" id="p-smartphone">
+        <div class="card">
+          <h2>📱 Le smartphone</h2>
+          <p class="lead">Un smartphone est un véritable <b>ordinateur miniaturisé</b> : il contient un processeur, de la mémoire vive, un espace de stockage et une puce graphique, avec des périphériques intégrés. Clique sur les pastilles numérotées.</p>
+          <div class="two">
+            <div class="scene-box"><svg viewBox="0 0 600 380" id="phoneSvg" role="group" aria-label="Smartphone légendé, vu de face et de l'intérieur"></svg></div>
+            <div><p class="counter" id="phoneCount"></p><div class="hs-info" id="phoneInfo" aria-live="polite">👆 Clique sur une pastille.</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ EXERCICES ============ -->
+      <section class="pane" id="p-exos">
+        <div class="card">
+          <h2>✏️ Exercice 1 — Dans quel sens circule l'information ?</h2>
+          <p class="row" style="justify-content:space-between"><span id="e1prog"></span><span class="score" id="e1score"></span></p>
+          <div class="ex-q" id="e1q"></div>
+          <div class="answers" id="e1a"></div>
+          <p class="msg" id="e1msg" aria-live="polite"></p>
+          <button type="button" class="btn sm light" id="e1restart">↺ Recommencer</button>
+        </div>
+        <div class="card">
+          <h2>✏️ Exercice 2 — Questions de réflexion</h2>
+          <div id="e2"></div>
+          <p class="score" id="e2score"></p>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+function shuffle(a){ const b=a.slice(); for(let i=b.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [b[i],b[j]]=[b[j],b[i]]; } return b; }
+const TYPE = {
+  entree:{label:"Périphérique d'entrée", cls:'t-in', dir:"➡️ L'information va du périphérique <b>vers l'unité centrale</b> (trait vert)."},
+  sortie:{label:'Périphérique de sortie', cls:'t-out', dir:"⬅️ L'information va de l'unité centrale <b>vers le périphérique</b> (trait rouge)."},
+  both:{label:"Périphérique d'entrée et de sortie", cls:'t-both', dir:"↔️ L'information circule <b>dans les deux sens</b> (traits vert et rouge)."}
+};
+
+/* ================= Navigation ================= */
+const INIT = {};
+function show(p){
+  document.querySelectorAll('.pane').forEach(s => s.classList.toggle('active', s.id === 'p-'+p));
+  document.querySelectorAll('#menu button').forEach(b => b.setAttribute('aria-current', b.dataset.p === p ? 'true' : 'false'));
+  if (INIT[p] && !INIT[p].done) { INIT[p](); INIT[p].done = true; }
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll('#menu button').forEach(b => b.onclick = () => show(b.dataset.p));
+
+/* ================= Accueil ================= */
+INIT.accueil = () => {
+  const Q = [
+    ["Un périphérique, qu'est-ce que c'est ?", "Un appareil relié à l'unité centrale (par un câble ou sans fil) qui permet d'échanger des informations avec l'ordinateur."],
+    ["Qu'est-ce qu'un périphérique d'entrée ?", "Il envoie des informations VERS l'unité centrale : clavier, souris, webcam, micro…"],
+    ["… et un périphérique de sortie ?", "Il reçoit des informations DE l'unité centrale pour nous les montrer ou les faire entendre : écran, imprimante, enceintes…"]
+  ];
+  const g = $('#qgrid');
+  g.innerHTML = Q.map(([q,a]) => `<button type="button" class="qcard" aria-expanded="false">❓ ${q}<span class="a">💡 ${a}</span></button>`).join('');
+  g.querySelectorAll('.qcard').forEach(b => b.onclick = () => { b.classList.toggle('open'); b.setAttribute('aria-expanded', b.classList.contains('open')); });
+};
+
+/* ================= Terminologie ================= */
+INIT.termino = () => {
+  const pk = $('#tPacket'), A = $('#tA'), cap = $('#tCap');
+  const pts = [[105,75],[400,160],[690,80]];
+  let raf = null;
+  $('#tGo').onclick = () => {
+    cancelAnimationFrame(raf); A.setAttribute('opacity', 0); pk.setAttribute('opacity', 1);
+    const t0 = performance.now(), D = 3600;
+    const step = now => {
+      const t = Math.min(1, (now - t0) / D);
+      const seg = t < .5 ? 0 : 1, u = seg === 0 ? t/.5 : (t-.5)/.5;
+      const [x1,y1] = pts[seg], [x2,y2] = pts[seg+1];
+      pk.setAttribute('transform', `translate(${x1+(x2-x1)*u} ${y1+(y2-y1)*u})`);
+      cap.innerHTML = t < .5 ? "1️⃣ On tape « A » : le <b>clavier</b> (entrée) envoie l'information à l'unité centrale…"
+                             : "2️⃣ … l'<b>unité centrale</b> la traite puis l'envoie à l'<b>écran</b> (sortie).";
+      if (t < 1) raf = requestAnimationFrame(step);
+      else { pk.setAttribute('opacity', 0); A.setAttribute('opacity', 1); cap.innerHTML = "3️⃣ La lettre « A » s'affiche à l'écran ! Entrée → traitement → sortie."; }
+    };
+    raf = requestAnimationFrame(step);
+  };
+};
+
+/* ================= Les 10 périphériques ================= */
+const DEV = {
+  ecran:{name:'L\'écran (moniteur)', ico:'🖥️', type:'sortie', desc:"Il affiche le texte, les images et les vidéos envoyés par l'unité centrale.",
+    scene:['s-ecran',330,18,240,190], ok:[555,30]},
+  imprimante:{name:"L'imprimante", ico:'🖨️', type:'sortie', desc:"Elle reproduit sur papier les textes et les images envoyés par l'unité centrale.",
+    scene:['s-imprimante',160,96,120,96], ok:[262,104]},
+  enceintes:{name:'Les enceintes', ico:'🔊', type:'sortie', desc:"Elles transforment en son les données audio envoyées par l'unité centrale. Avec deux enceintes, on obtient un son stéréo.",
+    scene:[['s-enceinte',276,110,60,100],['s-enceinte',566,110,60,100]], ok:[318,112]},
+  souris:{name:'La souris', ico:'🖱️', type:'entree', desc:"Quand on la déplace ou qu'on clique, elle envoie ses mouvements à l'unité centrale, qui déplace le pointeur à l'écran.",
+    scene:['s-souris',600,246,60,76], ok:[636,244]},
+  clavier:{name:'Le clavier', ico:'⌨️', type:'entree', desc:"Ses touches servent à saisir du texte, des chiffres et des commandes, qui sont envoyés à l'unité centrale.",
+    scene:['s-clavier',380,190,200,200], ok:[566,236]},
+  webcam:{name:'La webcam', ico:'📷', type:'entree', desc:"Petite caméra qui filme et envoie l'image à l'unité centrale : appels vidéo, cours à distance…",
+    scene:['s-webcam',668,24,70,80], ok:[726,28]},
+  scanner:{name:'Le scanner', ico:'📠', type:'entree', desc:"Il transforme un document papier (texte, photo) en fichier numérique, envoyé à l'unité centrale.",
+    scene:['s-scanner',160,210,130,130], ok:[276,240]},
+  manette:{name:'La manette de jeu', ico:'🎮', type:'both', desc:"Ses boutons envoient tes actions au jeu (entrée) ; elle reçoit aussi des ordres pour vibrer selon ce qui se passe dans le jeu (sortie).",
+    scene:['s-manette',296,236,90,90], ok:[366,248]},
+  box:{name:'La box Internet (fibre ou ADSL)', ico:'📡', type:'both', desc:"Reliée à l'unité centrale et au réseau, elle permet d'envoyer des données (message, recherche) et d'en recevoir (pages web, vidéos).",
+    scene:['s-box',652,96,112,112], ok:[748,128]},
+  disque:{name:'Le disque dur externe', ico:'💽', type:'both', desc:"On y enregistre des fichiers (l'ordinateur écrit dessus) et on les relit (l'ordinateur lit dessus). On peut l'emporter d'un ordinateur à l'autre.",
+    scene:['s-disque',664,236,96,96], ok:[744,258]}
+};
+const found = new Set();
+INIT.scene = () => {
+  const svg = $('#sceneSvg');
+  let h = `<rect x="0" y="0" width="800" height="360" fill="#fff"/><rect x="140" y="320" width="650" height="10" rx="4" fill="#E6E4FF"/>
+    <use href="#s-uc" x="10" y="60" width="140" height="270"/><text x="80" y="350" text-anchor="middle" class="svgt">unité centrale</text>`;
+  for (const [id,d] of Object.entries(DEV)) {
+    const parts = Array.isArray(d.scene[0]) ? d.scene : [d.scene];
+    h += `<g class="dev" data-id="${id}"><title>${d.name}</title>`
+      + parts.map(([s,x,y,w,hh]) => `<use href="#${s}" x="${x}" y="${y}" width="${w}" height="${hh}"/>`).join('')
+      + `<use class="ok" href="#s-check" x="${d.ok[0]}" y="${d.ok[1]}" width="26" height="26"/></g>`;
+  }
+  svg.innerHTML = h;
+  svg.querySelectorAll('.dev').forEach(g => g.onclick = () => openDetail(g.dataset.id));
+  $('#back').onclick = () => { $('#detailView').hidden = true; $('#sceneView').hidden = false; };
+  updCount();
+};
+function updCount(){
+  const t = `Trouvés : ${found.size} / 10`;
+  $('#count').textContent = t; $('#count2').textContent = t;
+  document.querySelectorAll('#sceneSvg .dev').forEach(g => g.classList.toggle('found', found.has(g.dataset.id)));
+  if (found.size === 10) $('#doneMsg').textContent = "🎉 Bravo ! Tu as trouvé les 10 périphériques. Passe aux exercices ✏️";
+}
+
+const UC = [118,150];
+const line = (cls, x2, y2, dy=0) => `<path class="ln ${cls}" d="M${UC[0]} ${UC[1]+dy} L${x2} ${y2+dy}"/>`;
+function devLines(type, x, y){
+  if (type === 'entree') return line('in', x, y);
+  if (type === 'sortie') return line('out', x, y);
+  return line('in', x, y, -7) + line('out', x, y, 7);
+}
+const SCREEN = inner => `<rect x="520" y="10" width="250" height="170" rx="10" fill="#1B1740"/><rect x="530" y="20" width="230" height="140" rx="4" fill="#2B2750"/>
+  <rect x="636" y="180" width="18" height="16" fill="#9AA0B0"/><rect x="606" y="194" width="78" height="9" rx="4" fill="#9AA0B0" stroke="#1B1740" stroke-width="2"/>
+  <svg x="530" y="20" width="230" height="140" viewBox="0 0 230 140">${inner}</svg>`;
+const SUN_TRI = `<circle cx="80" cy="55" r="20" fill="#FFD23F" stroke="#1B1740" stroke-width="2.5"/><path d="M110 105 L145 45 L180 105 Z" fill="#3D3BF3" stroke="#fff" stroke-width="2.5"/>`;
+
+const DETAIL = {
+  ecran: () => line('out', 520, 95) + SCREEN(`<g class="vid"><rect class="f1" x="10" y="10" width="210" height="120" fill="#3D3BF3"/><rect class="f2" x="10" y="10" width="210" height="120" fill="#FF5D73"/><rect class="f3" x="10" y="10" width="210" height="120" fill="#22C58B"/></g>
+      <circle cx="115" cy="70" r="26" fill="rgba(255,255,255,.85)"/><path d="M106 56 L130 70 L106 84 Z" fill="#1B1740"/><text x="115" y="126" text-anchor="middle" fill="#fff" class="svgt">vidéo en lecture</text>`),
+  imprimante: () => line('out', 520, 95) + devLines('sortie', 330, 200)
+      + `<g class="paper"><rect x="366" y="230" width="58" height="60" fill="#fff" stroke="#1B1740" stroke-width="2.5"/><circle cx="384" cy="250" r="8" fill="#FFD23F" stroke="#1B1740" stroke-width="1.5"/><path d="M398 282 L410 262 L422 282 Z" fill="#3D3BF3"/></g>`
+      + `<use href="#s-imprimante" x="330" y="150" width="130" height="110"/>` + SCREEN(SUN_TRI + `<text x="115" y="130" text-anchor="middle" fill="#fff" class="svgt">dessin à imprimer</text>`),
+  enceintes: () => line('out', 520, 95) + devLines('sortie', 330, 220)
+      + `<use href="#s-enceinte" x="330" y="180" width="60" height="100"/><use href="#s-enceinte" x="440" y="180" width="60" height="100"/>`
+      + [0,1,2].map(i => `<text class="note" x="${384+i*55}" y="200" font-size="24" fill="#5B3FD1" style="animation-delay:${i*.7}s">♪</text>`).join('')
+      + SCREEN(`<g class="eq">${[0,1,2,3,4,5,6,7].map(i=>`<rect x="${25+i*23}" y="30" width="16" height="80" rx="3" fill="${['#22C58B','#FFD23F','#FF5D73','#3D3BF3'][i%4]}" style="animation-delay:${(i*.13).toFixed(2)}s"/>`).join('')}</g><text x="115" y="130" text-anchor="middle" fill="#fff" class="svgt">🎵 musique en lecture</text>`),
+  souris: () => line('out', 520, 95) + devLines('entree', 400, 245)
+      + `<g class="mouseMove"><use href="#s-souris" x="392" y="195" width="80" height="100"/></g>`
+      + SCREEN(`<g class="cur"><path d="M90 40 L90 72 L99 64 L106 80 L112 77 L105 62 L117 62 Z" fill="#fff" stroke="#1B1740" stroke-width="2"/></g><text x="115" y="130" text-anchor="middle" fill="#fff" class="svgt">le pointeur suit la souris</text>`),
+  clavier: () => line('out', 520, 95) + devLines('entree', 300, 245)
+      + `<use href="#s-clavier" x="300" y="150" width="200" height="200"/>`
+      + `<rect x="340" y="220" width="16" height="14" rx="2" fill="#FFD23F"><animate attributeName="opacity" values="0;1;0" dur=".5s" repeatCount="indefinite"/></rect><rect x="428" y="242" width="16" height="14" rx="2" fill="#FFD23F"><animate attributeName="opacity" values="0;1;0" dur=".5s" begin=".25s" repeatCount="indefinite"/></rect>`
+      + SCREEN(`<rect x="12" y="12" width="206" height="116" rx="3" fill="#fff"/><clipPath id="typeClip"><rect x="20" y="40" height="40" width="0"><animate attributeName="width" values="0;22;44;66;88;110;132;154;176;176" dur="3.2s" calcMode="discrete" repeatCount="indefinite"/></rect></clipPath>
+        <text x="22" y="70" font-size="26" font-weight="800" fill="#1B1740" clip-path="url(#typeClip)">Bonjour !</text><text x="115" y="118" text-anchor="middle" class="svgt" font-size="11">📝 traitement de texte</text>`),
+  webcam: () => line('out', 520, 95) + devLines('entree', 380, 225)
+      + `<use href="#s-webcam" x="380" y="185" width="80" height="95"/><circle cx="433" cy="202" r="5" fill="#FF5D73" class="blink"/>`
+      + SCREEN(`<g class="bob"><circle cx="115" cy="62" r="34" fill="#FFD9B3" stroke="#1B1740" stroke-width="2.5"/><circle cx="103" cy="56" r="4" fill="#1B1740"/><circle cx="127" cy="56" r="4" fill="#1B1740"/><path d="M100 74 Q115 88 130 74" stroke="#1B1740" stroke-width="3" fill="none" stroke-linecap="round"/></g>
+        <circle cx="200" cy="18" r="6" fill="#FF5D73" class="blink"/><text x="115" y="130" text-anchor="middle" fill="#fff" class="svgt">📞 appel vidéo</text>`),
+  scanner: () => line('out', 520, 95) + devLines('entree', 320, 240)
+      + `<use href="#s-scanner" x="320" y="195" width="160" height="96"/><rect x="330" y="232" width="7" height="34" rx="2" fill="#7BE3A8"><animate attributeName="x" values="330;462;330" dur="3.2s" repeatCount="indefinite"/></rect>`
+      + SCREEN(`<clipPath id="scanClip"><rect x="0" y="0" width="230" height="0"><animate attributeName="height" values="0;140;140" keyTimes="0;.5;1" dur="3.2s" repeatCount="indefinite"/></rect></clipPath><rect x="12" y="12" width="206" height="116" rx="3" fill="#fff" clip-path="url(#scanClip)"/><g clip-path="url(#scanClip)">${SUN_TRI}</g><text x="115" y="134" text-anchor="middle" fill="#1B1740" class="svgt" font-size="11" clip-path="url(#scanClip)">photo numérisée</text>`),
+  manette: () => line('out', 520, 95) + devLines('both', 370, 245)
+      + `<g class="buzz"><use href="#s-manette" x="370" y="200" width="110" height="90"/></g><text x="425" y="196" text-anchor="middle" class="svgt" font-size="11">vibration !</text>`
+      + SCREEN(`<rect x="0" y="0" width="230" height="140" fill="#3D3BF3"/><rect x="95" y="118" width="44" height="8" rx="4" fill="#FFD23F"><animate attributeName="x" values="40;150;40" dur="2.4s" repeatCount="indefinite"/></rect><circle r="8" fill="#fff"><animate attributeName="cx" values="30;200;120;30" dur="2.4s" repeatCount="indefinite"/><animate attributeName="cy" values="20;60;112;20" dur="2.4s" repeatCount="indefinite"/></circle><text x="12" y="18" fill="#fff" class="svgt" font-size="11">score : 12</text>`),
+  box: () => line('out', 520, 95) + devLines('both', 340, 225)
+      + `<use href="#s-box" x="340" y="170" width="110" height="110"/>` + `<path class="ln out" d="M450 236 L470 236"/>`
+      + `<circle cx="496" cy="240" r="24" fill="#DDDCFF" stroke="#1B1740" stroke-width="2.5"/><path d="M472 240 H520 M496 216 Q480 240 496 264 M496 216 Q512 240 496 264" stroke="#1B1740" stroke-width="1.8" fill="none"/><text x="496" y="284" text-anchor="middle" class="svgt" font-size="11">Internet</text>`
+      + SCREEN(`<rect x="12" y="12" width="206" height="116" rx="3" fill="#fff"/><rect x="12" y="12" width="206" height="18" fill="#DDDCFF"/><text x="20" y="25" class="svgt" font-size="10">🌐 www.exemple.ma</text>
+        <g><text x="20" y="58" class="svgt" font-size="14">📧 Nouveau message !</text><animate attributeName="opacity" values="0;1;1;0" dur="3s" repeatCount="indefinite"/></g>
+        <rect x="20" y="74" width="180" height="8" rx="3" fill="#E6E4FF"/><rect x="20" y="90" width="140" height="8" rx="3" fill="#E6E4FF"/><rect x="20" y="106" width="160" height="8" rx="3" fill="#E6E4FF"/>`),
+  disque: () => line('out', 520, 95) + devLines('both', 370, 250)
+      + `<use href="#s-disque" x="370" y="200" width="110" height="110"/>`
+      + `<text font-size="20"><animateMotion dur="2.6s" repeatCount="indefinite" path="M${UC[0]} ${UC[1]-18} L360 232"/>📄</text>`
+      + `<text font-size="20"><animateMotion dur="2.6s" begin="1.3s" repeatCount="indefinite" path="M360 262 L${UC[0]} ${UC[1]+4}"/>🖼️</text>`
+      + SCREEN(`<rect x="12" y="12" width="206" height="116" rx="3" fill="#fff"/><text x="22" y="40" class="svgt" font-size="13">📁 Copie en cours…</text>
+        <rect x="22" y="56" width="186" height="14" rx="7" fill="#E6E4FF" stroke="#1B1740" stroke-width="1.5"/><rect x="22" y="56" height="14" rx="7" fill="#22C58B"><animate attributeName="width" values="0;186;186" keyTimes="0;.8;1" dur="2.6s" repeatCount="indefinite"/></rect>
+        <text x="22" y="98" class="svgt" font-size="11">📄 exposé.docx   🖼️ photo.jpg</text>`)
+};
+function openDetail(id){
+  const d = DEV[id], T = TYPE[d.type];
+  found.add(id); updCount();
+  $('#dTitle').textContent = `${d.ico} ${d.name}`;
+  $('#dDesc').textContent = d.desc;
+  const b = $('#dBadge'); b.className = 'badge ' + T.cls; b.textContent = T.label;
+  $('#dDir').innerHTML = T.dir;
+  const svg = $('#dSvg');
+  svg.setAttribute('aria-label', `${d.name} relié à l'unité centrale — ${T.label}`);
+  svg.innerHTML = `<rect x="0" y="0" width="800" height="300" fill="#fff"/><use href="#s-uc" x="10" y="30" width="130" height="240"/><text x="75" y="292" text-anchor="middle" class="svgt">unité centrale</text>` + DETAIL[id]();
+  $('#sceneView').hidden = true; $('#detailView').hidden = false;
+  $('#detailView').scrollIntoView({block:'start'});
+}
+
+/* ================= Hotspots (portable / smartphone) ================= */
+function hotspots(svgSel, infoSel, countSel, base, spots){
+  const svg = $(svgSel), seen = new Set();
+  svg.innerHTML = base + spots.map((s,i) => `<g class="hs" data-i="${i}"><title>${s.label}</title>${s.area||''}<g class="pin"><circle cx="${s.pin[0]}" cy="${s.pin[1]}" r="14"/><text x="${s.pin[0]}" y="${s.pin[1]+5}" text-anchor="middle" class="svgt" font-size="14">${i+1}</text></g></g>`).join('');
+  const upd = () => { $(countSel).textContent = `Découverts : ${seen.size} / ${spots.length}`; };
+  svg.querySelectorAll('.hs').forEach(g => g.onclick = () => {
+    const s = spots[+g.dataset.i]; seen.add(+g.dataset.i);
+    svg.querySelectorAll('.hs').forEach(x => { x.classList.toggle('cur', x === g); x.classList.toggle('seen', seen.has(+x.dataset.i)); });
+    const T = s.type ? `<span class="badge ${TYPE[s.type].cls}">${TYPE[s.type].label}</span>` : '';
+    $(infoSel).innerHTML = `<h3>${+g.dataset.i+1}. ${s.label}</h3>${T}<p style="margin-top:.5rem">${s.txt}</p>` + (seen.size === spots.length ? `<p class="done-msg">🎉 Tu as tout découvert !</p>` : '');
+    upd();
+  });
+  upd();
+}
+INIT.portable = () => hotspots('#lapSvg', '#lapInfo', '#lapCount',
+  `<rect x="0" y="0" width="600" height="380" fill="#fff"/>
+   <rect x="120" y="20" width="360" height="232" rx="14" fill="#1B1740"/>
+   <rect x="136" y="40" width="328" height="196" rx="4" fill="#3D3BF3"/><circle cx="300" cy="30" r="4" fill="#6E7487"/>
+   <path d="M80 252 H520 L572 324 H28 Z" fill="#D9DCE6" stroke="#1B1740" stroke-width="3"/>
+   <path d="M130 262 H470 L484 296 H116 Z" fill="#9AA0B0"/>
+   ${[0,1,2,3,4,5,6,7,8,9,10,11,12].map(i=>`<rect x="${140+i*25}" y="267" width="19" height="9" rx="2" fill="#1B1740"/><rect x="${136+i*26}" y="282" width="20" height="9" rx="2" fill="#1B1740"/>`).join('')}
+   <rect x="250" y="302" width="100" height="18" rx="4" fill="#B8BCC8" stroke="#1B1740" stroke-width="2"/>
+   ${[0,1,2,3].map(i=>`<circle cx="${92+i*6}" cy="${300+i*2}" r="2" fill="#1B1740"/><circle cx="${490+i*6}" cy="${306-i*2}" r="2" fill="#1B1740"/>`).join('')}
+   <rect x="38" y="306" width="14" height="6" rx="1" fill="#1B1740"/><rect x="46" y="296" width="12" height="5" rx="1" fill="#1B1740"/>`,
+  [
+    {label:'La webcam', type:'entree', pin:[300,62], txt:"Elle filme l'utilisateur pour les appels vidéo. Sur un PC fixe, elle remplace la <b>webcam externe</b>."},
+    {label:"L'écran", type:'sortie', pin:[400,140], txt:"Il affiche les informations. Il remplace le <b>moniteur</b> du PC fixe."},
+    {label:'Les enceintes', type:'sortie', pin:[104,316], txt:"Deux petits haut-parleurs intégrés, souvent sous les grilles près du clavier."},
+    {label:'Le clavier', type:'entree', pin:[200,248], txt:"Intégré au boîtier, il sert à saisir du texte et des commandes."},
+    {label:'Le pavé tactile', type:'entree', pin:[300,311], txt:"On y glisse le doigt pour déplacer le pointeur : il remplace la <b>souris</b>."},
+    {label:'Les ports (USB, HDMI…)', pin:[44,276], txt:"Ils permettent de brancher des <b>périphériques externes</b> : souris, imprimante, clé USB, écran supplémentaire…"},
+    {label:"L'unité centrale cachée", pin:[536,286], txt:"Sous le clavier se trouvent la <b>carte mère</b>, le <b>processeur</b>, la <b>mémoire vive</b> et le <b>stockage</b> : toute l'unité centrale, en version compacte !"}
+  ]);
+INIT.smartphone = () => hotspots('#phoneSvg', '#phoneInfo', '#phoneCount',
+  `<rect x="0" y="0" width="600" height="380" fill="#fff"/>
+   <text x="275" y="372" text-anchor="middle" class="svgt" font-size="12">de face</text><text x="480" y="372" text-anchor="middle" class="svgt" font-size="12">à l'intérieur</text>
+   <rect x="200" y="14" width="150" height="340" rx="24" fill="#1B1740"/>
+   <defs><linearGradient id="pg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF8FA0"/><stop offset="1" stop-color="#8E7CFF"/></linearGradient></defs>
+   <rect x="210" y="36" width="130" height="292" rx="12" fill="url(#pg)"/>
+   <circle cx="275" cy="25" r="4.5" fill="#6E7487"/><rect x="250" y="340" width="50" height="4" rx="2" fill="#6E7487"/>
+   <rect x="405" y="14" width="150" height="340" rx="24" fill="#6E7487" stroke="#1B1740" stroke-width="3"/>
+   <rect x="418" y="30" width="124" height="120" rx="6" fill="#1F8A5B" stroke="#1B1740" stroke-width="2"/>
+   <rect x="432" y="44" width="40" height="40" rx="4" fill="#C9CCD6" stroke="#1B1740" stroke-width="2"/><text x="452" y="69" text-anchor="middle" class="svgt" font-size="9">CPU</text>
+   <rect x="482" y="44" width="46" height="18" rx="3" fill="#1B1740"/><text x="505" y="57" text-anchor="middle" font-size="9" fill="#fff" font-weight="700">RAM</text>
+   <rect x="482" y="68" width="46" height="18" rx="3" fill="#1B1740"/><text x="505" y="81" text-anchor="middle" font-size="9" fill="#fff" font-weight="700">stockage</text>
+   <rect x="432" y="96" width="96" height="40" rx="4" fill="#3D3BF3"/><text x="480" y="120" text-anchor="middle" font-size="10" fill="#fff" font-weight="700">puce graphique</text>
+   <rect x="418" y="160" width="124" height="180" rx="8" fill="#FFD23F" stroke="#1B1740" stroke-width="2"/><text x="480" y="254" text-anchor="middle" class="svgt">batterie</text>
+   <path d="M60 90 Q60 50 100 50 Q140 50 140 90" stroke="#1B1740" stroke-width="7" fill="none"/><rect x="46" y="84" width="28" height="44" rx="10" fill="#FF5D73" stroke="#1B1740" stroke-width="3"/><rect x="126" y="84" width="28" height="44" rx="10" fill="#FF5D73" stroke="#1B1740" stroke-width="3"/>
+   <use href="#s-manette" x="30" y="220" width="130" height="110"/>`,
+  [
+    {label:"L'écran tactile", type:'both', pin:[275,190], txt:"Il <b>affiche</b> les images (sortie) et <b>détecte le toucher</b> du doigt (entrée) : il remplace à la fois l'écran, le clavier et la souris !"},
+    {label:'La caméra', type:'entree', pin:[312,24], txt:"Elle prend des photos et des vidéos : l'équivalent d'une <b>webcam</b>."},
+    {label:'Le haut-parleur', type:'sortie', pin:[236,346], txt:"Il diffuse le son (musique, appels) : l'équivalent des <b>enceintes</b>."},
+    {label:'Le micro', type:'entree', pin:[314,346], txt:"Il capte la voix pour les appels et les messages vocaux."},
+    {label:"L'unité centrale miniature", pin:[480,20], txt:"Processeur, mémoire vive (RAM), stockage et puce graphique : les mêmes composants que dans une unité centrale, en tout petit !"},
+    {label:'Les écouteurs', type:'sortie', pin:[100,40], txt:"Un périphérique externe de <b>sortie</b> : ils diffusent le son reçu du smartphone."},
+    {label:'La manette sans fil', type:'entree', pin:[95,214], txt:"Un périphérique externe d'<b>entrée</b> pour jouer, reliée au smartphone sans fil (Bluetooth)."}
+  ]);
+
+/* ================= Exercices ================= */
+const EX1 = [
+  ['🖥️','Écran','sortie'],['🖨️','Imprimante','sortie'],['🔊','Enceintes','sortie'],['🖱️','Souris','entree'],['⌨️','Clavier','entree'],
+  ['📷','Webcam','entree'],['📠','Scanner','entree'],['🎮','Manette de jeu','both'],['📡','Box Internet','both'],['💽','Disque dur externe','both'],
+  ['🎙️','Microphone','entree'],['📱','Écran tactile','both']
+];
+const ANS = [['entree',"➡️ Vers l'unité centrale (entrée)"],['sortie','⬅️ Vers le périphérique (sortie)'],['both','↔️ Dans les deux sens (entrée et sortie)']];
+let e1 = [], e1i = 0, e1s = 0, e1t = 0;
+function e1start(){ e1 = shuffle(EX1); e1i = 0; e1s = 0; e1show(); }
+function e1show(){
+  const q = $('#e1q'), a = $('#e1a'), m = $('#e1msg');
+  if (e1i >= e1.length) {
+    q.innerHTML = '🎉 Exercice terminé !'; a.innerHTML = '';
+    m.className = 'msg ok'; m.textContent = `Score : ${e1s} / ${e1.length} bonnes réponses du premier coup.`;
+    $('#e1prog').textContent = ''; return;
+  }
+  const [ico, name] = e1[e1i]; e1t = 0;
+  $('#e1prog').textContent = `Question ${e1i+1} / ${e1.length}`;
+  $('#e1score').textContent = `Score : ${e1s}`;
+  q.innerHTML = `<span class="ico">${ico}</span> ${name} : dans quel sens va l'information ?`;
+  m.textContent = ''; m.className = 'msg';
+  a.innerHTML = ANS.map(([v,l]) => `<button type="button" class="ans" data-v="${v}">${l}</button>`).join('');
+  a.querySelectorAll('.ans').forEach(b => b.onclick = () => {
+    const ok = b.dataset.v === e1[e1i][2];
+    if (ok) {
+      if (e1t === 0) e1s++;
+      b.classList.add('good'); m.className = 'msg ok'; m.textContent = `✅ Oui : ${TYPE[e1[e1i][2]].label.toLowerCase()}.`;
+      a.querySelectorAll('.ans').forEach(x => x.disabled = true);
+      e1i++; setTimeout(e1show, 1100);
+    } else { e1t++; b.classList.add('bad'); m.className = 'msg no'; m.textContent = '❌ Pas tout à fait… réessaie !'; }
+  });
+}
+const EX2 = [
+  {q:"Dans un ordinateur portable, qu'est-ce qui remplace la souris ?", o:['Le pavé tactile','La webcam','Les enceintes'], a:0},
+  {q:"Pourquoi l'écran tactile d'un smartphone est-il un périphérique d'entrée ET de sortie ?", o:["Il affiche les images et détecte le toucher du doigt","Il est très grand","Il se recharge avec un câble"], a:0},
+  {q:"Quel périphérique transforme une photo papier en fichier numérique ?", o:["L'imprimante",'Le scanner',"L'écran"], a:1},
+  {q:"Sur quoi tous les périphériques sont-ils branchés ?", o:['Sur la box Internet',"Sur l'écran","Sur l'unité centrale"], a:2}
+];
+function e2start(){
+  let score = 0, answered = 0;
+  const box = $('#e2');
+  box.innerHTML = EX2.map((x,i) => `<div class="ctl" style="margin-bottom:.7rem"><p style="font-weight:800">${i+1}. ${x.q}</p><div class="answers">${x.o.map((o,j)=>`<button type="button" class="ans" data-q="${i}" data-j="${j}">${o}</button>`).join('')}</div><p class="msg" id="e2m${i}"></p></div>`).join('');
+  const tried = new Set();
+  box.querySelectorAll('.ans').forEach(b => b.onclick = () => {
+    const i = +b.dataset.q, j = +b.dataset.j, m = $('#e2m'+i);
+    if (b.parentElement.dataset.done) return;
+    if (j === EX2[i].a) {
+      b.classList.add('good'); b.parentElement.dataset.done = '1'; answered++;
+      if (!tried.has(i)) score++;
+      m.className = 'msg ok'; m.textContent = '✅ Bonne réponse !';
+    } else { tried.add(i); b.classList.add('bad'); m.className = 'msg no'; m.textContent = '❌ Essaie encore.'; }
+    $('#e2score').textContent = answered === EX2.length ? `🎉 Terminé : ${score} / ${EX2.length} du premier coup.` : '';
+  });
+}
+INIT.exos = () => { e1start(); e2start(); $('#e1restart').onclick = e1start; };
+
+show('accueil');
+</script>
+<!-- a11y-clavier -->
+<script>
+(function(){
+  // Rend utilisables au clavier (Tab, Entrée/Espace, flèches) les éléments cliquables qui ne sont pas des boutons natifs.
+  var NATIVE = 'button,a[href],input,select,textarea,summary';
+  function enhance(){
+    document.querySelectorAll('body *').forEach(function(el){
+      if (typeof el.onclick !== 'function' || el.matches(NATIVE) || el.hasAttribute('data-kbd')) return;
+      el.setAttribute('data-kbd', '');
+      if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+      if (!el.hasAttribute('role')) el.setAttribute('role', 'button');
+      if (!el.textContent.trim() && !el.hasAttribute('aria-label')) {
+        el.setAttribute('aria-label', 'Case ' + (Array.prototype.indexOf.call(el.parentNode.children, el) + 1));
+      }
+    });
+  }
+  document.addEventListener('keydown', function(e){
+    var el = e.target;
+    if (!(el instanceof Element) || !el.hasAttribute('data-kbd')) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      el.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true}));
+      return;
+    }
+    var dir = {ArrowRight: 1, ArrowLeft: -1, ArrowDown: 'down', ArrowUp: 'up'}[e.key];
+    if (!dir) return;
+    var sibs = Array.prototype.filter.call(el.parentNode.children, function(s){ return s.hasAttribute('data-kbd'); });
+    if (sibs.length < 2) return;
+    var cols = getComputedStyle(el.parentNode).gridTemplateColumns.split(' ').filter(function(c){ return c && c !== 'none'; }).length || 1;
+    var step = dir === 'down' ? cols : dir === 'up' ? -cols : dir;
+    var next = sibs[sibs.indexOf(el) + step];
+    if (next) { e.preventDefault(); next.focus(); }
+  });
+  document.querySelectorAll('#msg,.msg,#progress,.progress,.narr').forEach(function(el){
+    if (!el.hasAttribute('aria-live')) el.setAttribute('aria-live', 'polite');
+  });
+  var pending = false;
+  new MutationObserver(function(){
+    if (pending) return;
+    pending = true;
+    setTimeout(function(){ pending = false; enhance(); }, 0);
+  }).observe(document.body, {childList: true, subtree: true});
+  enhance();
+})();
+</script>
+
+</body>
+</html>
