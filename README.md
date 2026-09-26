@@ -26,7 +26,7 @@ module4-reseaux-internet/
 archive-ancien-site/                ← ancien site générique à 7 modules (conservé, non lié depuis le portail)
 ```
 
-Les entrées grisées avec un 🔒 dans le portail correspondent à des séances prévues dans la progression mais pas encore rédigées ; cliquer dessus affiche un message « Contenu en préparation » plutôt qu'une page cassée.
+Les entrées grisées avec un 🔒 dans le portail correspondent à des séances prévues dans la progression mais pas encore rédigées ; cliquer dessus affiche un message « Contenu en préparation » plutôt qu'une page cassée. Le plan détaillé du Module 1 (quels cours et animations sont prévus, séquence par séquence) suit le blueprint fourni pour ce module.
 
 ## Contenu disponible
 
@@ -34,24 +34,15 @@ Les entrées grisées avec un 🔒 dans le portail correspondent à des séances
 
 **Séquence 1 — Définitions et vocabulaire de base** (`module1-generalites/sequence1-definitions-vocabulaire/`)
 
-Leçons interactives "jeu" autonomes : robot guide animé, chrono de séance, phases d'activité (Activité → Je déduis → Trace écrite → Exemple → Exercice), badges, confettis et bilan imprimable avec carte mentale.
-
-- **`TC_M1_L1_definitions.html`** — Leçon 1 : donnée vs information, les 5 notions clés (informatique, information, traitement, automatique, système informatique), unités de mesure — avec une situation-problème progressive, des cartes à révéler, un défi de rangement des unités et une galerie de 5 animations ouvertes en fenêtre modale.
-- **`TC_M1_L3_bit_octet.html`** — Leçon 3 : le bit et l'octet, langage binaire, conversion décimal ↔ binaire, unités Ko/Mo/Go/To, code ASCII.
-
-Animations autonomes (`animations/`), aussi accessibles seules depuis le portail :
-- `circuit-bit.html` — du circuit électrique au transistor puis au bit/octet
-- `clavier-ecran.html` — codage/décodage de la lettre A
-- `calcul.html` — codage, calcul (12 + 7) et décodage via l'unité centrale
-- `image.html` — codage/décodage d'une image en pixels 0/1
-- `combien-1to.html` — compteurs animés (photos, chansons, films, documents dans 1 To)
+- Leçons interactives "jeu" autonomes (robot guide animé, chrono, phases Activité → Je déduis → Trace écrite → Exemple → Exercice, badges, bilan imprimable) : **`TC_M1_L1_definitions.html`** (donnée vs information, notions clés, unités de mesure) et **`TC_M1_L3_bit_octet.html`** (bit, octet, binaire, ASCII).
+- 2 cours prévus (🔒 à venir) : définitions et vocabulaire, langage machine et binaire.
+- 14 animations prévues, dont 5 disponibles dans `animations/` : `image.html` (codage/décodage lettre T), `clavier-ecran.html` (lettre A), `calcul.html` (12 + 7), `circuit-bit.html` (circuit → transistor → bit), `combien-1to.html` (unités dans 1 To). Les 9 autres (codage couleur, mot SALUT, son, scanner/imprimante, souris/écran, zoom microscope, compteur bit→To, RAM vs stockage) sont encore 🔒 à venir.
 
 **Séquence 2 — Unité centrale et mémoire** (`module1-generalites/sequence2-unite-centrale-memoire/`)
 
 - **`cours_unite_centrale_memoire.html`** — cours interactif complet (chrono 50 min, 5 chapitres : unité centrale, mémoire RAM/ROM, unités de mesure, synthèse, défis de groupe ; badges, cahier de traces écrites, bilan imprimable avec carte mentale).
 - **`au_coeur_unite_centrale.html`** — exploration interactive du boîtier ouvert : 8 composants cliquables (carte mère, processeur, RAM, carte d'extension, alimentation, lecteur-graveur, disque dur, lecteur de cartes), chacun avec son animation, ses réglages et ses explications.
 - **`animations_dedans_dehors.html`** — jeu de tri : dans l'unité centrale ou périphérique dehors ?
-- L'animation « Un calcul : 12 + 7 » de la Séquence 1 est référencée aussi ici (même fichier, deux entrées dans le portail).
 
 **Séquence 3 — Les périphériques** (`module1-generalites/sequence3-peripheriques/`)
 
@@ -64,7 +55,7 @@ Animations autonomes (`animations/`), aussi accessibles seules depuis le portail
 - **`cours_logiciels_domaines.html`** — cours interactif complet (chrono 50 min, 5 chapitres : logiciels de base, logiciels d'application, les deux familles, domaines d'application de l'informatique, défis de groupe ; badges, cahier de traces écrites, bilan imprimable avec carte mentale).
 - **`animations_tri_logiciels.html`** — jeu de tri : logiciel de base ou logiciel d'application ?
 
-Le **Module 1** est ainsi complet (Séquences 1 à 4, semaines 1 à 5).
+Séquences 2 à 4 sont complètes ; la Séquence 1 a son contenu principal (2 leçons interactives + 5 animations) et 11 emplacements 🔒 réservés pour compléter le plan.
 
 ### Modules 2, 3, 4
 

@@ -137,12 +137,25 @@ const MODULES = [
             { file: "TC_M1_L1_definitions.html", ic: "📋", label: "Leçon 1 : Définitions et vocabulaire de base", sem: "S1" },
             { file: "TC_M1_L3_bit_octet.html", ic: "🔌", label: "Leçon 3 : Le bit et l'octet", sem: "S1" }
           ]},
+          { label: "Cours", items: [
+            { soon: true, ic: "📘", label: "Cours : Définitions et vocabulaire", sem: "S1" },
+            { soon: true, ic: "📘", label: "Cours : Langage machine et binaire", sem: "S1" }
+          ]},
           { label: "Animations", items: [
-            { file: "animations/circuit-bit.html", ic: "💡", label: "Du circuit électrique au bit", sem: "S1" },
-            { file: "animations/clavier-ecran.html", ic: "⌨️", label: "Du clavier à l'écran (lettre A)", sem: "S1" },
-            { file: "animations/calcul.html", ic: "🔢", label: "Coder, calculer, décoder (12 + 7)", sem: "S1" },
-            { file: "animations/image.html", ic: "🖼️", label: "Coder et décoder une image", sem: "S1" },
-            { file: "animations/combien-1to.html", ic: "📦", label: "Combien ça tient dans 1 To ?", sem: "S1" }
+            { file: "animations/image.html", ic: "🅰️", label: "Codage/décodage : la lettre T (noir & blanc)", sem: "S1" },
+            { soon: true, ic: "🤖", label: "Codage couleur : image 5×5 (2 bits)", sem: "S1" },
+            { soon: true, ic: "🤖", label: "Codage couleur : image 8×8 (3 bits, tablette)", sem: "S1" },
+            { file: "animations/clavier-ecran.html", ic: "⌨️", label: "Codage/décodage : la lettre A", sem: "S1" },
+            { soon: true, ic: "⌨️", label: "Codage/décodage : le mot SALUT", sem: "S1" },
+            { soon: true, ic: "🎙️", label: "Codage/décodage : le son", sem: "S1" },
+            { soon: true, ic: "🖨️", label: "Scanner → Unité centrale → Imprimante", sem: "S1" },
+            { soon: true, ic: "🖱️", label: "Souris → Unité centrale → Écran", sem: "S1" },
+            { file: "animations/calcul.html", ic: "🧮", label: "Un calcul : 12 + 7", sem: "S1" },
+            { file: "animations/circuit-bit.html", ic: "🔌", label: "Du circuit électrique au bit", sem: "S1" },
+            { soon: true, ic: "🔬", label: "Zoom : de la carte mémoire au transistor", sem: "S1" },
+            { soon: true, ic: "📈", label: "Compteur qui s'emballe (1 bit → 1 To)", sem: "S1" },
+            { file: "animations/combien-1to.html", ic: "📦", label: "Combien ça tient dans 1 To ?", sem: "S1" },
+            { soon: true, ic: "🧠", label: "RAM vs Stockage", sem: "S1" }
           ]}
         ]
       },
@@ -155,12 +168,6 @@ const MODULES = [
           ]},
           { label: "Animations", items: [
             { file: "au_coeur_unite_centrale.html", ic: "🔧", label: "Au cœur de l'unité centrale (8 composants)", sem: "S2" },
-            { file: "calcul.html", folder: "sequence1-definitions-vocabulaire/animations", ic: "🧮", label: "Un calcul : 12 + 7 (clavier → UC → écran)", sem: "S2" },
-            { soon: true, ic: "🖨️", label: "Scanner → Unité centrale → Imprimante", sem: "S2" },
-            { soon: true, ic: "🖱️", label: "Souris → Unité centrale → Écran", sem: "S2" },
-            { soon: true, ic: "🧠", label: "RAM vs Stockage", sem: "S3" }
-          ]},
-          { label: "Jeux", items: [
             { file: "animations_dedans_dehors.html", ic: "🖥️", label: "Jeu : Dedans ou dehors l'unité centrale ?", sem: "S2" }
           ]}
         ]
@@ -173,9 +180,7 @@ const MODULES = [
             { file: "cours_peripheriques.html", ic: "📘", label: "Cours : Les périphériques", sem: "S3" }
           ]},
           { label: "Animations", items: [
-            { file: "peripheriques.html", ic: "🔍", label: "Les périphériques (scène interactive)", sem: "S3" }
-          ]},
-          { label: "Jeux", items: [
+            { file: "peripheriques.html", ic: "🔍", label: "Les périphériques (scène interactive)", sem: "S3" },
             { file: "animations_tri_peripheriques.html", ic: "🖱️", label: "Jeu : Trie les périphériques", sem: "S3" }
           ]}
         ]
@@ -187,7 +192,7 @@ const MODULES = [
           { label: "Cours", items: [
             { file: "cours_logiciels_domaines.html", ic: "📘", label: "Cours : Logiciels et domaines d'application", sem: "S4-S5" }
           ]},
-          { label: "Jeux", items: [
+          { label: "Animations", items: [
             { file: "animations_tri_logiciels.html", ic: "💿", label: "Jeu : Logiciel de base ou d'application ?", sem: "S4" }
           ]}
         ]
