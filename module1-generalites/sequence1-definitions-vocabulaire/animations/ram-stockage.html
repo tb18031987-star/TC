@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🧠 Animation — RAM vs Stockage</title>
+<style>
+:root{
+  --ink:#1B1740; --paper:#F1EFFF; --card:#fff;
+  --blue:#3D3BF3; --blue-l:#DDDCFF;
+  --sun:#FFD23F; --sun-l:#FFF3BF;
+  --coral:#FF5D73; --coral-l:#FFE0E5;
+  --mint:#22C58B; --mint-l:#D5F7EA;
+  --bd:3px solid var(--ink);
+  --sh:4px 4px 0 var(--ink);
+  --mono:"Consolas","SF Mono","Courier New",monospace;
+}
+*{box-sizing:border-box}
+html{font-size:17px}
+body{margin:0;color:var(--ink);background:var(--paper);min-height:100vh;
+  background-image:radial-gradient(var(--blue-l) 1.5px,transparent 1.5px);background-size:26px 26px;
+  font-family:"Arial Rounded MT Bold","Nunito","Trebuchet MS","Segoe UI",system-ui,sans-serif;line-height:1.5}
+h1,h2,h3{line-height:1.2;margin:0 0 .5rem}
+p{margin:0 0 .7rem}
+button{font:inherit;color:inherit}
+:focus-visible{outline:4px solid var(--blue);outline-offset:3px}
+
+.top{background:var(--ink);color:#fff;padding:.9rem 1.2rem;text-align:center}
+.top h1{font-size:1.5rem;margin:0}
+.top p{margin:.3rem 0 0;opacity:.85;font-size:.95rem}
+
+.wrap{max-width:960px;margin:0 auto;padding:1.4rem 1rem 4rem}
+
+.btn{font-weight:800;border:var(--bd);border-radius:999px;padding:.6rem 1.4rem;background:var(--sun);
+  box-shadow:3px 3px 0 var(--ink);cursor:pointer;transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--ink)}
+.btn.blue{background:var(--blue);color:#fff}
+.btn.coral{background:var(--coral)}
+.btn.big{font-size:1.05rem;padding:.7rem 1.5rem}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+.card{background:var(--card);border:var(--bd);border-radius:18px;box-shadow:var(--sh);padding:1.2rem 1.4rem;margin-bottom:1.2rem}
+.instr{background:var(--sun-l);border:var(--bd);border-radius:14px;padding:.9rem 1.1rem;margin-bottom:1.2rem;font-size:1.02rem}
+.instr b{color:var(--blue)}
+.sectionTitle{font-size:1.15rem;margin-bottom:.8rem;display:flex;align-items:center;gap:.5rem}
+
+.compareGrid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media (max-width:600px){ .compareGrid{grid-template-columns:1fr;} }
+.compCard{border:var(--bd);border-radius:14px;padding:1rem;text-align:center}
+.compCard.ram{background:var(--mint-l)}
+.compCard.stock{background:var(--blue-l)}
+.compCard .ic{font-size:2.6rem}
+.compCard h3{font-size:1.15rem;margin:.3rem 0 .6rem}
+.compCard dl{text-align:left;font-size:.85rem;margin:0}
+.compCard dt{font-weight:800;margin-top:.5rem}
+.compCard dd{margin:0 0 0 0; color:#3a3a3a}
+
+.capbar-wrap{margin-top:1rem}
+.capbar{display:flex;align-items:center;gap:.6rem;margin:.5rem 0}
+.capbar .lab{width:80px;font-size:.8rem;font-weight:700;flex:none;text-align:right}
+.capbar .bar{height:16px;border-radius:8px}
+.capbar .bar.ram{width:14px;background:var(--mint)}
+.capbar .bar.stock{width:220px;background:var(--blue)}
+
+.raceTrack{position:relative;height:60px;border:var(--bd);border-radius:12px;background:#fff;margin:.6rem 0;overflow:hidden}
+.raceLab{font-size:.85rem;font-weight:800;padding:.3rem .6rem}
+.racePacket{position:absolute;top:14px;left:6px;width:32px;height:32px;border-radius:50%;border:var(--bd);display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;background:#fff;transition:left linear;box-shadow:2px 2px 0 var(--ink)}
+.racePacket.ram{background:var(--mint)}
+.racePacket.stock{background:var(--blue-l)}
+.raceTime{text-align:center;font-family:var(--mono);font-weight:800;margin-top:.3rem}
+
+.powerDemo{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:.8rem}
+@media (max-width:600px){ .powerDemo{grid-template-columns:1fr;} }
+.powerBox{border:var(--bd);border-radius:12px;padding:.9rem;text-align:center}
+.powerBox .content{font-size:1.6rem;margin:.5rem 0;transition:opacity .8s}
+.powerBox.off .content.ram-content{opacity:0}
+.powerBox small{font-weight:700;color:#7D7A75}
+
+.narr{min-height:2.2rem;font-weight:700;background:var(--sun-l);border:var(--bd);border-radius:12px;padding:.5rem .9rem;margin:.8rem 0;text-align:center}
+.factbox{border:var(--bd);border-radius:14px;background:var(--blue-l);padding:1rem 1.2rem;text-align:center;font-weight:800;margin-top:1rem}
+.actions{text-align:center;margin-top:.8rem}
+.note{font-size:.9rem;color:#5b577e;text-align:center;margin-top:.8rem}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>🧠 RAM vs Stockage</h1>
+  <p>Séquence 1 — Définitions et vocabulaire de base · Deux mémoires, deux rôles bien différents</p>
+</header>
+
+<main class="wrap">
+  <div class="instr">
+    <p>Un ordinateur a besoin de <b>deux types de mémoire</b> : la RAM, pour travailler vite, et le stockage, pour garder tes fichiers longtemps. Découvrons leurs différences !</p>
+  </div>
+
+  <div class="card">
+    <div class="sectionTitle">📊 Comparaison</div>
+    <div class="compareGrid">
+      <div class="compCard ram">
+        <div class="ic">🧠</div>
+        <h3>RAM (mémoire vive)</h3>
+        <dl>
+          <dt>Capacité</dt><dd>petite (ex : 8 Go)</dd>
+          <dt>Vitesse</dt><dd>ultra rapide</dd>
+          <dt>À l'extinction</dt><dd>s'efface (volatile)</dd>
+          <dt>Rôle</dt><dd>mémoire de travail temporaire</dd>
+        </dl>
+      </div>
+      <div class="compCard stock">
+        <div class="ic">💾</div>
+        <h3>Stockage (SSD / carte mémoire)</h3>
+        <dl>
+          <dt>Capacité</dt><dd>grande (ex : 1 To)</dd>
+          <dt>Vitesse</dt><dd>plus lente</dd>
+          <dt>À l'extinction</dt><dd>reste en mémoire (permanent)</dd>
+          <dt>Rôle</dt><dd>garde tes fichiers, photos, applis</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="capbar-wrap">
+      <div class="capbar"><span class="lab">RAM</span><span class="bar ram"></span><span>8 Go</span></div>
+      <div class="capbar"><span class="lab">Stockage</span><span class="bar stock"></span><span>1 000 Go</span></div>
+    </div>
+    <p class="narr">Le stockage a environ <b>125 fois plus de place</b> que la RAM — mais on va voir que la RAM est bien plus rapide !</p>
+  </div>
+
+  <div class="card">
+    <div class="sectionTitle">🏁 La course de vitesse</div>
+    <p>Le processeur a besoin d'une information. Regarde qui arrive en premier : la RAM ou le stockage !</p>
+    <div class="raceLab">🧠 RAM → Processeur</div>
+    <div class="raceTrack"><div class="racePacket ram" id="pkRam">🧠</div></div>
+    <div class="raceLab">💾 Stockage → Processeur</div>
+    <div class="raceTrack"><div class="racePacket stock" id="pkStock">💾</div></div>
+    <div class="raceTime" id="raceTime"></div>
+    <div class="actions"><button class="btn blue big" id="raceBtn">🏁 Lancer la course</button></div>
+    <p class="narr" id="raceNarr" style="display:none"></p>
+  </div>
+
+  <div class="card">
+    <div class="sectionTitle">🔌 Et si on éteint l'ordinateur ?</div>
+    <div class="powerDemo" id="powerDemo">
+      <div class="powerBox" id="ramBox"><div class="ic">🧠</div><div class="content ram-content">📄 Document en cours…</div><small>RAM</small></div>
+      <div class="powerBox" id="stockBox"><div class="ic">💾</div><div class="content">📁 Tes fichiers enregistrés</div><small>Stockage</small></div>
+    </div>
+    <div class="actions"><button class="btn coral big" id="powerBtn">🔌 Éteindre l'ordinateur</button></div>
+    <p class="narr" id="powerNarr" style="display:none"></p>
+  </div>
+
+  <div class="factbox">💡 C'est pour ça qu'il faut <b>enregistrer</b> ton travail régulièrement : tant qu'il est seulement dans la RAM, une coupure de courant peut tout effacer !</div>
+  <p class="note">Rien n'est enregistré : cette page sert de démonstration à revoir autant de fois que tu veux.</p>
+</main>
+
+<script>
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+const raceBtn = document.getElementById('raceBtn');
+const pkRam = document.getElementById('pkRam');
+const pkStock = document.getElementById('pkStock');
+const raceTime = document.getElementById('raceTime');
+const raceNarr = document.getElementById('raceNarr');
+
+raceBtn.onclick = async () => {
+  raceBtn.disabled = true;
+  pkRam.style.transition = 'none'; pkRam.style.left = '6px';
+  pkStock.style.transition = 'none'; pkStock.style.left = '6px';
+  void pkRam.offsetWidth;
+  raceTime.textContent = '';
+  raceNarr.style.display = 'none';
+
+  await sleep(50);
+  pkRam.style.transition = 'left .35s linear';
+  pkStock.style.transition = 'left 3.2s linear';
+  pkRam.style.left = 'calc(100% - 40px)';
+  pkStock.style.left = 'calc(100% - 40px)';
+
+  await sleep(350);
+  raceTime.textContent = '🧠 RAM arrivée ! (temps symbolique : très très court)';
+  await sleep(2900);
+  raceTime.textContent = '💾 Stockage arrivé enfin ! (temps symbolique : beaucoup plus long)';
+  raceNarr.style.display = 'block';
+  raceNarr.innerHTML = '✅ En vrai, la RAM peut être <b>jusqu\'à 1000 fois plus rapide</b> que le stockage pour accéder à une information !';
+  raceBtn.disabled = false;
+};
+
+const powerBtn = document.getElementById('powerBtn');
+const powerDemo = document.getElementById('powerDemo');
+const ramBox = document.getElementById('ramBox');
+const powerNarr = document.getElementById('powerNarr');
+let isOff = false;
+
+powerBtn.onclick = () => {
+  isOff = !isOff;
+  ramBox.classList.toggle('off', isOff);
+  powerBtn.textContent = isOff ? '🔌 Rallumer l\'ordinateur' : '🔌 Éteindre l\'ordinateur';
+  powerNarr.style.display = 'block';
+  powerNarr.innerHTML = isOff
+    ? '⚡ Coupure de courant : le contenu de la <b>RAM a disparu</b> ! Mais tes fichiers dans le <b>stockage sont toujours là</b>.'
+    : 'L\'ordinateur redémarre : la RAM repart de zéro, vide.';
+};
+</script>
+<!-- a11y-clavier -->
+<script>
+(function(){
+  // Rend utilisables au clavier (Tab, Entrée/Espace, flèches) les éléments cliquables qui ne sont pas des boutons natifs.
+  var NATIVE = 'button,a[href],input,select,textarea,summary';
+  function enhance(){
+    document.querySelectorAll('body *').forEach(function(el){
+      if (typeof el.onclick !== 'function' || el.matches(NATIVE) || el.hasAttribute('data-kbd')) return;
+      el.setAttribute('data-kbd', '');
+      if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+      if (!el.hasAttribute('role')) el.setAttribute('role', 'button');
+      if (!el.textContent.trim() && !el.hasAttribute('aria-label')) {
+        el.setAttribute('aria-label', 'Case ' + (Array.prototype.indexOf.call(el.parentNode.children, el) + 1));
+      }
+    });
+  }
+  document.addEventListener('keydown', function(e){
+    var el = e.target;
+    if (!(el instanceof Element) || !el.hasAttribute('data-kbd')) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      el.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true}));
+      return;
+    }
+    var dir = {ArrowRight: 1, ArrowLeft: -1, ArrowDown: 'down', ArrowUp: 'up'}[e.key];
+    if (!dir) return;
+    var sibs = Array.prototype.filter.call(el.parentNode.children, function(s){ return s.hasAttribute('data-kbd'); });
+    if (sibs.length < 2) return;
+    var cols = getComputedStyle(el.parentNode).gridTemplateColumns.split(' ').filter(function(c){ return c && c !== 'none'; }).length || 1;
+    var step = dir === 'down' ? cols : dir === 'up' ? -cols : dir;
+    var next = sibs[sibs.indexOf(el) + step];
+    if (next) { e.preventDefault(); next.focus(); }
+  });
+  document.querySelectorAll('#msg,.msg,#progress,.progress,.narr').forEach(function(el){
+    if (!el.hasAttribute('aria-live')) el.setAttribute('aria-live', 'polite');
+  });
+  var pending = false;
+  new MutationObserver(function(){
+    if (pending) return;
+    pending = true;
+    setTimeout(function(){ pending = false; enhance(); }, 0);
+  }).observe(document.body, {childList: true, subtree: true});
+  enhance();
+})();
+</script>
+</body>
+</html>
