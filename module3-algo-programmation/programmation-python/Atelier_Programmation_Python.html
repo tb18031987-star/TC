@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atelier — Programmation avec Python</title>
+<style>
+:root{
+  --text:#2C2C2B; --text2:#7D7A75; --soft:#F9F8F7; --border:#E6E5E3;
+  --blue:#2783DE; --blue-soft:#E5F2FC; --green:#46A171; --green-soft:#E8F1EC;
+  --orange:#D5803B; --orange-soft:#FBEBDE; --purple:#7E5FB3; --purple-soft:#F0EAF8;
+  --navy:#2B5B84; --radius:12px;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; color:var(--text); background:var(--soft); line-height:1.55; font-size:16px;}
+button{font-family:inherit; cursor:pointer;}
+.topbar{position:sticky; top:0; z-index:50; background:var(--navy); color:#fff; padding:12px 16px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+.topbar b{font-size:16px;}
+.topbar .tabs{display:flex; gap:8px; margin-left:auto; flex-wrap:wrap;}
+.tab-btn{border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.08); color:#fff; border-radius:8px; padding:8px 14px; font-size:14px; font-weight:600;}
+.tab-btn.active{background:#fff; color:var(--navy);}
+.stars-chip{background:rgba(255,255,255,.14); border-radius:8px; padding:8px 12px; font-size:14px; font-weight:800;}
+.stars-chip.pop{animation:pop .35s ease;}
+@keyframes pop{0%{transform:scale(1);}40%{transform:scale(1.25);}100%{transform:scale(1);}}
+.wrap{max-width:960px; margin:0 auto; padding:24px 16px 64px;}
+.view{display:none;}
+.view.active{display:block; animation:fade .3s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.card{background:#fff; border:1px solid var(--border); border-radius:var(--radius); padding:22px 24px; margin-bottom:16px;}
+.mission{border-left:6px solid var(--orange); background:var(--orange-soft); border-radius:0 var(--radius) var(--radius) 0; padding:20px 24px; margin-bottom:16px;}
+.mission h3{color:var(--orange); margin-bottom:8px;}
+.chips{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;}
+.chip{border:1px solid var(--border); background:var(--soft); border-radius:20px; padding:8px 16px; font-size:14px; font-weight:600; cursor:pointer;}
+.chip.selected{background:var(--navy); border-color:var(--navy); color:#fff;}
+.cdc-group{border-radius:10px; overflow:hidden; margin-bottom:14px; border:1px solid var(--border);}
+.cdc-head{padding:10px 16px; font-weight:800; color:#fff; font-size:14px; letter-spacing:.3px;}
+.cdc-item{display:flex; align-items:flex-start; gap:10px; padding:11px 16px; border-top:1px solid var(--border); font-size:15px; cursor:pointer; background:#fff;}
+.cdc-item:hover{background:var(--soft);}
+.cdc-item input{margin-top:3px; width:18px; height:18px; flex:none;}
+.cdc-item.checked{background:var(--green-soft);}
+.cdc-item.checked span{text-decoration:line-through; color:var(--text2);}
+.note{border:1px solid var(--purple); background:var(--purple-soft); color:#4a3566; border-radius:10px; padding:14px 18px; font-size:14px; font-style:italic; margin-top:10px;}
+.reset-row{text-align:right; margin-top:10px;}
+.btn{border:1px solid var(--border); background:#fff; border-radius:8px; padding:8px 14px; font-size:13px; font-weight:700; color:var(--text);}
+.btn:hover{border-color:var(--navy);}
+
+/* ---- Ateliers : QCM ---- */
+.qcm-q{font-weight:700; font-size:15px; margin-bottom:12px;}
+.qcm-opts{display:flex; flex-direction:column; gap:8px;}
+.opt{text-align:left; border:1px solid var(--border); background:var(--soft); border-radius:8px; padding:10px 14px; font-size:14px; font-family:inherit;}
+.opt code{font-family:Consolas,monospace;}
+.opt:hover{border-color:var(--navy);}
+.opt.good{background:var(--green-soft); border-color:var(--green); font-weight:700;}
+.opt.bad{background:#FBE5EF; border-color:#C22A6B; opacity:.7;}
+.verdict{margin-top:10px; font-size:14px; font-weight:700; display:none; border-radius:8px; padding:10px 14px;}
+.verdict.show{display:block; animation:fade .25s ease;}
+.verdict.ok{background:var(--green-soft); color:#1E7A4C;}
+.verdict.no{background:#FBE5EF; color:#9c1c53;}
+
+/* ---- Ateliers : tuiles ---- */
+.tiles{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; margin-top:6px;}
+.task-tile{border:1px solid var(--border); background:var(--soft); border-radius:10px; padding:16px 10px; text-align:center; min-height:100px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;}
+.task-tile .tt-ico{font-size:26px; font-family:Consolas,monospace;}
+.task-tile .tt-cap{font-weight:800; font-size:13px; font-family:Consolas,monospace;}
+.task-tile .tt-soft{display:none; font-size:12px; color:var(--text2); font-family:system-ui,sans-serif;}
+.task-tile.revealed{background:var(--purple-soft); border-color:var(--navy);}
+.task-tile.revealed .tt-soft{display:block;}
+
+/* ---- Ateliers : remise en ordre ---- */
+.order-box{display:flex; flex-direction:column; gap:8px; margin-top:8px;}
+.order-btn{text-align:left; border:1px solid var(--border); background:var(--soft); border-radius:8px; padding:10px 14px; font-size:13.5px; font-family:Consolas,monospace; display:flex; align-items:center; gap:10px;}
+.order-btn .onum{display:none; background:var(--navy); color:#fff; width:22px; height:22px; border-radius:50%; align-items:center; justify-content:center; font-size:12px; font-weight:800; flex:none; font-family:system-ui,sans-serif;}
+.order-btn.done{background:var(--green-soft); border-color:var(--green); cursor:default;}
+.order-btn.done .onum{display:flex;}
+.order-btn.shake{animation:shake .35s ease;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-5px);}75%{transform:translateX(5px);}}
+
+.aide-cat{background:var(--navy); color:#fff; font-weight:800; padding:9px 16px; border-radius:8px 8px 0 0; font-size:14px; margin-top:14px;}
+.aide-cat:first-child{margin-top:0;}
+.aide-list{border:1px solid var(--border); border-top:none; border-radius:0 0 8px 8px; overflow:hidden; margin-bottom:14px;}
+.aide-row{border-top:1px solid var(--border); background:#fff;}
+.aide-row-main{display:grid; grid-template-columns:1fr auto; gap:4px 14px; padding:12px 14px; align-items:start;}
+.aide-row-main .comp{grid-column:1; font-weight:800; font-size:15px;}
+.aide-row-main .version-txt{grid-column:1/2; font-size:13px; color:var(--text2);}
+.aide-row-main .version-txt b{color:var(--text); font-weight:700; font-size:12px;}
+.aide-row-main .ou{color:var(--navy); font-weight:700; font-family:Consolas,monospace;}
+.aide-row-main .astuce{color:var(--text2); font-style:italic;}
+.demo-btn{grid-column:2; grid-row:1 / span 2; align-self:center; border:1px solid var(--navy); background:var(--blue-soft); color:#1c4a6e; border-radius:20px; padding:8px 14px; font-size:12px; font-weight:800; white-space:nowrap;}
+.demo-btn.open{background:var(--navy); color:#fff;}
+.aide-row-demo{display:none; padding:16px; background:#EEF4F8; border-top:1px dashed #bcd4e4;}
+.aide-row-demo.show{display:block; animation:fade .25s ease;}
+@media (max-width:760px){
+  .aide-row-main{grid-template-columns:1fr;}
+  .demo-btn{grid-column:1; grid-row:auto; justify-self:start; margin-top:6px;}
+}
+
+/* ---- Simulateur d'éditeur de code ---- */
+.code-sim{max-width:460px; margin:0 auto; background:#1E1E1E; border-radius:8px; overflow:hidden; box-shadow:0 4px 14px rgba(0,0,0,.28);}
+.code-titlebar{background:#323233; color:#ccc; padding:7px 12px; font-size:12px; display:flex; align-items:center; gap:10px;}
+.code-dots{display:flex; gap:5px;}
+.code-dots span{width:9px; height:9px; border-radius:50%; display:inline-block;}
+.code-titlebar .ct-title{flex:1; text-align:center; font-family:Consolas,monospace;}
+.code-body{padding:14px 16px; font-family:Consolas,'Courier New',monospace; font-size:13px; line-height:1.7; color:#D4D4D4;}
+.code-line{white-space:pre;}
+.code-line.hi{background:rgba(86,156,214,.16); border-left:3px solid #569CD6; padding-left:9px; margin-left:-12px; border-radius:2px;}
+.kw{color:#C586C0; font-weight:600;}
+.str{color:#CE9178;}
+.fn{color:#DCDCAA;}
+.num{color:#B5CEA8;}
+.cm{color:#6A9955; font-style:italic;}
+.code-console{background:#0C0C0C; border-top:1px solid #333; padding:10px 16px; font-family:Consolas,monospace; font-size:12.5px; color:#e8e8e8; min-height:44px;}
+.code-console .cprompt{color:#4EC9B0;}
+.code-console .cout{color:#fff; font-weight:600;}
+
+.td-wrap{border:1px dashed #bcd4e4; border-radius:8px; background:#fff; padding:14px; margin-top:14px; max-width:460px; margin-left:auto; margin-right:auto; text-align:center;}
+.td-label{font-size:11px; color:#3f5f78; font-weight:800; margin-bottom:8px; letter-spacing:.3px;}
+.td-caption{font-size:12px; color:#1c4a6e; font-weight:700; margin-top:8px; min-height:16px;}
+
+.aide-mode-note{display:flex; align-items:center; gap:10px; background:var(--purple-soft); border:1px solid var(--purple); color:#4a3566; border-radius:10px; padding:12px 16px; font-size:14px; margin-bottom:16px;}
+.aide-mode-note .big{font-size:22px;}
+@media (max-width:640px){
+  .topbar{flex-direction:column; align-items:flex-start;}
+  .topbar .tabs{margin-left:0;}
+}
+/* ==== Charte Bitou ==== */
+@media screen {
+  :root{
+    --ink:#1B1740; --sun:#FFD23F; --sun-l:#FFF3BF;
+    --text:#1B1740; --text2:#5B577E; --canvas:#FFFFFF; --soft:#F1EFFF; --soft2:#E6E4FF; --border:#CFCBF2;
+    --blue:#3D3BF3; --blue-soft:#DDDCFF; --green:#0B7A55; --green-soft:#D5F7EA;
+    --orange:#A14A06; --orange-soft:#FFF3BF; --red:#B4233A; --red-soft:#FFE0E5;
+    --purple:#5B3FD1; --purple-soft:#ECE8FF; --navy:#1B1740; --radius:18px;
+  }
+  body{font-family:"Arial Rounded MT Bold","Nunito","Trebuchet MS","Segoe UI",system-ui,sans-serif;
+    background-color:var(--soft); background-image:radial-gradient(var(--blue-soft) 1.5px,transparent 1.5px); background-size:26px 26px;}
+  :focus-visible{outline:4px solid var(--blue); outline-offset:3px;}
+
+  .desk-sim,.win-stage,.explorer,.ribbon-sim,.app-sim,.code-sim,.scratch-sim,.net-sim,.aide-row-demo{
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;}
+
+  .topbar{background:var(--navy); color:#fff; border-bottom:3px solid var(--ink);}
+  .tab-btn{border-radius:999px; font-weight:800;}
+  .tab-btn.active{background:var(--sun); border-color:var(--sun); color:var(--ink);}
+
+  .card,.q,.notebook{border:3px solid var(--ink); border-radius:18px; box-shadow:4px 4px 0 var(--ink);}
+  .mission,.sp{border:3px solid var(--ink); border-radius:16px; background:var(--sun-l); box-shadow:4px 4px 0 var(--ink);}
+  .mission h3,.sp h3{color:var(--ink);}
+
+  .btn{border:3px solid var(--ink); border-radius:999px; background:var(--sun); color:var(--ink); font-weight:800;
+    box-shadow:3px 3px 0 var(--ink); transition:transform .08s,box-shadow .08s;}
+  .btn:hover{border-color:var(--ink);}
+  .btn:active:not(:disabled){transform:translate(3px,3px); box-shadow:0 0 0 var(--ink);}
+  .btn.primary{background:var(--blue); border-color:var(--ink); color:#fff;}
+
+  .chip{border:2px solid var(--ink); background:#fff; border-radius:999px;}
+  .chip.selected{background:var(--blue); border-color:var(--ink); color:#fff;}
+  .opt,.order-btn,.item{border:2px solid var(--ink); background:#fff; border-radius:12px;}
+  .opt:hover,.order-btn:hover{background:var(--blue-soft); border-color:var(--ink);}
+  .opt.good,.order-btn.done{background:var(--green-soft); border-color:var(--green);}
+  .opt.bad{background:var(--red-soft); border-color:var(--red); color:var(--red); opacity:1;}
+  .verdict.ok,.feedback.ok{background:var(--green-soft); color:var(--green);}
+  .verdict.no,.feedback.err{background:var(--red-soft); color:var(--red);}
+  .feedback{border-width:2px;}
+  .feedback.info{border-color:var(--blue);}
+
+  .task-tile{border:2px solid var(--ink); background:#fff; border-radius:14px; box-shadow:3px 3px 0 var(--ink);}
+  .task-tile.revealed{background:var(--blue-soft); border-color:var(--ink);}
+  .cdc-group{border:3px solid var(--ink); border-radius:14px; box-shadow:3px 3px 0 var(--ink);}
+  .note,.aide-mode-note{border:2px solid var(--ink); background:var(--purple-soft); color:var(--ink); border-radius:12px;}
+  .aide-list{border:3px solid var(--ink); border-top:none;}
+  .demo-btn{border:2px solid var(--ink); background:var(--blue-soft); color:var(--ink); border-radius:999px;}
+  .demo-btn.open{background:var(--blue); color:#fff;}
+  .td-caption{color:var(--blue);}
+
+  .dot{border:2px solid var(--ink); border-radius:12px;}
+  .dot.active{background:var(--blue); border-color:var(--ink); color:#fff;}
+  .hud-chip,.hud-btn,.phase-tag,.phase-time{border:2px solid var(--ink);}
+  .dot,.hud-chip,.hud-btn{color:var(--ink);}
+  .dot.active{color:#fff;}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <b>🐍 Programmation — avec Python</b>
+  <span class="stars-chip" id="starsChip">⭐ 0</span>
+  <div class="tabs">
+    <button class="tab-btn active" id="tabAtBtn" onclick="showView('ateliers')">🎮 Ateliers</button>
+    <button class="tab-btn" id="tabAideBtn" onclick="showView('aide')">📖 Aide-mémoire</button>
+    <button class="tab-btn" id="tabDefiBtn" onclick="showView('defi')">🎯 Mini-défi</button>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ============ VUE ATELIERS ============ -->
+<section class="view active" id="viewAteliers">
+  <div class="mission">
+    <h3>🎯 Objectif</h3>
+    <p>Passer de l'algorithme au programme : écrire en Python des instructions de base (variables, affichage, lecture) et une structure conditionnelle simple.</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:10px;">Atelier 1 — Variables et types</h3>
+    <div class="qcm" id="q1">
+      <p class="qcm-q">Quel est le bon type Python pour stocker la valeur <code>3.14</code> ?</p>
+      <div class="qcm-opts">
+        <button class="opt" data-ok="0"><code>int</code></button>
+        <button class="opt" data-ok="1"><code>float</code></button>
+        <button class="opt" data-ok="0"><code>str</code></button>
+        <button class="opt" data-ok="0"><code>bool</code></button>
+      </div>
+      <div class="verdict"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:4px;">Atelier 2 — Les mots-clés de base</h3>
+    <p style="color:var(--text2); font-size:14px; margin-bottom:10px;">Clique sur chaque tuile pour découvrir à quoi sert cette instruction.</p>
+    <p style="font-size:13px; font-weight:700; color:var(--navy); margin-bottom:10px;" id="tilesCounter">Découvertes : 0/5</p>
+    <div class="tiles" id="tilesBox"></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:4px;">Atelier 3 — Range les lignes dans l'ordre</h3>
+    <p style="color:var(--text2); font-size:14px; margin-bottom:10px;">Un programme s'exécute ligne par ligne, dans l'ordre. Clique sur les lignes dans le bon ordre.</p>
+    <div class="order-box" id="orderBox"></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:10px;">Atelier 4 — La structure conditionnelle</h3>
+    <div class="qcm" id="q2" style="margin-bottom:18px;">
+      <p class="qcm-q">Quelle est la syntaxe Python correcte ?</p>
+      <div class="qcm-opts">
+        <button class="opt" data-ok="1"><code>if age >= 18:</code></button>
+        <button class="opt" data-ok="0"><code>if (age >= 18)</code></button>
+        <button class="opt" data-ok="0"><code>if age >= 18 then</code></button>
+        <button class="opt" data-ok="0"><code>when age >= 18:</code></button>
+      </div>
+      <div class="verdict"></div>
+    </div>
+    <div class="qcm" id="q3">
+      <p class="qcm-q">Combien de branches peut avoir une structure <code>if</code> ?</p>
+      <div class="qcm-opts">
+        <button class="opt" data-ok="1">Autant que nécessaire : un <code>if</code>, plusieurs <code>elif</code>, puis un seul <code>else</code></button>
+        <button class="opt" data-ok="0">Toujours exactement 2</button>
+        <button class="opt" data-ok="0">Un seul <code>if</code>, jamais de <code>elif</code></button>
+        <button class="opt" data-ok="0">Sans limite, mais jamais de <code>else</code></button>
+      </div>
+      <div class="verdict"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VUE AIDE-MÉMOIRE ============ -->
+<section class="view" id="viewAide">
+  <div class="card">
+    <h3>📖 Aide-mémoire — Syntaxe Python de base</h3>
+    <p style="color:var(--text2); font-size:14px; margin-bottom:12px;">Consulte cette liste chaque fois que tu ne te souviens plus de la syntaxe.</p>
+    <div class="aide-mode-note"><span class="big">🎬</span><span>Tu ne comprends pas une consigne écrite ? Clique sur <b>« 🎬 VERSION VISUELLE »</b> : le code s'affiche dans un éditeur simulé, avec le résultat animé dans la console.</span></div>
+  </div>
+  <div id="aideContainer"></div>
+</section>
+
+<!-- ============ VUE MINI-DÉFI ============ -->
+<section class="view" id="viewDefi">
+  <div class="mission">
+    <h3>🎯 Ton mini-défi</h3>
+    <p>Écris (dans un éditeur Python) un petit programme qui <b>demande une valeur</b>, la <b>compare</b>, puis <b>affiche un résultat différent</b> selon le cas. Coche les éléments au fur et à mesure.</p>
+  </div>
+  <div class="card">
+    <h3 style="margin-bottom:10px;">🎨 Choisis ton thème</h3>
+    <div class="chips" id="themeChips"></div>
+  </div>
+  <div class="card">
+    <h3 style="margin-bottom:6px;">📋 Cahier des charges</h3>
+    <p style="color:var(--text2); font-size:14px; margin-bottom:14px;">Clique sur chaque ligne quand c'est fait dans ton programme.</p>
+    <div id="cdcContainer"></div>
+    <div class="note">♻️ Rien n'est imprimé ni enregistré sur le serveur : tes coches restent seulement sur cet écran, pendant ta séance.</div>
+    <div class="reset-row"><button class="btn" onclick="resetChecklist()">↺ Réinitialiser (nouveau groupe)</button></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+let stars = 0;
+function addStars(n){
+  stars += n;
+  const el = document.getElementById('starsChip');
+  el.textContent = '⭐ ' + stars;
+  el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+}
+
+function showView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  const map = {ateliers:'viewAteliers', aide:'viewAide', defi:'viewDefi'};
+  document.getElementById(map[name]).classList.add('active');
+  document.getElementById('tabAtBtn').classList.toggle('active', name==='ateliers');
+  document.getElementById('tabAideBtn').classList.toggle('active', name==='aide');
+  document.getElementById('tabDefiBtn').classList.toggle('active', name==='defi');
+}
+
+function bindOpts(id, okMsg, errMsg){
+  const q = document.getElementById(id);
+  q.querySelectorAll('.opt').forEach(btn=>{
+    btn.onclick = ()=>{
+      if(q.dataset.solved) return;
+      const ok = btn.dataset.ok === '1';
+      const verdict = q.querySelector('.verdict');
+      if(ok){
+        btn.classList.add('good');
+        q.dataset.solved = '1';
+        verdict.className='verdict show ok'; verdict.textContent = okMsg;
+        addStars(1);
+      } else {
+        btn.classList.add('bad'); btn.disabled = true;
+        verdict.className='verdict show no'; verdict.textContent = errMsg;
+      }
+    };
+  });
+}
+bindOpts('q1', '✔ Exact : un nombre à virgule est un float.', '');
+bindOpts('q2', '✔ Exact : Python exige les deux-points « : » à la fin de la ligne if.', '✘ Vérifie la ponctuation Python (les deux-points sont indispensables).');
+bindOpts('q3', '✔ Exact : if, puis autant de elif que nécessaire, puis un seul else (optionnel).', '✘ Essaie une autre option.');
+
+const TILES_DATA = [
+  {ico:'print()', cap:'print()', soft:'Affiche un message ou une valeur à l\'écran.'},
+  {ico:'input()', cap:'input()', soft:'Demande une valeur à l\'utilisateur (toujours récupérée en texte).'},
+  {ico:'if / elif / else', cap:'if / elif / else', soft:'Permet de faire un choix selon qu\'une condition est vraie ou fausse.'},
+  {ico:'=', cap:'=', soft:'Affecte une valeur à une variable (attention : différent de ==).'},
+  {ico:'==', cap:'==', soft:'Compare deux valeurs : est-ce égal ?'}
+];
+(function buildTiles(){
+  const box = document.getElementById('tilesBox');
+  let done = 0;
+  shuffle(TILES_DATA).forEach(d=>{
+    const b = document.createElement('button');
+    b.className = 'task-tile';
+    b.innerHTML = '<div class="tt-ico">'+d.ico+'</div><div class="tt-soft">'+d.soft+'</div>';
+    b.onclick = ()=>{
+      if(b.classList.contains('revealed')) return;
+      b.classList.add('revealed');
+      done++;
+      document.getElementById('tilesCounter').textContent = 'Découvertes : '+done+'/'+TILES_DATA.length;
+      addStars(1);
+    };
+    box.appendChild(b);
+  });
+})();
+
+const ORDER_STEPS = [
+  'nom = input("Comment t\'appelles-tu ? ")',
+  'age = input("Quel âge as-tu ? ")',
+  'print("Bonjour", nom)',
+  'print("Tu as", age, "ans")'
+];
+(function buildOrder(){
+  const box = document.getElementById('orderBox');
+  let nextIdx = 0;
+  shuffle(ORDER_STEPS.map((text,i)=>({text,i}))).forEach(item=>{
+    const b = document.createElement('button');
+    b.className = 'order-btn';
+    b.innerHTML = '<span class="onum"></span><span class="otext">'+item.text+'</span>';
+    b.onclick = ()=>{
+      if(b.classList.contains('done')) return;
+      if(item.i === nextIdx){
+        nextIdx++;
+        b.querySelector('.onum').textContent = nextIdx;
+        b.classList.add('done');
+        addStars(1);
+      } else {
+        b.classList.add('shake');
+        setTimeout(()=>b.classList.remove('shake'), 350);
+      }
+    };
+    box.appendChild(b);
+  });
+})();
+
+/* ================= AIDE-MÉMOIRE ================= */
+const AIDE = [
+  { cat: "🔤 Variables et types", items: [
+    { c:"Créer une variable", ou:"nom_variable = valeur", a:"Pas d'espace, pas d'accent, pas de chiffre au début du nom." },
+    { c:"Types de base", ou:"int, float, str, bool", a:"Python devine le type automatiquement selon la valeur.",
+      code:[ {t:'age = 13', cls:'hi'}, {t:'prenom = "Sara"', cls:'hi'}, {t:'moyenne = 14.5', cls:'hi'}, {t:'print(type(age))'} ],
+      console:'<span class="cprompt">&gt;&gt;&gt; </span><span class="cout" id="pyOut">&lt;class \'int\'&gt;</span>',
+      textDemo:{type:'types'} }
+  ]},
+  { cat: "⌨️ Entrée / Sortie", items: [
+    { c:"Afficher un message", ou:'print("...")', a:"Le texte entre guillemets s'affiche tel quel.",
+      code:[ {t:'nom = "Yasmine"'}, {t:'print("Bonjour", nom)', cls:'hi'} ],
+      console:'<span class="cprompt">&gt;&gt;&gt; </span><span class="cout" id="pyOut">Bonjour Yasmine</span>',
+      textDemo:{type:'print'} },
+    { c:"Demander une valeur", ou:'variable = input("...")', a:"input() renvoie toujours du texte (str), même pour un nombre !",
+      code:[ {t:'nom = input("Ton prénom ? ")', cls:'hi'}, {t:'print("Salut", nom)'} ],
+      console:'<span class="cprompt">Ton prénom ? </span><span class="cout" id="pyOut"></span>',
+      textDemo:{type:'input'} }
+  ]},
+  { cat: "➗ Opérateurs", items: [
+    { c:"Comparer deux valeurs", ou:"==, !=, <, >, <=, >=", a:"== compare (égal à), = affecte (donne une valeur) — ne pas confondre !",
+      code:[ {t:'age = 15'}, {t:'print(age >= 18)', cls:'hi'} ],
+      console:'<span class="cprompt">&gt;&gt;&gt; </span><span class="cout" id="pyOut">False</span>',
+      textDemo:{type:'compare'} }
+  ]},
+  { cat: "🔀 Structure conditionnelle", items: [
+    { c:"if / elif / else", ou:"if condition:  /  elif autre_condition:  /  else:", a:"L'indentation (4 espaces) est obligatoire en Python !",
+      code:[ {t:'age = 15'}, {t:'if age >= 18:', cls:'hi'}, {t:'    print("Majeur")', cls:'hi', id:'pyLineIf'}, {t:'else:', cls:'hi'}, {t:'    print("Mineur")', cls:'hi', id:'pyLineElse'} ],
+      console:'<span class="cprompt">&gt;&gt;&gt; </span><span class="cout" id="pyOut">Mineur</span>',
+      textDemo:{type:'ifelse'} }
+  ]}
+];
+
+function highlightCode(line){
+  let t = line.t
+    .replace(/"([^"]*)"/g, '<span class="str">"$1"</span>')
+    .replace(/\b(if|elif|else|print|input|type)\b/g, m=>{
+      if(m==='print'||m==='input'||m==='type') return '<span class="fn">'+m+'</span>';
+      return '<span class="kw">'+m+'</span>';
+    })
+    .replace(/(?<![\w"])(\d+\.?\d*)(?![\w"])/g, '<span class="num">$1</span>');
+  return t;
+}
+
+function renderCodeDemo(item){
+  const linesHtml = item.code.map(l=>{
+    const idAttr = l.id ? ' id="'+l.id+'"' : '';
+    return '<div class="code-line'+(l.cls?' '+l.cls:'')+'"'+idAttr+'>'+highlightCode(l)+'</div>';
+  }).join('');
+  return '<div class="code-sim">'
+    + '<div class="code-titlebar"><span class="code-dots"><span style="background:#FF5F56;"></span><span style="background:#FFBD2E;"></span><span style="background:#27C93F;"></span></span><span class="ct-title">projet.py — Python</span><span></span></div>'
+    + '<div class="code-body">'+linesHtml+'</div>'
+    + '<div class="code-console">'+item.console+'</div>'
+    + '</div>';
+}
+
+(function buildAide(){
+  const box = document.getElementById('aideContainer');
+  let uid = 0;
+  AIDE.forEach(group=>{
+    const catDiv = document.createElement('div'); catDiv.className = 'aide-cat'; catDiv.textContent = group.cat;
+    box.appendChild(catDiv);
+    const list = document.createElement('div'); list.className = 'aide-list';
+    group.items.forEach(it=>{
+      uid++;
+      const row = document.createElement('div'); row.className = 'aide-row';
+      const main = document.createElement('div'); main.className = 'aide-row-main';
+      main.innerHTML = '<div class="comp">'+it.c+'</div>'
+        + '<div class="version-txt"><b>📝 VERSION TEXTE</b><br><span class="ou">'+it.ou+'</span>'+(it.a?' — <span class="astuce">'+it.a+'</span>':'')+'</div>';
+      if(it.code){
+        const demoBtn = document.createElement('button');
+        demoBtn.className = 'demo-btn'; demoBtn.type = 'button';
+        demoBtn.textContent = "🎬 VERSION VISUELLE";
+        const panelId = 'demo-'+uid;
+        demoBtn.onclick = ()=> toggleDemo(panelId, demoBtn, it);
+        main.appendChild(demoBtn);
+        row.appendChild(main);
+        const panel = document.createElement('div');
+        panel.className = 'aide-row-demo'; panel.id = panelId;
+        row.appendChild(panel);
+      } else {
+        row.appendChild(main);
+      }
+      list.appendChild(row);
+    });
+    box.appendChild(list);
+  });
+})();
+
+let activeDemoInterval = null;
+function stopActiveDemoAnim(){ if(activeDemoInterval){ clearInterval(activeDemoInterval); activeDemoInterval = null; } }
+
+function toggleDemo(panelId, btn, item){
+  const panel = document.getElementById(panelId);
+  const willOpen = !panel.classList.contains('show');
+  stopActiveDemoAnim();
+  document.querySelectorAll('.aide-row-demo.show').forEach(p=>{ if(p.id!==panelId){ p.classList.remove('show'); p.innerHTML=''; } });
+  document.querySelectorAll('.demo-btn.open').forEach(b=>{ if(b!==btn) b.classList.remove('open'); b.textContent='🎬 VERSION VISUELLE'; });
+  if(willOpen){
+    let html = renderCodeDemo(item);
+    if(item.textDemo) html += '<div class="td-wrap"><div class="td-label">👁️ Ce qui se passe</div><div class="td-caption" id="tdCaption">…</div></div>';
+    panel.innerHTML = html;
+    panel.classList.add('show');
+    btn.classList.add('open'); btn.textContent = '✕ Fermer';
+    if(item.textDemo) activeDemoInterval = startTextDemoAnim(panel, item.textDemo);
+  } else {
+    panel.classList.remove('show'); panel.innerHTML = '';
+    btn.classList.remove('open'); btn.textContent = '🎬 VERSION VISUELLE';
+  }
+}
+
+function startTextDemoAnim(container, td){
+  const out = container.querySelector('#pyOut');
+  const cap = container.querySelector('#tdCaption');
+  if(td.type==='types'){
+    const states = [
+      {t:"<class 'int'>", c:'age = 13 → un entier (int)'},
+      {t:"<class 'str'>", c:'prenom = "Sara" → un texte (str)'},
+      {t:"<class 'float'>", c:'moyenne = 14.5 → un décimal (float)'}
+    ];
+    let i=0;
+    const tick = ()=>{ if(out) out.textContent = states[i].t; if(cap) cap.textContent = states[i].c; i=(i+1)%states.length; };
+    tick();
+    return setInterval(tick, 1300);
+  }
+  if(td.type==='print'){
+    if(cap) cap.textContent = 'print() affiche le texte et la variable, séparés par un espace';
+    return null;
+  }
+  if(td.type==='input'){
+    const states = [ {t:'', c:'Python attend que l\'utilisateur tape une réponse…'}, {t:'Salut Sara', c:'la réponse est stockée dans « nom », puis affichée'} ];
+    let i=0;
+    const tick = ()=>{ if(out) out.textContent = states[i].t; if(cap) cap.textContent = states[i].c; i=(i+1)%states.length; };
+    tick();
+    return setInterval(tick, 1400);
+  }
+  if(td.type==='compare'){
+    const states = [ {t:'False', c:'15 >= 18 → False (faux)', ok:false}, {t:'True', c:'20 >= 18 → True (vrai)', ok:true} ];
+    let i=0;
+    const tick = ()=>{
+      if(out){ out.textContent = states[i].t; out.style.color = states[i].ok ? '#7CD98A' : '#F27878'; }
+      if(cap) cap.textContent = states[i].c;
+      i=(i+1)%states.length;
+    };
+    tick();
+    return setInterval(tick, 1300);
+  }
+  if(td.type==='ifelse'){
+    const lineIf = container.querySelector('#pyLineIf'), lineElse = container.querySelector('#pyLineElse');
+    let branchIf = true;
+    const tick = ()=>{
+      branchIf = !branchIf;
+      if(out) out.textContent = branchIf ? 'Majeur' : 'Mineur';
+      if(cap) cap.textContent = branchIf ? 'condition VRAIE → la ligne if s\'exécute' : 'condition FAUSSE → la ligne else s\'exécute';
+      if(lineIf) lineIf.style.opacity = branchIf ? '1' : '.35';
+      if(lineElse) lineElse.style.opacity = !branchIf ? '1' : '.35';
+    };
+    tick();
+    return setInterval(tick, 1500);
+  }
+  return null;
+}
+
+/* ================= MINI-DÉFI ================= */
+const THEMES = ["Pair ou impair ?", "Majeur ou mineur ?", "Note suffisante ?", "Peut conduire (âge) ?", "Mot de passe assez long ?"];
+const CDC = [
+  { cat: "DONNÉES", color: "#3D3BF3", items: [
+    "Au moins une variable créée",
+    "Un nom de variable clair et valide"
+  ]},
+  { cat: "ENTRÉE / SORTIE", color: "#0B7A55", items: [
+    "input() utilisé pour demander une valeur",
+    "print() utilisé pour afficher un résultat"
+  ]},
+  { cat: "CONDITION", color: "#5B3FD1", items: [
+    "Un bloc if / else utilisé",
+    "Une comparaison correcte (==, <, >, >=, <=)"
+  ]},
+  { cat: "FINALISATION", color: "#A14A06", items: [
+    "Le programme s'exécute sans erreur",
+    "Un message clair affiché pour chaque cas"
+  ]}
+];
+
+(function buildThemes(){
+  const box = document.getElementById('themeChips');
+  THEMES.forEach(th=>{
+    const b = document.createElement('button');
+    b.className = 'chip'; b.textContent = th;
+    b.onclick = ()=>{
+      document.querySelectorAll('#themeChips .chip').forEach(c=>c.classList.remove('selected'));
+      b.classList.add('selected');
+    };
+    box.appendChild(b);
+  });
+})();
+
+let totalItems = 0, checkedCount = 0;
+(function buildCdc(){
+  const box = document.getElementById('cdcContainer');
+  CDC.forEach(group=>{
+    const g = document.createElement('div'); g.className = 'cdc-group';
+    const head = document.createElement('div'); head.className = 'cdc-head'; head.style.background = group.color; head.textContent = group.cat;
+    g.appendChild(head);
+    group.items.forEach(text=>{
+      totalItems++;
+      const row = document.createElement('label'); row.className = 'cdc-item';
+      const cb = document.createElement('input'); cb.type = 'checkbox';
+      const span = document.createElement('span'); span.textContent = text;
+      cb.onchange = ()=>{
+        row.classList.toggle('checked', cb.checked);
+        checkedCount += cb.checked ? 1 : -1;
+        if(cb.checked) addStars(1);
+      };
+      row.appendChild(cb); row.appendChild(span);
+      g.appendChild(row);
+    });
+    box.appendChild(g);
+  });
+})();
+function resetChecklist(){
+  document.querySelectorAll('#cdcContainer input[type=checkbox]').forEach(cb=>{
+    cb.checked = false;
+    cb.closest('.cdc-item').classList.remove('checked');
+  });
+  document.querySelectorAll('#themeChips .chip').forEach(c=>c.classList.remove('selected'));
+  checkedCount = 0;
+}
+</script>
+</body>
+</html>

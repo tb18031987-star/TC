@@ -19,7 +19,7 @@ module2-logiciels/
   lecon3-tableur/                      (S14-S17 — complet)
 module3-algo-programmation/
   algorithmique-scratch/               (S18-S23 — complet)
-  programmation-python/                (S23-S26 — à venir)
+  programmation-python/                (S23-S26 — complet)
 module4-reseaux-internet/
   notion-reseau/                       (S27-S28 — à venir)
   reseau-internet/                     (S29-S33 — à venir)
@@ -79,7 +79,13 @@ Le **Module 2** est ainsi complet (Leçons 1 à 3, semaines 6 à 17).
 
 - **`Atelier_Algorithme_Scratch.html`** — atelier en 3 onglets : « Ateliers » (qu'est-ce qu'un algorithme, les 4 familles de briques Scratch à révéler, remise en ordre des étapes d'une recette, structures de contrôle avec 2 QCM), « Aide-mémoire » (variables, capteurs, opérateurs, contrôle, apparence — chaque brique avec sa version texte et une démo visuelle simulant la palette Scratch et animant l'effet réel : variable qui change, comparaison vraie/fausse, si/alors/sinon qui bascule de branche…) et « Mini-défi » (thème + cahier des charges à cocher).
 
-### Modules 3 (Programmation Python) et 4
+**Programmation (Python)** (`module3-algo-programmation/programmation-python/`)
+
+- **`Atelier_Programmation_Python.html`** — même principe (Ateliers / Aide-mémoire / Mini-défi), pour Python : variables et types, mots-clés de base (`print`, `input`, `if/elif/else`, `=` vs `==`) à révéler, remise en ordre de lignes de code, structure conditionnelle avec QCM. L'aide-mémoire montre un éditeur de code simulé avec coloration syntaxique et une console animée (résultat de `type()`, `print()`, comparaison True/False, bascule if/else selon la condition).
+
+Le **Module 3** est ainsi complet (Scratch + Python, semaines 18 à 26).
+
+### Module 4
 
 Structure posée dans le portail avec la progression hebdomadaire prévue, contenu à rédiger.
 
