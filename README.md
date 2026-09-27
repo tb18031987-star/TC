@@ -18,7 +18,7 @@ module2-logiciels/
   lecon2-traitement-texte/             (S9-S14 — complet)
   lecon3-tableur/                      (S14-S17 — complet)
 module3-algo-programmation/
-  algorithmique-scratch/               (S18-S23 — à venir)
+  algorithmique-scratch/               (S18-S23 — complet)
   programmation-python/                (S23-S26 — à venir)
 module4-reseaux-internet/
   notion-reseau/                       (S27-S28 — à venir)
@@ -73,7 +73,13 @@ Séquences 2 à 4 sont complètes ; la Séquence 1 a son contenu principal (2 le
 
 Le **Module 2** est ainsi complet (Leçons 1 à 3, semaines 6 à 17).
 
-### Modules 3 et 4
+### Module 3 — Algorithmique et programmation
+
+**Algorithmique (Scratch)** (`module3-algo-programmation/algorithmique-scratch/`)
+
+- **`Atelier_Algorithme_Scratch.html`** — atelier en 3 onglets : « Ateliers » (qu'est-ce qu'un algorithme, les 4 familles de briques Scratch à révéler, remise en ordre des étapes d'une recette, structures de contrôle avec 2 QCM), « Aide-mémoire » (variables, capteurs, opérateurs, contrôle, apparence — chaque brique avec sa version texte et une démo visuelle simulant la palette Scratch et animant l'effet réel : variable qui change, comparaison vraie/fausse, si/alors/sinon qui bascule de branche…) et « Mini-défi » (thème + cahier des charges à cocher).
+
+### Modules 3 (Programmation Python) et 4
 
 Structure posée dans le portail avec la progression hebdomadaire prévue, contenu à rédiger.
 

@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atelier — Algorithmique avec Scratch</title>
+<style>
+:root{
+  --text:#2C2C2B; --text2:#7D7A75; --soft:#F9F8F7; --border:#E6E5E3;
+  --blue:#2783DE; --blue-soft:#E5F2FC; --green:#46A171; --green-soft:#E8F1EC;
+  --orange:#D5803B; --orange-soft:#FBEBDE; --purple:#7E5FB3; --purple-soft:#F0EAF8;
+  --navy:#5B2E91; --radius:12px;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; color:var(--text); background:var(--soft); line-height:1.55; font-size:16px;}
+button{font-family:inherit; cursor:pointer;}
+.topbar{position:sticky; top:0; z-index:50; background:var(--navy); color:#fff; padding:12px 16px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+.topbar b{font-size:16px;}
+.topbar .tabs{display:flex; gap:8px; margin-left:auto; flex-wrap:wrap;}
+.tab-btn{border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.08); color:#fff; border-radius:8px; padding:8px 14px; font-size:14px; font-weight:600;}
+.tab-btn.active{background:#fff; color:var(--navy);}
+.stars-chip{background:rgba(255,255,255,.14); border-radius:8px; padding:8px 12px; font-size:14px; font-weight:800;}
+.stars-chip.pop{animation:pop .35s ease;}
+@keyframes pop{0%{transform:scale(1);}40%{transform:scale(1.25);}100%{transform:scale(1);}}
+.wrap{max-width:960px; margin:0 auto; padding:24px 16px 64px;}
+.view{display:none;}
+.view.active{display:block; animation:fade .3s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.card{background:#fff; border:1px solid var(--border); border-radius:var(--radius); padding:22px 24px; margin-bottom:16px;}
+.mission{border-left:6px solid var(--orange); background:var(--orange-soft); border-radius:0 var(--radius) var(--radius) 0; padding:20px 24px; margin-bottom:16px;}
+.mission h3{color:var(--orange); margin-bottom:8px;}
+.chips{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;}
+.chip{border:1px solid var(--border); background:var(--soft); border-radius:20px; padding:8px 16px; font-size:14px; font-weight:600; cursor:pointer;}
+.chip.selected{background:var(--navy); border-color:var(--navy); color:#fff;}
+.cdc-group{border-radius:10px; overflow:hidden; margin-bottom:14px; border:1px solid var(--border);}
+.cdc-head{padding:10px 16px; font-weight:800; color:#fff; font-size:14px; letter-spacing:.3px;}
+.cdc-item{display:flex; align-items:flex-start; gap:10px; padding:11px 16px; border-top:1px solid var(--border); font-size:15px; cursor:pointer; background:#fff;}
+.cdc-item:hover{background:var(--soft);}
+.cdc-item input{margin-top:3px; width:18px; height:18px; flex:none;}
+.cdc-item.checked{background:var(--green-soft);}
+.cdc-item.checked span{text-decoration:line-through; color:var(--text2);}
+.note{border:1px solid var(--purple); background:var(--purple-soft); color:#4a3566; border-radius:10px; padding:14px 18px; font-size:14px; font-style:italic; margin-top:10px;}
+.reset-row{text-align:right; margin-top:10px;}
+.btn{border:1px solid var(--border); background:#fff; border-radius:8px; padding:8px 14px; font-size:13px; font-weight:700; color:var(--text);}
+.btn:hover{border-color:var(--navy);}
+.progress-mini{font-size:13px; font-weight:700; color:var(--navy); margin-bottom:10px;}
+
+/* ---- Ateliers : QCM ---- */
+.qcm-q{font-weight:700; font-size:15px; margin-bottom:12px;}
+.qcm-opts{display:flex; flex-direction:column; gap:8px;}
+.opt{text-align:left; border:1px solid var(--border); background:var(--soft); border-radius:8px; padding:10px 14px; font-size:14px;}
+.opt:hover{border-color:var(--navy);}
+.opt.good{background:var(--green-soft); border-color:var(--green); font-weight:700;}
+.opt.bad{background:#FBE5EF; border-color:#C22A6B; opacity:.7;}
+.verdict{margin-top:10px; font-size:14px; font-weight:700; display:none; border-radius:8px; padding:10px 14px;}
+.verdict.show{display:block; animation:fade .25s ease;}
+.verdict.ok{background:var(--green-soft); color:#1E7A4C;}
+.verdict.no{background:#FBE5EF; color:#9c1c53;}
+
+/* ---- Ateliers : tuiles à révéler ---- */
+.tiles{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; margin-top:6px;}
+.task-tile{border:1px solid var(--border); background:var(--soft); border-radius:10px; padding:16px 10px; text-align:center; min-height:100px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;}
+.task-tile .tt-ico{font-size:26px;}
+.task-tile .tt-cap{font-weight:800; font-size:13px;}
+.tt-dot{display:inline-block; width:12px; height:12px; border-radius:50%; background:var(--c); border:1px solid rgba(0,0,0,.2); margin-right:6px; vertical-align:-1px;}
+.task-tile .tt-soft{display:none; font-size:12px; color:var(--text2);}
+.task-tile.revealed{background:var(--purple-soft); border-color:var(--navy);}
+.task-tile.revealed .tt-soft{display:block;}
+
+/* ---- Ateliers : remise en ordre ---- */
+.order-box{display:flex; flex-direction:column; gap:8px; margin-top:8px;}
+.order-btn{text-align:left; border:1px solid var(--border); background:var(--soft); border-radius:8px; padding:10px 14px; font-size:14px; display:flex; align-items:center; gap:10px;}
+.order-btn .onum{display:none; background:var(--navy); color:#fff; width:22px; height:22px; border-radius:50%; align-items:center; justify-content:center; font-size:12px; font-weight:800; flex:none;}
+.order-btn.done{background:var(--green-soft); border-color:var(--green); cursor:default;}
+.order-btn.done .onum{display:flex;}
+.order-btn.shake{animation:shake .35s ease;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-5px);}75%{transform:translateX(5px);}}
+
+.aide-cat{background:var(--navy); color:#fff; font-weight:800; padding:9px 16px; border-radius:8px 8px 0 0; font-size:14px; margin-top:14px;}
+.aide-cat:first-child{margin-top:0;}
+.aide-list{border:1px solid var(--border); border-top:none; border-radius:0 0 8px 8px; overflow:hidden; margin-bottom:14px;}
+.aide-row{border-top:1px solid var(--border); background:#fff;}
+.aide-row-main{display:grid; grid-template-columns:1fr auto; gap:4px 14px; padding:12px 14px; align-items:start;}
+.aide-row-main .comp{grid-column:1; font-weight:800; font-size:15px;}
+.aide-row-main .version-txt{grid-column:1/2; font-size:13px; color:var(--text2);}
+.aide-row-main .version-txt b{color:var(--text); font-weight:700; font-size:12px;}
+.aide-row-main .ou{color:var(--navy); font-weight:700;}
+.aide-row-main .astuce{color:var(--text2); font-style:italic;}
+.demo-btn{grid-column:2; grid-row:1 / span 2; align-self:center; border:1px solid var(--navy); background:var(--purple-soft); color:#5B2E91; border-radius:20px; padding:8px 14px; font-size:12px; font-weight:800; white-space:nowrap;}
+.demo-btn.open{background:var(--navy); color:#fff;}
+.aide-row-demo{display:none; padding:16px; background:#F6F1FB; border-top:1px dashed #d7c3ef;}
+.aide-row-demo.show{display:block; animation:fade .25s ease;}
+@media (max-width:760px){
+  .aide-row-main{grid-template-columns:1fr;}
+  .demo-btn{grid-column:1; grid-row:auto; justify-self:start; margin-top:6px;}
+}
+
+/* ---- Palette Scratch simulée ---- */
+.scratch-sim{display:flex; max-width:540px; margin:0 auto; background:#fff; border:1px solid #dfe0e2; border-radius:8px; overflow:hidden;}
+.scratch-palette{display:flex; flex-direction:column; flex:none; width:78px; padding:6px 0; border-right:1px solid #dfe0e2; background:#fff;}
+.sp-cat{display:flex; flex-direction:column; align-items:center; gap:3px; padding:5px 2px; font-size:10px; font-weight:600; color:#575E75; line-height:1.1; text-align:center;}
+.sp-cat::before{content:""; width:18px; height:18px; border-radius:50%; background:var(--c); border:1px solid rgba(0,0,0,.18);}
+.sp-cat.active{background:#E9F1FC; font-weight:800; color:#3E4A63;}
+.scratch-stage{flex:1; min-width:0; background:#F9F9F9; background-image:radial-gradient(#E3E6EC 1px,transparent 1px); background-size:18px 18px; padding:22px 14px; display:flex; align-items:center; justify-content:center;}
+.sblock{display:inline-flex; align-items:center; flex-wrap:wrap; gap:6px; color:#fff; font-weight:700; font-size:13.5px; padding:8px 12px; border-radius:5px 14px 14px 5px;}
+.scratch-stage .slot{background:#fff; color:#575E75; border-radius:12px; padding:2px 9px; font-weight:700;}
+.scratch-stage .slot.dd{background:rgba(0,0,0,.14); color:#fff;}
+.scratch-stage .slot.dd::after{content:" ▾"; font-size:10px;}
+.rep{display:inline-block; color:#fff; border-radius:12px; padding:2px 9px; font-weight:700; border:1px solid rgba(0,0,0,.15);}
+.sbtn{display:inline-block; background:#fff; border:1px solid #c6cbd6; color:#575E75; border-radius:6px; padding:7px 14px; font-weight:700; font-size:13px;}
+.var-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:center;}
+.var-row .arrow{color:#8a93a0; font-weight:700;}
+.scdiv .stop, .scdiv .selse, .scdiv .sbottom{display:flex; align-items:center; gap:6px; color:#fff; font-weight:700; font-size:13.5px; padding:7px 12px;}
+.scdiv .slot.cond,.sblock.sbool{clip-path:polygon(12px 0,calc(100% - 12px) 0,100% 50%,calc(100% - 12px) 100%,12px 100%,0 50%);}
+.scdiv .slot.cond{display:inline-flex; align-items:center; gap:5px; background:#59C059; color:#fff; font-weight:700; padding:4px 16px;}
+.sblock.sbool{border-radius:0; padding:8px 20px;}
+.scdiv{min-width:210px;}
+.scdiv .stop{border-radius:5px 14px 0 0;}
+.scdiv .selse{border-radius:0 10px 0 0;}
+.scdiv .sbottom{border-radius:0 0 5px 5px; height:18px; padding:0;}
+.scdiv .smouth{border-left:18px solid; padding:8px 10px; min-height:44px; display:flex; align-items:center;}
+.scdiv .smouth .ghost{display:inline-flex; align-items:center; gap:6px; background:#9966FF; color:#fff; font-weight:700; font-size:13.5px; border-radius:5px 14px 14px 5px; padding:7px 12px; transition:box-shadow .25s;}
+.scdiv .smouth .ghost.run{box-shadow:0 0 0 3px #FFD23F, 0 0 12px 2px rgba(255,210,63,.85);}
+
+/* ---- Démonstrations de l'EFFET (2e volet) ---- */
+.td-wrap{border:1px dashed #d7c3ef; border-radius:8px; background:#fff; padding:14px; margin-top:14px; max-width:440px; margin-left:auto; margin-right:auto; text-align:center;}
+.td-label{font-size:11px; color:#6b5a80; font-weight:800; margin-bottom:10px; letter-spacing:.3px;}
+.td-caption{font-size:12px; color:#5B2E91; font-weight:700; margin-top:10px; min-height:16px;}
+.td-tag{display:inline-block; background:#F5F3FA; border:1px solid #d7c3ef; border-radius:8px; padding:8px 16px; font-family:Consolas,monospace; font-size:15px; font-weight:700; color:#3a3a3a;}
+.td-bubble{display:inline-block; background:#fff; border:2px solid #5CB1D6; border-radius:14px; padding:8px 16px; font-size:14px; font-weight:600; position:relative; min-width:120px;}
+
+.aide-mode-note{display:flex; align-items:center; gap:10px; background:var(--purple-soft); border:1px solid var(--purple); color:#4a3566; border-radius:10px; padding:12px 16px; font-size:14px; margin-bottom:16px;}
+.aide-mode-note .big{font-size:22px;}
+@media (max-width:640px){
+  .topbar{flex-direction:column; align-items:flex-start;}
+  .topbar .tabs{margin-left:0;}
+}
+/* ==== Charte Bitou ==== */
+@media screen {
+  :root{
+    --ink:#1B1740; --sun:#FFD23F; --sun-l:#FFF3BF;
+    --text:#1B1740; --text2:#5B577E; --canvas:#FFFFFF; --soft:#F1EFFF; --soft2:#E6E4FF; --border:#CFCBF2;
+    --blue:#3D3BF3; --blue-soft:#DDDCFF; --green:#0B7A55; --green-soft:#D5F7EA;
+    --orange:#A14A06; --orange-soft:#FFF3BF; --red:#B4233A; --red-soft:#FFE0E5;
+    --purple:#5B3FD1; --purple-soft:#ECE8FF; --navy:#1B1740; --radius:18px;
+  }
+  body{font-family:"Arial Rounded MT Bold","Nunito","Trebuchet MS","Segoe UI",system-ui,sans-serif;
+    background-color:var(--soft); background-image:radial-gradient(var(--blue-soft) 1.5px,transparent 1.5px); background-size:26px 26px;}
+  :focus-visible{outline:4px solid var(--blue); outline-offset:3px;}
+
+  .desk-sim,.win-stage,.explorer,.ribbon-sim,.app-sim,.code-sim,.scratch-sim,.net-sim,.aide-row-demo{
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;}
+
+  .topbar{background:var(--navy); color:#fff; border-bottom:3px solid var(--ink);}
+  .tab-btn{border-radius:999px; font-weight:800;}
+  .tab-btn.active{background:var(--sun); border-color:var(--sun); color:var(--ink);}
+
+  .card,.q,.notebook{border:3px solid var(--ink); border-radius:18px; box-shadow:4px 4px 0 var(--ink);}
+  .mission,.sp{border:3px solid var(--ink); border-radius:16px; background:var(--sun-l); box-shadow:4px 4px 0 var(--ink);}
+  .mission h3,.sp h3{color:var(--ink);}
+
+  .btn{border:3px solid var(--ink); border-radius:999px; background:var(--sun); color:var(--ink); font-weight:800;
+    box-shadow:3px 3px 0 var(--ink); transition:transform .08s,box-shadow .08s;}
+  .btn:hover{border-color:var(--ink);}
+  .btn:active:not(:disabled){transform:translate(3px,3px); box-shadow:0 0 0 var(--ink);}
+  .btn.primary{background:var(--blue); border-color:var(--ink); color:#fff;}
+
+  .chip{border:2px solid var(--ink); background:#fff; border-radius:999px;}
+  .chip.selected{background:var(--blue); border-color:var(--ink); color:#fff;}
+  .opt,.order-btn,.item{border:2px solid var(--ink); background:#fff; border-radius:12px;}
+  .opt:hover,.order-btn:hover{background:var(--blue-soft); border-color:var(--ink);}
+  .opt.good,.order-btn.done{background:var(--green-soft); border-color:var(--green);}
+  .opt.bad{background:var(--red-soft); border-color:var(--red); color:var(--red); opacity:1;}
+  .verdict.ok,.feedback.ok{background:var(--green-soft); color:var(--green);}
+  .verdict.no,.feedback.err{background:var(--red-soft); color:var(--red);}
+  .feedback{border-width:2px;}
+  .feedback.info{border-color:var(--blue);}
+
+  .task-tile{border:2px solid var(--ink); background:#fff; border-radius:14px; box-shadow:3px 3px 0 var(--ink);}
+  .task-tile.revealed{background:var(--blue-soft); border-color:var(--ink);}
+  .cdc-group{border:3px solid var(--ink); border-radius:14px; box-shadow:3px 3px 0 var(--ink);}
+  .note,.aide-mode-note{border:2px solid var(--ink); background:var(--purple-soft); color:var(--ink); border-radius:12px;}
+  .aide-list{border:3px solid var(--ink); border-top:none;}
+  .demo-btn{border:2px solid var(--ink); background:var(--blue-soft); color:var(--ink); border-radius:999px;}
+  .demo-btn.open{background:var(--blue); color:#fff;}
+  .td-caption{color:var(--blue);}
+
+  .dot{border:2px solid var(--ink); border-radius:12px;}
+  .dot.active{background:var(--blue); border-color:var(--ink); color:#fff;}
+  .hud-chip,.hud-btn,.phase-tag,.phase-time{border:2px solid var(--ink);}
+  .dot,.hud-chip,.hud-btn{color:var(--ink);}
+  .dot.active{color:#fff;}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <b>🧩 Algorithmique — avec Scratch</b>
+  <span class="stars-chip" id="starsChip">⭐ 0</span>
+  <div class="tabs">
+    <button class="tab-btn active" id="tabAtBtn" onclick="showView('ateliers')">🎮 Ateliers</button>
+    <button class="tab-btn" id="tabAideBtn" onclick="showView('aide')">📖 Aide-mémoire</button>
+    <button class="tab-btn" id="tabDefiBtn" onclick="showView('defi')">🎯 Mini-défi</button>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ============ VUE ATELIERS ============ -->
+<section class="view active" id="viewAteliers">
+  <div class="mission">
+    <h3>🎯 Objectif</h3>
+    <p>Comprendre ce qu'est un algorithme et découvrir les briques Scratch qui permettent de le construire : variables, capteurs, opérateurs et structures de contrôle.</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:10px;">Atelier 1 — Qu'est-ce qu'un algorithme ?</h3>
+    <div class="qcm" id="q1">
+      <p class="qcm-q">Choisis la meilleure définition :</p>
+      <div class="qcm-opts">
+        <button class="opt" data-ok="1">Une suite d'étapes précises et ordonnées pour résoudre un problème</button>
+        <button class="opt" data-ok="0">Un logiciel installé sur l'ordinateur</button>
+        <button class="opt" data-ok="0">Un langage de programmation</button>
+        <button class="opt" data-ok="0">Un type de virus informatique</button>
+      </div>
+      <div class="verdict"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:4px;">Atelier 2 — Les familles de briques Scratch</h3>
+    <p style="color:var(--text2); font-size:14px; margin-bottom:10px;">Clique sur chaque tuile pour découvrir à quoi sert cette famille de briques.</p>
+    <p class="progress-mini" id="tilesCounter">Découvertes : 0/4</p>
+    <div class="tiles" id="tilesBox"></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:4px;">Atelier 3 — Range les étapes dans l'ordre</h3>
+    <p style="color:var(--text2); font-size:14px; margin-bottom:10px;">Un algorithme est une suite <b>ordonnée</b> d'étapes. Clique sur les étapes dans le bon ordre pour préparer un thé.</p>
+    <div class="order-box" id="orderBox"></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:10px;">Atelier 4 — Faire un choix (structure de contrôle)</h3>
+    <div class="qcm" id="q2" style="margin-bottom:18px;">
+      <p class="qcm-q">Un programme doit dire si un nombre est positif ou négatif. Quelle brique utiliser ?</p>
+      <div class="qcm-opts">
+        <button class="opt" data-ok="1">« Si...alors...sinon » (Contrôle)</button>
+        <button class="opt" data-ok="0">« Répéter 10 fois » (Contrôle)</button>
+        <button class="opt" data-ok="0">« Attendre 1 seconde » (Contrôle)</button>
+        <button class="opt" data-ok="0">« Quand le drapeau vert est cliqué » (Événements)</button>
+      </div>
+      <div class="verdict"></div>
+    </div>
+    <div class="qcm" id="q3">
+      <p class="qcm-q">Pour vérifier si l'âge saisi est au moins 18, quel opérateur choisir ?</p>
+      <div class="qcm-opts">
+        <button class="opt" data-ok="1">&gt; avec 17 : « age &gt; 17 »</button>
+        <button class="opt" data-ok="0">= avec 18 : « age = 18 »</button>
+        <button class="opt" data-ok="0">+ (addition)</button>
+        <button class="opt" data-ok="0">et (opérateur logique)</button>
+      </div>
+      <div class="verdict"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VUE AIDE-MÉMOIRE ============ -->
+<section class="view" id="viewAide">
+  <div class="card">
+    <h3>📖 Aide-mémoire — Les briques Scratch</h3>
+    <p style="color:var(--text2); font-size:14px; margin-bottom:12px;">Consulte cette liste chaque fois que tu ne sais plus quelle brique utiliser.</p>
+    <div class="aide-mode-note"><span class="big">🎬</span><span>Tu ne comprends pas une consigne écrite ? Clique sur <b>« 🎬 VERSION VISUELLE »</b> : la brique Scratch et son effet réel s'affichent, animés.</span></div>
+  </div>
+  <div id="aideContainer"></div>
+</section>
+
+<!-- ============ VUE MINI-DÉFI ============ -->
+<section class="view" id="viewDefi">
+  <div class="mission">
+    <h3>🎯 Ton mini-défi</h3>
+    <p>Imagine (sur Scratch ou sur papier) un algorithme qui <b>pose une question</b>, <b>compare</b> la réponse, puis <b>affiche un résultat différent</b> selon le cas. Coche les éléments au fur et à mesure.</p>
+  </div>
+  <div class="card">
+    <h3 style="margin-bottom:10px;">🎨 Choisis ton thème</h3>
+    <div class="chips" id="themeChips"></div>
+  </div>
+  <div class="card">
+    <h3 style="margin-bottom:6px;">📋 Cahier des charges</h3>
+    <p style="color:var(--text2); font-size:14px; margin-bottom:14px;">Clique sur chaque ligne quand c'est fait.</p>
+    <div id="cdcContainer"></div>
+    <div class="note">♻️ Rien n'est imprimé ni enregistré sur le serveur : tes coches restent seulement sur cet écran, pendant ta séance.</div>
+    <div class="reset-row"><button class="btn" onclick="resetChecklist()">↺ Réinitialiser (nouveau groupe)</button></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+let stars = 0;
+function addStars(n){
+  stars += n;
+  const el = document.getElementById('starsChip');
+  el.textContent = '⭐ ' + stars;
+  el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+}
+
+function showView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  const map = {ateliers:'viewAteliers', aide:'viewAide', defi:'viewDefi'};
+  document.getElementById(map[name]).classList.add('active');
+  document.getElementById('tabAtBtn').classList.toggle('active', name==='ateliers');
+  document.getElementById('tabAideBtn').classList.toggle('active', name==='aide');
+  document.getElementById('tabDefiBtn').classList.toggle('active', name==='defi');
+}
+
+/* ---- QCM générique ---- */
+function bindOpts(id, okMsg, errMsg){
+  const q = document.getElementById(id);
+  q.querySelectorAll('.opt').forEach(btn=>{
+    btn.onclick = ()=>{
+      if(q.dataset.solved) return;
+      const ok = btn.dataset.ok === '1';
+      const verdict = q.querySelector('.verdict');
+      if(ok){
+        btn.classList.add('good');
+        q.dataset.solved = '1';
+        verdict.className='verdict show ok'; verdict.textContent = okMsg;
+        addStars(1);
+      } else {
+        btn.classList.add('bad'); btn.disabled = true;
+        verdict.className='verdict show no'; verdict.textContent = errMsg;
+      }
+    };
+  });
+}
+bindOpts('q1', '✔ Exact : un algorithme est une suite d\'étapes précises pour résoudre un problème.', '');
+bindOpts('q2', '✔ Exact : « si...alors...sinon » permet de choisir entre deux actions selon une condition.', '✘ Cette brique ne sert pas à faire un choix. Essaie une autre option.');
+bindOpts('q3', '✔ Exact : Scratch n\'a pas de « ≥ » (seulement <, = et >). « age > 17 » est vrai dès 18 ans.', '✘ Cet opérateur ne convient pas ici. Essaie une autre option.');
+
+/* ---- Tuiles à révéler ---- */
+const TILES_DATA = [
+  {ico:'🧮', cap:'Variables', col:'#FF8C1A', soft:'Stocker et modifier une information (nombre, texte) qui peut changer.'},
+  {ico:'👂', cap:'Capteurs', col:'#5CB1D6', soft:'Poser une question à l\'utilisateur et récupérer sa réponse.'},
+  {ico:'⚖️', cap:'Opérateurs', col:'#59C059', soft:'Comparer deux valeurs (égal, plus grand, plus petit…).'},
+  {ico:'🔀', cap:'Contrôle', col:'#FFAB19', soft:'Faire un choix : si une condition est vraie, faire une action ; sinon, une autre.'}
+];
+(function buildTiles(){
+  const box = document.getElementById('tilesBox');
+  let done = 0;
+  shuffle(TILES_DATA).forEach(d=>{
+    const b = document.createElement('button');
+    b.className = 'task-tile';
+    b.innerHTML = '<div class="tt-ico">'+d.ico+'</div><div class="tt-cap"><span class="tt-dot" style="--c:'+d.col+'"></span>'+d.cap+'</div><div class="tt-soft">'+d.soft+'</div>';
+    b.onclick = ()=>{
+      if(b.classList.contains('revealed')) return;
+      b.classList.add('revealed');
+      done++;
+      document.getElementById('tilesCounter').textContent = 'Découvertes : '+done+'/'+TILES_DATA.length;
+      addStars(1);
+    };
+    box.appendChild(b);
+  });
+})();
+
+/* ---- Remise en ordre ---- */
+const ORDER_STEPS = [
+  "Faire chauffer l'eau",
+  "Mettre le sachet de thé dans la tasse",
+  "Verser l'eau chaude sur le sachet",
+  "Attendre 3 minutes puis retirer le sachet"
+];
+(function buildOrder(){
+  const box = document.getElementById('orderBox');
+  let nextIdx = 0;
+  shuffle(ORDER_STEPS.map((text,i)=>({text,i}))).forEach(item=>{
+    const b = document.createElement('button');
+    b.className = 'order-btn';
+    b.innerHTML = '<span class="onum"></span><span class="otext">'+item.text+'</span>';
+    b.onclick = ()=>{
+      if(b.classList.contains('done')) return;
+      if(item.i === nextIdx){
+        nextIdx++;
+        b.querySelector('.onum').textContent = nextIdx;
+        b.classList.add('done');
+        addStars(1);
+      } else {
+        b.classList.add('shake');
+        setTimeout(()=>b.classList.remove('shake'), 350);
+      }
+    };
+    box.appendChild(b);
+  });
+})();
+
+/* ================= AIDE-MÉMOIRE ================= */
+const PALETTE = [
+  {id:'mouvement', label:'Mouvement', color:'4C97FF'},
+  {id:'apparence', label:'Apparence', color:'9966FF'},
+  {id:'son', label:'Son', color:'CF63CF'},
+  {id:'evenements', label:'Événements', color:'FFBF00'},
+  {id:'controle', label:'Contrôle', color:'FFAB19'},
+  {id:'capteurs', label:'Capteurs', color:'5CB1D6'},
+  {id:'operateurs', label:'Opérateurs', color:'59C059'},
+  {id:'variables', label:'Variables', color:'FF8C1A'}
+];
+
+const AIDE = [
+  { cat: "🟧 Variables", items: [
+    { c:"Créer une variable", ou:"Variables > « Créer une variable »", a:"Donne-lui un nom clair (ex : score, age, reponse).",
+      demo:{cat:'variables', block:'<div class="var-row"><span class="sbtn">Créer une variable</span><span class="arrow">→</span><span class="rep" style="background:#FF8C1A;">score</span></div>'} },
+    { c:"Mettre une variable à une valeur", ou:"Variables > bloc « mettre [var] à [0] »", a:"Utilise ce bloc pour donner une valeur de départ.",
+      demo:{cat:'variables', block:'<div class="sblock" style="background:#FF8C1A;">mettre <span class="slot dd">score</span> à <span class="slot" id="scratchVarVal">0</span></div>'},
+      textDemo:{type:'var_set'} },
+    { c:"Changer une variable", ou:"Variables > bloc « changer [var] de [1] »", a:"Utile pour compter des points, par exemple.",
+      demo:{cat:'variables', block:'<div class="sblock" style="background:#FF8C1A;">changer <span class="slot dd">score</span> de <span class="slot">1</span></div>'},
+      textDemo:{type:'var_change'} }
+  ]},
+  { cat: "🟦 Capteurs", items: [
+    { c:"Demander et attendre une réponse", ou:"Capteurs > bloc « demander [...] et attendre »", a:"La réponse est stockée automatiquement dans le bloc « réponse ».",
+      demo:{cat:'capteurs', block:'<div class="sblock" style="background:#5CB1D6;">demander <span class="slot">Quel est ton prénom ?</span> et attendre</div>'},
+      textDemo:{type:'ask'} }
+  ]},
+  { cat: "🟩 Opérateurs", items: [
+    { c:"Comparer deux valeurs", ou:"Opérateurs > blocs « = », « < », « > »", a:"Le résultat est toujours VRAI ou FAUX.",
+      demo:{cat:'operateurs', block:'<div class="sblock sbool" style="background:#59C059;"><span class="slot" id="scratchCmpA">5</span> &gt; <span class="slot" id="scratchCmpB">3</span></div>'},
+      textDemo:{type:'compare'} }
+  ]},
+  { cat: "🟨 Contrôle", items: [
+    { c:"Si...alors", ou:"Contrôle > bloc « si...alors »", a:"N'exécute les blocs à l'intérieur que si la condition est vraie.",
+      demo:{cat:'controle', block:'<div class="scdiv"><div class="stop" style="background:#FFAB19;">si <span class="slot cond"><span class="rep" style="background:#5CB1D6;">réponse</span> = <span class="slot">oui</span></span> alors</div><div class="smouth" style="border-color:#FFAB19;"><span class="ghost" id="scratchIfInner">dire <span class="slot">Youpi !</span></span></div><div class="sbottom" style="background:#FFAB19;"></div></div>'},
+      textDemo:{type:'if'} },
+    { c:"Si...alors...sinon", ou:"Contrôle > bloc « si...alors...sinon »", a:"Permet de choisir entre deux actions.",
+      demo:{cat:'controle', block:'<div class="scdiv"><div class="stop" style="background:#FFAB19;">si <span class="slot cond"><span class="rep" style="background:#FF8C1A;">age</span> &gt; <span class="slot">17</span></span> alors</div><div class="smouth" style="border-color:#FFAB19;"><span class="ghost" id="scratchIfElseA">dire <span class="slot">Majeur</span></span></div><div class="selse" style="background:#FFAB19;">sinon</div><div class="smouth" style="border-color:#FFAB19;"><span class="ghost" id="scratchIfElseB">dire <span class="slot">Mineur</span></span></div><div class="sbottom" style="background:#FFAB19;"></div></div>'},
+      textDemo:{type:'ifelse'} }
+  ]},
+  { cat: "🟪 Apparence", items: [
+    { c:"Afficher un message", ou:"Apparence > bloc « dire [...] pendant [2] secondes »", a:"Sert à afficher un résultat à l'écran.",
+      demo:{cat:'apparence', block:'<div class="sblock" style="background:#9966FF;">dire <span class="slot" id="scratchSayMsg">Bonjour !</span> pendant <span class="slot">2</span> secondes</div>'},
+      textDemo:{type:'say'} }
+  ]}
+];
+
+function renderPalette(activeId){
+  return '<div class="scratch-palette">' + PALETTE.map(p=>
+    '<div class="sp-cat'+(p.id===activeId?' active':'')+'" style="--c:#'+p.color+';">'+p.label+'</div>'
+  ).join('') + '</div>';
+}
+
+function renderScratchDemo(demo){
+  return '<div class="scratch-sim">' + renderPalette(demo.cat) + '<div class="scratch-stage">'+demo.block+'</div></div>';
+}
+
+(function buildAide(){
+  const box = document.getElementById('aideContainer');
+  let uid = 0;
+  AIDE.forEach(group=>{
+    const catDiv = document.createElement('div'); catDiv.className = 'aide-cat'; catDiv.textContent = group.cat;
+    box.appendChild(catDiv);
+    const list = document.createElement('div'); list.className = 'aide-list';
+    group.items.forEach(it=>{
+      uid++;
+      const row = document.createElement('div'); row.className = 'aide-row';
+      const main = document.createElement('div'); main.className = 'aide-row-main';
+      main.innerHTML = '<div class="comp">'+it.c+'</div>'
+        + '<div class="version-txt"><b>📝 VERSION TEXTE</b><br><span class="ou">'+it.ou+'</span>'+(it.a?' — <span class="astuce">'+it.a+'</span>':'')+'</div>';
+      const demoBtn = document.createElement('button');
+      demoBtn.className = 'demo-btn'; demoBtn.type = 'button';
+      demoBtn.textContent = "🎬 VERSION VISUELLE";
+      const panelId = 'demo-'+uid;
+      demoBtn.onclick = ()=> toggleDemo(panelId, demoBtn, it.demo, it.textDemo);
+      main.appendChild(demoBtn);
+      row.appendChild(main);
+      const panel = document.createElement('div');
+      panel.className = 'aide-row-demo'; panel.id = panelId;
+      row.appendChild(panel);
+      list.appendChild(row);
+    });
+    box.appendChild(list);
+  });
+})();
+
+let activeDemoInterval = null;
+function stopActiveDemoAnim(){ if(activeDemoInterval){ clearInterval(activeDemoInterval); activeDemoInterval = null; } }
+
+function toggleDemo(panelId, btn, demo, textDemo){
+  const panel = document.getElementById(panelId);
+  const willOpen = !panel.classList.contains('show');
+  stopActiveDemoAnim();
+  document.querySelectorAll('.aide-row-demo.show').forEach(p=>{ if(p.id!==panelId){ p.classList.remove('show'); p.innerHTML=''; } });
+  document.querySelectorAll('.demo-btn.open').forEach(b=>{ if(b!==btn) b.classList.remove('open'); b.textContent='🎬 VERSION VISUELLE'; });
+  if(willOpen){
+    let html = renderScratchDemo(demo);
+    if(textDemo) html += renderTextDemo(textDemo);
+    panel.innerHTML = html;
+    panel.classList.add('show');
+    btn.classList.add('open'); btn.textContent = '✕ Fermer';
+    if(textDemo) activeDemoInterval = startTextDemoAnim(panel, textDemo);
+  } else {
+    panel.classList.remove('show'); panel.innerHTML = '';
+    btn.classList.remove('open'); btn.textContent = '🎬 VERSION VISUELLE';
+  }
+}
+
+function renderTextDemo(td){
+  let body = '';
+  if(td.type==='var_set' || td.type==='var_change'){
+    body = '<span class="td-tag" id="tdVar">score = 0</span><div class="td-caption" id="tdCaption">valeur de départ</div>';
+  } else if(td.type==='ask'){
+    body = '<div class="td-bubble" id="tdBubble">Quel est ton prénom ?</div><div class="td-caption" id="tdCaption">Scratch attend la réponse…</div>';
+  } else if(td.type==='compare'){
+    body = '<span class="td-tag" id="tdVar">5 &gt; 3</span><div class="td-caption" id="tdCaption">VRAI</div>';
+  } else if(td.type==='if'){
+    body = '<span class="td-tag" id="tdVar">réponse = oui</span><div class="td-caption" id="tdCaption">condition testée…</div>';
+  } else if(td.type==='ifelse'){
+    body = '<span class="td-tag" id="tdVar">age &gt; 17</span><div class="td-caption" id="tdCaption">condition testée…</div>';
+  } else if(td.type==='say'){
+    body = '<div class="td-bubble" id="tdBubble">Bonjour !</div><div class="td-caption" id="tdCaption">le sprite affiche son message</div>';
+  }
+  return '<div class="td-wrap"><div class="td-label">👁️ Effet réel dans Scratch</div>'+body+'</div>';
+}
+
+function startTextDemoAnim(container, td){
+  if(td.type==='var_set' || td.type==='var_change'){
+    const tag = container.querySelector('#tdVar'), cap = container.querySelector('#tdCaption');
+    let val = 0;
+    const tick = ()=>{ val = (val<5)? val+1 : 0; tag.textContent = 'score = '+val; cap.textContent = val===0 ? 'valeur remise à 0' : 'changer score de 1'; };
+    tick();
+    return setInterval(tick, 700);
+  }
+  if(td.type==='ask'){
+    const bubble = container.querySelector('#tdBubble'), cap = container.querySelector('#tdCaption');
+    const states = [ {t:'Quel est ton prénom ?', c:'Scratch pose la question…'}, {t:'Sara', c:'réponse = Sara'} ];
+    let i=0;
+    const tick = ()=>{ bubble.textContent = states[i].t; cap.textContent = states[i].c; i=(i+1)%states.length; };
+    tick();
+    return setInterval(tick, 1300);
+  }
+  if(td.type==='compare'){
+    const tag = container.querySelector('#tdVar'), cap = container.querySelector('#tdCaption');
+    const states = [ {t:'5 > 3', c:'VRAI', ok:true}, {t:'2 > 3', c:'FAUX', ok:false} ];
+    let i=0;
+    const tick = ()=>{
+      tag.textContent = states[i].t; cap.textContent = states[i].c;
+      cap.style.color = states[i].ok ? '#1E7A4C' : '#9c1c53';
+      i=(i+1)%states.length;
+    };
+    tick();
+    return setInterval(tick, 1200);
+  }
+  if(td.type==='if'){
+    const tag = container.querySelector('#tdVar'), cap = container.querySelector('#tdCaption');
+    const ghost = container.querySelector('#scratchIfInner');
+    let on=false;
+    const tick = ()=>{
+      on=!on;
+      tag.textContent = on ? 'réponse = oui' : 'réponse = non';
+      cap.textContent = on ? 'VRAI → le bloc s\'exécute : « Youpi ! »' : 'FAUX → rien ne se passe';
+      if(ghost) ghost.classList.toggle('run', on);
+    };
+    tick();
+    return setInterval(tick, 1400);
+  }
+  if(td.type==='ifelse'){
+    const tag = container.querySelector('#tdVar'), cap = container.querySelector('#tdCaption');
+    const a = container.querySelector('#scratchIfElseA'), b = container.querySelector('#scratchIfElseB');
+    let branchA=true;
+    const tick = ()=>{
+      branchA=!branchA;
+      tag.textContent = branchA ? 'age = 20 → 20 > 17' : 'age = 15 → 15 > 17';
+      cap.textContent = branchA ? 'VRAI → branche ALORS : « Majeur »' : 'FAUX → branche SINON : « Mineur »';
+      if(a && b){ a.classList.toggle('run', branchA); b.classList.toggle('run', !branchA); }
+    };
+    tick();
+    return setInterval(tick, 1500);
+  }
+  if(td.type==='say'){
+    const bubble = container.querySelector('#tdBubble'), cap = container.querySelector('#tdCaption');
+    const msgs = ['Bonjour !', 'Bravo !', 'À bientôt !'];
+    let i=0;
+    const tick = ()=>{ bubble.textContent = msgs[i]; cap.textContent = 'affiché pendant 2 secondes'; i=(i+1)%msgs.length; };
+    tick();
+    return setInterval(tick, 1200);
+  }
+  return null;
+}
+
+/* ================= MINI-DÉFI ================= */
+const THEMES = ["Majeur ou mineur ?", "Pair ou impair ?", "Note suffisante pour réussir ?", "Peut regarder ce film (âge minimum) ?", "Peut voter ?"];
+const CDC = [
+  { cat: "DONNÉES", color: "#3D3BF3", items: [
+    "Une variable créée pour stocker la réponse",
+    "La variable a un nom clair"
+  ]},
+  { cat: "ENTRÉE", color: "#0B7A55", items: [
+    "Un bloc « demander... et attendre » utilisé pour poser la question"
+  ]},
+  { cat: "CONDITION", color: "#5B3FD1", items: [
+    "Un bloc « si...alors...sinon » utilisé",
+    "Une comparaison correcte avec un opérateur de Scratch (<, = ou >)"
+  ]},
+  { cat: "SORTIE", color: "#A14A06", items: [
+    "Un message clair affiché pour chaque cas (vrai et faux)"
+  ]}
+];
+
+(function buildThemes(){
+  const box = document.getElementById('themeChips');
+  THEMES.forEach(th=>{
+    const b = document.createElement('button');
+    b.className = 'chip'; b.textContent = th;
+    b.onclick = ()=>{
+      document.querySelectorAll('#themeChips .chip').forEach(c=>c.classList.remove('selected'));
+      b.classList.add('selected');
+    };
+    box.appendChild(b);
+  });
+})();
+
+let totalItems = 0, checkedCount = 0;
+function updateCdcProgress(){}
+(function buildCdc(){
+  const box = document.getElementById('cdcContainer');
+  CDC.forEach(group=>{
+    const g = document.createElement('div'); g.className = 'cdc-group';
+    const head = document.createElement('div'); head.className = 'cdc-head'; head.style.background = group.color; head.textContent = group.cat;
+    g.appendChild(head);
+    group.items.forEach(text=>{
+      totalItems++;
+      const row = document.createElement('label'); row.className = 'cdc-item';
+      const cb = document.createElement('input'); cb.type = 'checkbox';
+      const span = document.createElement('span'); span.textContent = text;
+      cb.onchange = ()=>{
+        row.classList.toggle('checked', cb.checked);
+        checkedCount += cb.checked ? 1 : -1;
+        if(cb.checked) addStars(1);
+      };
+      row.appendChild(cb); row.appendChild(span);
+      g.appendChild(row);
+    });
+    box.appendChild(g);
+  });
+})();
+function resetChecklist(){
+  document.querySelectorAll('#cdcContainer input[type=checkbox]').forEach(cb=>{
+    cb.checked = false;
+    cb.closest('.cdc-item').classList.remove('checked');
+  });
+  document.querySelectorAll('#themeChips .chip').forEach(c=>c.classList.remove('selected'));
+  checkedCount = 0;
+}
+</script>
+</body>
+</html>
