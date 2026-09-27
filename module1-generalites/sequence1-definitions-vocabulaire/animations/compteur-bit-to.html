@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⏱️ Animation — Le compteur qui s'emballe</title>
+<style>
+:root{
+  --ink:#1B1740; --paper:#F1EFFF; --card:#fff;
+  --blue:#3D3BF3; --blue-l:#DDDCFF;
+  --sun:#FFD23F; --sun-l:#FFF3BF;
+  --coral:#FF5D73; --coral-l:#FFE0E5;
+  --mint:#22C58B; --mint-l:#D5F7EA;
+  --bd:3px solid var(--ink);
+  --sh:4px 4px 0 var(--ink);
+  --mono:"Consolas","SF Mono","Courier New",monospace;
+}
+*{box-sizing:border-box}
+html{font-size:17px}
+body{margin:0;color:var(--ink);background:var(--paper);min-height:100vh;
+  background-image:radial-gradient(var(--blue-l) 1.5px,transparent 1.5px);background-size:26px 26px;
+  font-family:"Arial Rounded MT Bold","Nunito","Trebuchet MS","Segoe UI",system-ui,sans-serif;line-height:1.5}
+h1,h2,h3{line-height:1.2;margin:0 0 .5rem}
+p{margin:0 0 .7rem}
+button{font:inherit;color:inherit}
+:focus-visible{outline:4px solid var(--blue);outline-offset:3px}
+
+.top{background:var(--ink);color:#fff;padding:.9rem 1.2rem;text-align:center}
+.top h1{font-size:1.5rem;margin:0}
+.top p{margin:.3rem 0 0;opacity:.85;font-size:.95rem}
+
+.wrap{max-width:820px;margin:0 auto;padding:1.4rem 1rem 4rem}
+
+.btn{font-weight:800;border:var(--bd);border-radius:999px;padding:.6rem 1.4rem;background:var(--sun);
+  box-shadow:3px 3px 0 var(--ink);cursor:pointer;transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--ink)}
+.btn.blue{background:var(--blue);color:#fff}
+.btn.big{font-size:1.1rem;padding:.75rem 1.6rem}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+.card{background:var(--card);border:var(--bd);border-radius:18px;box-shadow:var(--sh);padding:1.3rem 1.4rem;margin-bottom:1.2rem}
+.instr{background:var(--sun-l);border:var(--bd);border-radius:14px;padding:.9rem 1.1rem;margin-bottom:1.2rem;font-size:1.02rem}
+.instr b{color:var(--blue)}
+
+.breadcrumb{display:flex;gap:.35rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.2rem}
+.bc{border:var(--bd);border-radius:999px;padding:.3rem .7rem;font-size:.72rem;font-weight:800;background:#fff;opacity:.4}
+.bc.done{opacity:1;background:var(--mint-l)}
+.bc.cur{opacity:1;background:var(--sun)}
+
+.stage{min-height:280px;text-align:center}
+.formula{font-family:var(--mono);font-weight:800;font-size:1.1rem;margin-bottom:.8rem;color:#5b577e}
+.formula b{color:var(--blue)}
+
+.counterBox{border:var(--bd);border-radius:16px;background:#fff;padding:1.2rem 1.4rem;display:inline-block;box-shadow:var(--sh);min-width:260px}
+.counterVal{font-family:var(--mono);font-weight:800;font-size:2.1rem;color:var(--blue);min-height:2.6rem}
+.counterLab{font-size:.85rem;font-weight:700;color:#7D7A75}
+
+.lamps{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin:1rem 0}
+.lamp{width:2.6rem;height:2.6rem;border-radius:50%;border:var(--bd);background:var(--sun);box-shadow:0 0 0 4px var(--sun-l),0 0 14px 4px var(--sun)}
+
+.cardShape{width:150px;height:96px;border:4px solid var(--ink);border-radius:14px;background:linear-gradient(135deg,#DDDCFF,#fff);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:var(--sh);position:relative;margin:0 auto 1rem;overflow:hidden}
+.cardShape .fill{position:absolute;left:0;bottom:0;width:100%;height:0%;background:var(--mint);opacity:.55;transition:height 1.8s ease-out}
+.cardShape b{font-size:1.3rem;font-family:var(--mono);position:relative;z-index:1}
+
+.yearsBox{border:var(--bd);border-radius:16px;background:var(--coral-l);padding:1.4rem;margin:1rem auto;max-width:420px}
+.yearsBox .big{font-family:var(--mono);font-weight:800;font-size:2.4rem;color:#9c1c3f}
+
+.narr{min-height:2.4rem;font-weight:700;background:var(--sun-l);border:var(--bd);border-radius:12px;padding:.6rem 1rem;margin:1rem 0;text-align:center}
+.actions{display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap;margin-top:1.3rem}
+.note{font-size:.9rem;color:#5b577e;text-align:center;margin-top:.8rem}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>⏱️ Le compteur qui s'emballe</h1>
+  <p>Séquence 1 — Définitions et vocabulaire de base · De 1 bit à 1 To : ça grimpe vite !</p>
+</header>
+
+<main class="wrap">
+  <div class="instr">
+    <p>On part d'<b>1 bit</b>, et on multiplie, étape par étape, jusqu'à <b>1 To</b>. Regarde le compteur s'emballer à chaque fois !</p>
+  </div>
+
+  <div class="breadcrumb" id="breadcrumb"></div>
+
+  <div class="card">
+    <div class="stage" id="stage"></div>
+    <div class="narr" id="narr"></div>
+    <div class="actions" id="actionsRow"></div>
+    <p class="note">Rien n'est enregistré : cette page sert de démonstration à revoir autant de fois que tu veux.</p>
+  </div>
+</main>
+
+<script>
+const LEVELS = ['1 bit', '1 octet', '1 Ko', '1 Mo', '1 Go', '1 To', 'Comparaison'];
+let step = 0;
+
+const stage = document.getElementById('stage');
+const narr = document.getElementById('narr');
+const actionsRow = document.getElementById('actionsRow');
+const breadcrumb = document.getElementById('breadcrumb');
+
+function drawBreadcrumb(){
+  breadcrumb.innerHTML = '';
+  LEVELS.forEach((l, i) => {
+    const b = document.createElement('span');
+    b.className = 'bc ' + (i < step ? 'done' : i === step ? 'cur' : '');
+    b.textContent = (i+1) + '. ' + l;
+    breadcrumb.appendChild(b);
+  });
+}
+
+function fmt(n){ return n.toLocaleString('fr-FR'); }
+
+function animateCounter(el, target, duration){
+  return new Promise(resolve => {
+    const start = performance.now();
+    function tick(now){
+      const t = Math.min(1, (now - start) / duration);
+      const eased = t * t * t; // accélère : lent au début, rapide à la fin
+      const val = Math.floor(eased * target);
+      el.textContent = fmt(val);
+      if (t < 1) requestAnimationFrame(tick);
+      else { el.textContent = fmt(target); resolve(); }
+    }
+    requestAnimationFrame(tick);
+  });
+}
+
+const STEPS = [
+  { // 0 - 1 bit
+    render: () => {
+      stage.innerHTML = '<div class="lamps"><div class="lamp"></div></div><div class="counterLab">1 transistor allumé ou éteint = 1 bit</div>';
+    },
+    text: 'On commence tout petit : <b>1 bit</b>, c\'est un seul 0 ou un seul 1.',
+    btn: '▶ Passer à l\'octet',
+    auto: null
+  },
+  { // 1 - 1 octet
+    render: () => {
+      let lamps = '';
+      for (let i=0;i<8;i++) lamps += '<div class="lamp"></div>';
+      stage.innerHTML = '<div class="formula">1 octet = <b>8</b> bits</div><div class="lamps">'+lamps+'</div>';
+    },
+    text: '8 bits ensemble forment <b>1 octet</b> — assez pour coder une lettre !',
+    btn: '▶ Passer au kilooctet',
+    auto: null
+  },
+  { // 2 - 1 Ko
+    render: () => {
+      stage.innerHTML = '<div class="formula">1 Ko = 1000 octets = 1000 × <b>8</b> bits</div><div class="counterBox"><div class="counterVal" id="cval">0</div><div class="counterLab">bits</div></div>';
+    },
+    text: 'Le compteur commence à grimper : <b>1 Ko</b>, c\'est déjà 8 000 bits !',
+    btn: '▶ Passer au mégaoctet',
+    auto: { target: 8000, duration: 1400 }
+  },
+  { // 3 - 1 Mo
+    render: () => {
+      stage.innerHTML = '<div class="formula">1 Mo = 1000 Ko</div><div class="counterBox"><div class="counterVal" id="cval">0</div><div class="counterLab">bits</div></div>';
+    },
+    text: 'Ça accélère : <b>1 Mo</b> représente 8 millions de bits.',
+    btn: '▶ Passer au gigaoctet',
+    auto: { target: 8000000, duration: 1800 }
+  },
+  { // 4 - 1 Go
+    render: () => {
+      stage.innerHTML = '<div class="formula">1 Go = 1000 Mo</div><div class="counterBox"><div class="counterVal" id="cval">0</div><div class="counterLab">bits</div></div>';
+    },
+    text: 'Le compteur s\'emballe pour de bon : <b>1 Go</b>, c\'est 8 milliards de bits !',
+    btn: '▶ Passer au téraoctet',
+    auto: { target: 8000000000, duration: 2200 }
+  },
+  { // 5 - 1 To
+    render: () => {
+      stage.innerHTML = '<div class="formula">1 To = 1000 Go</div><div class="cardShape"><div class="fill" id="cardFill"></div><b>1 To</b></div><div class="counterBox"><div class="counterVal" id="cval">0</div><div class="counterLab">bits</div></div>';
+    },
+    text: 'Et voici la carte mémoire complète : <b>1 To</b> = un nombre presque impossible à imaginer de bits !',
+    btn: '▶ Voir la comparaison',
+    auto: { target: 8000000000000, duration: 2800, fillCard: true }
+  },
+  { // 6 - comparaison
+    render: () => {
+      stage.innerHTML = '<div class="yearsBox"><div>⏳ En comptant <b>1 bit par seconde</b>, jour et nuit, sans jamais t\'arrêter…</div><div class="big" id="yearsVal">0 ans</div></div>';
+    },
+    text: 'Il te faudrait <b>plus de 250 000 ans</b> pour compter tous les bits d\'une seule carte de 1 To !',
+    btn: null,
+    auto: { target: 253678, duration: 1600, isYears: true }
+  }
+];
+
+async function render(){
+  drawBreadcrumb();
+  const s = STEPS[step];
+  narr.innerHTML = s.text;
+  actionsRow.innerHTML = '';
+  s.render();
+
+  const nextBtn = document.createElement('button');
+  nextBtn.className = 'btn blue big';
+  nextBtn.disabled = !!s.auto;
+
+  if (s.auto){
+    const targetEl = s.auto.isYears ? document.getElementById('yearsVal') : document.getElementById('cval');
+    await animateCounter(targetEl, s.auto.target, s.auto.duration);
+    if (s.auto.isYears) targetEl.textContent = fmt(s.auto.target) + ' ans';
+    if (s.auto.fillCard) document.getElementById('cardFill').style.height = '100%';
+    nextBtn.disabled = false;
+  }
+
+  if (s.btn){
+    nextBtn.textContent = s.btn;
+    nextBtn.onclick = () => { step++; render(); stage.scrollIntoView({behavior:'smooth', block:'start'}); };
+    actionsRow.appendChild(nextBtn);
+  } else {
+    const again = document.createElement('button');
+    again.className = 'btn';
+    again.textContent = '↺ Recommencer';
+    again.onclick = () => { step = 0; render(); };
+    actionsRow.appendChild(again);
+  }
+}
+
+render();
+</script>
+<!-- a11y-clavier -->
+<script>
+(function(){
+  // Rend utilisables au clavier (Tab, Entrée/Espace, flèches) les éléments cliquables qui ne sont pas des boutons natifs.
+  var NATIVE = 'button,a[href],input,select,textarea,summary';
+  function enhance(){
+    document.querySelectorAll('body *').forEach(function(el){
+      if (typeof el.onclick !== 'function' || el.matches(NATIVE) || el.hasAttribute('data-kbd')) return;
+      el.setAttribute('data-kbd', '');
+      if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+      if (!el.hasAttribute('role')) el.setAttribute('role', 'button');
+      if (!el.textContent.trim() && !el.hasAttribute('aria-label')) {
+        el.setAttribute('aria-label', 'Case ' + (Array.prototype.indexOf.call(el.parentNode.children, el) + 1));
+      }
+    });
+  }
+  document.addEventListener('keydown', function(e){
+    var el = e.target;
+    if (!(el instanceof Element) || !el.hasAttribute('data-kbd')) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      el.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true}));
+      return;
+    }
+    var dir = {ArrowRight: 1, ArrowLeft: -1, ArrowDown: 'down', ArrowUp: 'up'}[e.key];
+    if (!dir) return;
+    var sibs = Array.prototype.filter.call(el.parentNode.children, function(s){ return s.hasAttribute('data-kbd'); });
+    if (sibs.length < 2) return;
+    var cols = getComputedStyle(el.parentNode).gridTemplateColumns.split(' ').filter(function(c){ return c && c !== 'none'; }).length || 1;
+    var step = dir === 'down' ? cols : dir === 'up' ? -cols : dir;
+    var next = sibs[sibs.indexOf(el) + step];
+    if (next) { e.preventDefault(); next.focus(); }
+  });
+  document.querySelectorAll('#msg,.msg,#progress,.progress,.narr').forEach(function(el){
+    if (!el.hasAttribute('aria-live')) el.setAttribute('aria-live', 'polite');
+  });
+  var pending = false;
+  new MutationObserver(function(){
+    if (pending) return;
+    pending = true;
+    setTimeout(function(){ pending = false; enhance(); }, 0);
+  }).observe(document.body, {childList: true, subtree: true});
+  enhance();
+})();
+</script>
+</body>
+</html>

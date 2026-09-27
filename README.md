@@ -26,7 +26,7 @@ module4-reseaux-internet/
 archive-ancien-site/                ← ancien site générique à 7 modules (conservé, non lié depuis le portail)
 ```
 
-Les entrées grisées avec un 🔒 dans le portail correspondent à des séances prévues dans la progression mais pas encore rédigées ; cliquer dessus affiche un message « Contenu en préparation » plutôt qu'une page cassée. Le plan détaillé du Module 1 (quels cours et animations sont prévus, séquence par séquence) suit le blueprint fourni pour ce module.
+Les 4 modules sont désormais intégralement rédigés : plus aucune entrée 🔒 « Contenu en préparation » dans le portail. Le mécanisme reste disponible dans le code (`{ soon: true, ... }` dans `index.html`) pour toute extension future.
 
 ## Contenu disponible
 
@@ -36,7 +36,7 @@ Les entrées grisées avec un 🔒 dans le portail correspondent à des séances
 
 - Leçons interactives "jeu" autonomes (robot guide animé, chrono, phases Activité → Je déduis → Trace écrite → Exemple → Exercice, badges, bilan imprimable) : **`TC_M1_L1_definitions.html`** (donnée vs information, notions clés, unités de mesure) et **`TC_M1_L3_bit_octet.html`** (bit, octet, binaire, ASCII).
 - 2 cours interactifs complets (même moteur que les cours des Séquences 2 à 4 : chrono 50 min, 5 chapitres, badges, cahier de traces écrites, bilan imprimable avec carte mentale) : **`cours_definitions_vocabulaire.html`** (information, traitement, informatique, ordinateur et système informatique) et **`cours_langage_machine_binaire.html`** (langage machine, bit, codage ASCII, conversions décimal ↔ binaire).
-- 14 animations prévues, dont 13 disponibles dans `animations/` : `image.html` (codage/décodage lettre T), `couleur-5x5.html` (image couleur 5×5, 4 couleurs sur 2 bits), `clavier-ecran.html` (lettre A), `mot-salut.html` (le mot SALUT, lettre par lettre), `son.html` (échantillonnage et décodage d'un son), `scanner-imprimante.html` (scanner → unité centrale → imprimante), `souris-ecran.html` (codage de la position x/y de la souris), `calcul.html` (12 + 7), `circuit-bit.html` (circuit → transistor → bit), `couleur-8x8.html` (image couleur 8×8 sur tablette, 8 couleurs sur 3 bits), `zoom-microscope.html` (zoom carte mémoire → puce → circuits → transistor), `combien-1to.html` (unités dans 1 To), `ram-stockage.html` (RAM vs stockage : capacité, vitesse, volatilité). Seul le compteur qui s'emballe (1 bit → 1 To) reste encore 🔒 à venir.
+- 14 animations, toutes disponibles dans `animations/` : `image.html` (codage/décodage lettre T), `couleur-5x5.html` (image couleur 5×5, 4 couleurs sur 2 bits), `clavier-ecran.html` (lettre A), `mot-salut.html` (le mot SALUT, lettre par lettre), `son.html` (échantillonnage et décodage d'un son), `scanner-imprimante.html` (scanner → unité centrale → imprimante), `souris-ecran.html` (codage de la position x/y de la souris), `calcul.html` (12 + 7), `circuit-bit.html` (circuit → transistor → bit), `couleur-8x8.html` (image couleur 8×8 sur tablette, 8 couleurs sur 3 bits), `zoom-microscope.html` (zoom carte mémoire → puce → circuits → transistor), `combien-1to.html` (unités dans 1 To), `ram-stockage.html` (RAM vs stockage : capacité, vitesse, volatilité), `compteur-bit-to.html` (le compteur qui s'emballe, de 1 bit à 1 To).
 
 **Séquence 2 — Unité centrale et mémoire** (`module1-generalites/sequence2-unite-centrale-memoire/`)
 
@@ -55,7 +55,7 @@ Les entrées grisées avec un 🔒 dans le portail correspondent à des séances
 - **`cours_logiciels_domaines.html`** — cours interactif complet (chrono 50 min, 5 chapitres : logiciels de base, logiciels d'application, les deux familles, domaines d'application de l'informatique, défis de groupe ; badges, cahier de traces écrites, bilan imprimable avec carte mentale).
 - **`animations_tri_logiciels.html`** — jeu de tri : logiciel de base ou logiciel d'application ?
 
-Séquences 2 à 4 sont complètes ; la Séquence 1 a son contenu principal (2 leçons interactives + 2 cours + 13 animations) et il ne reste plus qu'1 emplacement 🔒 réservé (le compteur qui s'emballe, 1 bit → 1 To) pour compléter le plan.
+Le **Module 1** est ainsi complet (4 séquences, semaines 1 à 5), avec la Séquence 1 au complet : 2 leçons interactives + 2 cours + 14 animations.
 
 ### Module 2 — Les logiciels
 
