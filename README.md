@@ -21,8 +21,8 @@ module3-algo-programmation/
   algorithmique-scratch/               (S18-S23 — complet)
   programmation-python/                (S23-S26 — complet)
 module4-reseaux-internet/
-  notion-reseau/                       (S27-S28 — à venir)
-  reseau-internet/                     (S29-S33 — à venir)
+  notion-reseau/                       (S27-S28 — complet)
+  reseau-internet/                     (S29-S33 — complet)
 archive-ancien-site/                ← ancien site générique à 7 modules (conservé, non lié depuis le portail)
 ```
 
@@ -85,9 +85,17 @@ Le **Module 2** est ainsi complet (Leçons 1 à 3, semaines 6 à 17).
 
 Le **Module 3** est ainsi complet (Scratch + Python, semaines 18 à 26).
 
-### Module 4
+### Module 4 — Réseaux et Internet
 
-Structure posée dans le portail avec la progression hebdomadaire prévue, contenu à rédiger.
+**Notion de réseau informatique** (`module4-reseaux-internet/notion-reseau/`)
+
+- **`Atelier_Reseau_Informatique.html`** — même principe que les ateliers des Modules 2 et 3 (Ateliers / Aide-mémoire / Mini-défi) : qu'est-ce qu'un réseau, types de réseaux (LAN/MAN/WAN) et leurs équipements à découvrir, remise en ordre, QCM. L'aide-mémoire couvre LAN/MAN/WAN, équipements (switch, routeur, câble, Wi-Fi…) et topologies, chaque notion avec sa version texte et une démo visuelle animée (schémas de topologie, trajets de données entre appareils).
+
+**Réseau Internet** (`module4-reseaux-internet/reseau-internet/`)
+
+- **`Atelier_Reseau_Internet.html`** — même principe (Ateliers / Aide-mémoire / Mini-défi), pour Internet : navigation, adresse URL, moteur de recherche, messagerie, réseaux sociaux et sécurité de base à découvrir, remise en ordre, QCM. L'aide-mémoire simule un navigateur, une messagerie et un chat, avec pour chaque notion une démo visuelle animée montrant concrètement comment ça marche.
+
+Le **Module 4** est ainsi complet (Notion de réseau + Internet, semaines 27 à 33), ce qui achève l'ensemble du portail : les **4 modules** du programme de Tronc Commun sont désormais intégralement couverts.
 
 ## Ancien site (`archive-ancien-site/`)
 

@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atelier — Réseau Internet</title>
+<style>
+:root{
+  --text:#2C2C2B; --text2:#7D7A75; --soft:#F9F8F7; --border:#E6E5E3;
+  --blue:#2783DE; --blue-soft:#E5F2FC; --green:#46A171; --green-soft:#E8F1EC;
+  --orange:#D5803B; --orange-soft:#FBEBDE; --purple:#7E5FB3; --purple-soft:#F0EAF8;
+  --navy:#1B5E8C; --radius:12px;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; color:var(--text); background:var(--soft); line-height:1.55; font-size:16px;}
+button{font-family:inherit; cursor:pointer;}
+.topbar{position:sticky; top:0; z-index:50; background:var(--navy); color:#fff; padding:12px 16px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+.topbar b{font-size:16px;}
+.topbar .tabs{display:flex; gap:8px; margin-left:auto; flex-wrap:wrap;}
+.tab-btn{border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.08); color:#fff; border-radius:8px; padding:8px 14px; font-size:14px; font-weight:600;}
+.tab-btn.active{background:#fff; color:var(--navy);}
+.stars-chip{background:rgba(255,255,255,.14); border-radius:8px; padding:8px 12px; font-size:14px; font-weight:800;}
+.stars-chip.pop{animation:pop .35s ease;}
+@keyframes pop{0%{transform:scale(1);}40%{transform:scale(1.25);}100%{transform:scale(1);}}
+.wrap{max-width:960px; margin:0 auto; padding:24px 16px 64px;}
+.view{display:none;}
+.view.active{display:block; animation:fade .3s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.card{background:#fff; border:1px solid var(--border); border-radius:var(--radius); padding:22px 24px; margin-bottom:16px;}
+.mission{border-left:6px solid var(--orange); background:var(--orange-soft); border-radius:0 var(--radius) var(--radius) 0; padding:20px 24px; margin-bottom:16px;}
+.mission h3{color:var(--orange); margin-bottom:8px;}
+.chips{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;}
+.chip{border:1px solid var(--border); background:var(--soft); border-radius:20px; padding:8px 16px; font-size:14px; font-weight:600; cursor:pointer;}
+.chip.selected{background:var(--navy); border-color:var(--navy); color:#fff;}
+.cdc-group{border-radius:10px; overflow:hidden; margin-bottom:14px; border:1px solid var(--border);}
+.cdc-head{padding:10px 16px; font-weight:800; color:#fff; font-size:14px; letter-spacing:.3px;}
+.cdc-item{display:flex; align-items:flex-start; gap:10px; padding:11px 16px; border-top:1px solid var(--border); font-size:15px; cursor:pointer; background:#fff;}
+.cdc-item:hover{background:var(--soft);}
+.cdc-item input{margin-top:3px; width:18px; height:18px; flex:none;}
+.cdc-item.checked{background:var(--green-soft);}
+.cdc-item.checked span{text-decoration:line-through; color:var(--text2);}
+.note{border:1px solid var(--purple); background:var(--purple-soft); color:#4a3566; border-radius:10px; padding:14px 18px; font-size:14px; font-style:italic; margin-top:10px;}
+.reset-row{text-align:right; margin-top:10px;}
+.btn{border:1px solid var(--border); background:#fff; border-radius:8px; padding:8px 14px; font-size:13px; font-weight:700; color:var(--text);}
+.btn:hover{border-color:var(--navy);}
+
+.qcm-q{font-weight:700; font-size:15px; margin-bottom:12px;}
+.qcm-opts{display:flex; flex-direction:column; gap:8px;}
+.opt{text-align:left; border:1px solid var(--border); background:var(--soft); border-radius:8px; padding:10px 14px; font-size:14px;}
+.opt:hover{border-color:var(--navy);}
+.opt.good{background:var(--green-soft); border-color:var(--green); font-weight:700;}
+.opt.bad{background:#FBE5EF; border-color:#C22A6B; opacity:.7;}
+.verdict{margin-top:10px; font-size:14px; font-weight:700; display:none; border-radius:8px; padding:10px 14px;}
+.verdict.show{display:block; animation:fade .25s ease;}
+.verdict.ok{background:var(--green-soft); color:#1E7A4C;}
+.verdict.no{background:#FBE5EF; color:#9c1c53;}
+
+.tiles{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; margin-top:6px;}
+.task-tile{border:1px solid var(--border); background:var(--soft); border-radius:10px; padding:16px 10px; text-align:center; min-height:100px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;}
+.task-tile .tt-ico{font-size:26px;}
+.task-tile .tt-cap{font-weight:800; font-size:13px;}
+.task-tile .tt-soft{display:none; font-size:12px; color:var(--text2);}
+.task-tile.revealed{background:var(--purple-soft); border-color:var(--navy);}
+.task-tile.revealed .tt-soft{display:block;}
+
+.order-box{display:flex; flex-direction:column; gap:8px; margin-top:8px;}
+.order-btn{text-align:left; border:1px solid var(--border); background:var(--soft); border-radius:8px; padding:10px 14px; font-size:14px; display:flex; align-items:center; gap:10px;}
+.order-btn .onum{display:none; background:var(--navy); color:#fff; width:22px; height:22px; border-radius:50%; align-items:center; justify-content:center; font-size:12px; font-weight:800; flex:none;}
+.order-btn.done{background:var(--green-soft); border-color:var(--green); cursor:default;}
+.order-btn.done .onum{display:flex;}
+.order-btn.shake{animation:shake .35s ease;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-5px);}75%{transform:translateX(5px);}}
+
+.aide-cat{background:var(--navy); color:#fff; font-weight:800; padding:9px 16px; border-radius:8px 8px 0 0; font-size:14px; margin-top:14px;}
+.aide-cat:first-child{margin-top:0;}
+.aide-list{border:1px solid var(--border); border-top:none; border-radius:0 0 8px 8px; overflow:hidden; margin-bottom:14px;}
+.aide-row{border-top:1px solid var(--border); background:#fff;}
+.aide-row-main{display:grid; grid-template-columns:1fr auto; gap:4px 14px; padding:12px 14px; align-items:start;}
+.aide-row-main .comp{grid-column:1; font-weight:800; font-size:15px;}
+.aide-row-main .version-txt{grid-column:1/2; font-size:13px; color:var(--text2);}
+.aide-row-main .version-txt b{color:var(--text); font-weight:700; font-size:12px;}
+.aide-row-main .ou{color:var(--navy); font-weight:700;}
+.aide-row-main .astuce{color:var(--text2); font-style:italic;}
+.demo-btn{grid-column:2; grid-row:1 / span 2; align-self:center; border:1px solid var(--navy); background:#E4F0F8; color:#1B5E8C; border-radius:20px; padding:8px 14px; font-size:12px; font-weight:800; white-space:nowrap;}
+.demo-btn.open{background:var(--navy); color:#fff;}
+.aide-row-demo{display:none; padding:16px; background:#EEF6FB; border-top:1px dashed #b9d9ec;}
+.aide-row-demo.show{display:block; animation:fade .25s ease;}
+@media (max-width:760px){
+  .aide-row-main{grid-template-columns:1fr;}
+  .demo-btn{grid-column:1; grid-row:auto; justify-self:start; margin-top:6px;}
+}
+
+/* ---- Mockups : navigateur / messagerie / chat ---- */
+.app-sim{max-width:420px; margin:0 auto; border-radius:8px; overflow:hidden; box-shadow:0 4px 14px rgba(0,0,0,.12); border:1px solid #dfe0e2;}
+.app-bar{background:#1B5E8C; color:#fff; padding:8px 12px; font-size:12px; display:flex; align-items:center; gap:8px;}
+.app-bar .abtn{width:9px; height:9px; border-radius:50%; background:rgba(255,255,255,.5);}
+.app-url{flex:1; background:rgba(255,255,255,.15); border-radius:14px; padding:5px 12px; font-family:Consolas,monospace; font-size:12px;}
+.app-body{background:#fff; padding:16px; min-height:70px;}
+.browser-page{border:1px dashed #cfd6dc; border-radius:6px; padding:14px; text-align:center; color:#8a93a0; font-size:13px;}
+.browser-page .bp-title{font-weight:800; color:#1B5E8C; font-size:15px; margin-bottom:6px;}
+.search-box{display:flex; gap:6px; align-items:center; border:1px solid #cfd6dc; border-radius:20px; padding:8px 14px; font-size:13px; color:#3a4552;}
+.search-box .cursor-bar{display:inline-block; width:2px; height:14px; background:#1B5E8C; animation:blink 1s step-end infinite; margin-left:2px;}
+@keyframes blink{50%{opacity:0;}}
+.mail-list{display:flex; flex-direction:column; gap:6px;}
+.mail-item{border:1px solid #eef0f2; border-radius:6px; padding:8px 10px; font-size:12.5px; display:flex; justify-content:space-between;}
+.mail-item .ms{font-weight:700; color:#1B5E8C;}
+.mail-status{text-align:center; font-weight:800; font-size:13px; margin-top:10px;}
+.chat-thread{display:flex; flex-direction:column; gap:8px;}
+.chat-bubble{max-width:75%; padding:8px 12px; border-radius:14px; font-size:13px;}
+.chat-bubble.them{background:#EEF3F8; align-self:flex-start; border-bottom-left-radius:4px;}
+.chat-bubble.me{background:#E4F0F8; align-self:flex-end; border-bottom-right-radius:4px; margin-left:auto;}
+.chat-who{font-size:10px; color:var(--text2); font-weight:700; margin-bottom:2px;}
+.shield-box{text-align:center;}
+.shield-ic{font-size:40px;}
+.shield-list{text-align:left; display:inline-block; font-size:13px; margin-top:10px;}
+.shield-list div{padding:3px 0;}
+.td-caption{font-size:12px; color:#1B5E8C; font-weight:700; margin-top:10px; text-align:center;}
+
+.aide-mode-note{display:flex; align-items:center; gap:10px; background:var(--purple-soft); border:1px solid var(--purple); color:#4a3566; border-radius:10px; padding:12px 16px; font-size:14px; margin-bottom:16px;}
+.aide-mode-note .big{font-size:22px;}
+@media (max-width:640px){
+  .topbar{flex-direction:column; align-items:flex-start;}
+  .topbar .tabs{margin-left:0;}
+}
+/* ==== Charte Bitou ==== */
+@media screen {
+  :root{
+    --ink:#1B1740; --sun:#FFD23F; --sun-l:#FFF3BF;
+    --text:#1B1740; --text2:#5B577E; --canvas:#FFFFFF; --soft:#F1EFFF; --soft2:#E6E4FF; --border:#CFCBF2;
+    --blue:#3D3BF3; --blue-soft:#DDDCFF; --green:#0B7A55; --green-soft:#D5F7EA;
+    --orange:#A14A06; --orange-soft:#FFF3BF; --red:#B4233A; --red-soft:#FFE0E5;
+    --purple:#5B3FD1; --purple-soft:#ECE8FF; --navy:#1B1740; --radius:18px;
+  }
+  body{font-family:"Arial Rounded MT Bold","Nunito","Trebuchet MS","Segoe UI",system-ui,sans-serif;
+    background-color:var(--soft); background-image:radial-gradient(var(--blue-soft) 1.5px,transparent 1.5px); background-size:26px 26px;}
+  :focus-visible{outline:4px solid var(--blue); outline-offset:3px;}
+
+  .desk-sim,.win-stage,.explorer,.ribbon-sim,.app-sim,.code-sim,.scratch-sim,.net-sim,.aide-row-demo{
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;}
+
+  .topbar{background:var(--navy); color:#fff; border-bottom:3px solid var(--ink);}
+  .tab-btn{border-radius:999px; font-weight:800;}
+  .tab-btn.active{background:var(--sun); border-color:var(--sun); color:var(--ink);}
+
+  .card,.q,.notebook{border:3px solid var(--ink); border-radius:18px; box-shadow:4px 4px 0 var(--ink);}
+  .mission,.sp{border:3px solid var(--ink); border-radius:16px; background:var(--sun-l); box-shadow:4px 4px 0 var(--ink);}
+  .mission h3,.sp h3{color:var(--ink);}
+
+  .btn{border:3px solid var(--ink); border-radius:999px; background:var(--sun); color:var(--ink); font-weight:800;
+    box-shadow:3px 3px 0 var(--ink); transition:transform .08s,box-shadow .08s;}
+  .btn:hover{border-color:var(--ink);}
+  .btn:active:not(:disabled){transform:translate(3px,3px); box-shadow:0 0 0 var(--ink);}
+  .btn.primary{background:var(--blue); border-color:var(--ink); color:#fff;}
+
+  .chip{border:2px solid var(--ink); background:#fff; border-radius:999px;}
+  .chip.selected{background:var(--blue); border-color:var(--ink); color:#fff;}
+  .opt,.order-btn,.item{border:2px solid var(--ink); background:#fff; border-radius:12px;}
+  .opt:hover,.order-btn:hover{background:var(--blue-soft); border-color:var(--ink);}
+  .opt.good,.order-btn.done{background:var(--green-soft); border-color:var(--green);}
+  .opt.bad{background:var(--red-soft); border-color:var(--red); color:var(--red); opacity:1;}
+  .verdict.ok,.feedback.ok{background:var(--green-soft); color:var(--green);}
+  .verdict.no,.feedback.err{background:var(--red-soft); color:var(--red);}
+  .feedback{border-width:2px;}
+  .feedback.info{border-color:var(--blue);}
+
+  .task-tile{border:2px solid var(--ink); background:#fff; border-radius:14px; box-shadow:3px 3px 0 var(--ink);}
+  .task-tile.revealed{background:var(--blue-soft); border-color:var(--ink);}
+  .cdc-group{border:3px solid var(--ink); border-radius:14px; box-shadow:3px 3px 0 var(--ink);}
+  .note,.aide-mode-note{border:2px solid var(--ink); background:var(--purple-soft); color:var(--ink); border-radius:12px;}
+  .aide-list{border:3px solid var(--ink); border-top:none;}
+  .demo-btn{border:2px solid var(--ink); background:var(--blue-soft); color:var(--ink); border-radius:999px;}
+  .demo-btn.open{background:var(--blue); color:#fff;}
+  .td-caption{color:var(--blue);}
+
+  .dot{border:2px solid var(--ink); border-radius:12px;}
+  .dot.active{background:var(--blue); border-color:var(--ink); color:#fff;}
+  .hud-chip,.hud-btn,.phase-tag,.phase-time{border:2px solid var(--ink);}
+  .dot,.hud-chip,.hud-btn{color:var(--ink);}
+  .dot.active{color:#fff;}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <b>🌐 Réseau Internet</b>
+  <span class="stars-chip" id="starsChip">⭐ 0</span>
+  <div class="tabs">
+    <button class="tab-btn active" id="tabAtBtn" onclick="showView('ateliers')">🎮 Ateliers</button>
+    <button class="tab-btn" id="tabAideBtn" onclick="showView('aide')">📖 Aide-mémoire</button>
+    <button class="tab-btn" id="tabDefiBtn" onclick="showView('defi')">🎯 Mini-défi</button>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ============ VUE ATELIERS ============ -->
+<section class="view active" id="viewAteliers">
+  <div class="mission">
+    <h3>🎯 Objectif</h3>
+    <p>Comprendre ce qu'est Internet, découvrir ses principaux services (Web, email, chat pédagogique), et apprendre à les utiliser de façon responsable.</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:10px;">Atelier 1 — Internet, c'est quoi au juste ?</h3>
+    <div class="qcm" id="q1">
+      <p class="qcm-q">Choisis la meilleure définition :</p>
+      <div class="qcm-opts">
+        <button class="opt" data-ok="1">Un réseau mondial qui relie des millions de réseaux entre eux</button>
+        <button class="opt" data-ok="0">Un seul site web géant</button>
+        <button class="opt" data-ok="0">Un logiciel installé sur chaque ordinateur</button>
+        <button class="opt" data-ok="0">Un câble unique qui relie deux ordinateurs</button>
+      </div>
+      <div class="verdict"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:4px;">Atelier 2 — Les services d'Internet</h3>
+    <p style="color:var(--text2); font-size:14px; margin-bottom:10px;">Clique sur chaque tuile pour découvrir à quoi sert ce service.</p>
+    <p style="font-size:13px; font-weight:700; color:var(--navy); margin-bottom:10px;" id="tilesCounter">Découvertes : 0/3</p>
+    <div class="tiles" id="tilesBox"></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:4px;">Atelier 3 — Range les étapes dans l'ordre</h3>
+    <p style="color:var(--text2); font-size:14px; margin-bottom:10px;">Clique sur les étapes, dans l'ordre, pour envoyer un email.</p>
+    <div class="order-box" id="orderBox"></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:10px;">Atelier 4 — Utilisation responsable</h3>
+    <div class="qcm" id="q2" style="margin-bottom:18px;">
+      <p class="qcm-q">Quel est un bon réflexe pour une utilisation responsable d'Internet ?</p>
+      <div class="qcm-opts">
+        <button class="opt" data-ok="1">Ne jamais partager ses informations personnelles avec des inconnus</button>
+        <button class="opt" data-ok="0">Accepter toutes les demandes de contact</button>
+        <button class="opt" data-ok="0">Cliquer sur tous les liens reçus par message</button>
+        <button class="opt" data-ok="0">Partager son mot de passe avec un camarade</button>
+      </div>
+      <div class="verdict"></div>
+    </div>
+    <div class="qcm" id="q3">
+      <p class="qcm-q">Que faire si un message ou un site te semble suspect ?</p>
+      <div class="qcm-opts">
+        <button class="opt" data-ok="1">En parler à un adulte de confiance (parent, professeur)</button>
+        <button class="opt" data-ok="0">Répondre immédiatement avec ses informations</button>
+        <button class="opt" data-ok="0">Le transférer à tous ses amis</button>
+        <button class="opt" data-ok="0">L'ignorer et n'en parler à personne</button>
+      </div>
+      <div class="verdict"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VUE AIDE-MÉMOIRE ============ -->
+<section class="view" id="viewAide">
+  <div class="card">
+    <h3>📖 Aide-mémoire — Services d'Internet</h3>
+    <p style="color:var(--text2); font-size:14px; margin-bottom:12px;">Consulte cette liste chaque fois que tu ne te souviens plus d'une notion.</p>
+    <div class="aide-mode-note"><span class="big">🎬</span><span>Tu ne comprends pas une consigne écrite ? Clique sur <b>« 🎬 VERSION VISUELLE »</b> : un écran simulé (navigateur, messagerie, chat) montre concrètement comment ça marche.</span></div>
+  </div>
+  <div id="aideContainer"></div>
+</section>
+
+<!-- ============ VUE MINI-DÉFI ============ -->
+<section class="view" id="viewDefi">
+  <div class="mission">
+    <h3>🎯 Ton mini-défi</h3>
+    <p>Choisis une situation, puis prépare ta <b>communication</b> ou ta <b>recherche</b> en respectant les règles d'un bon usage d'Internet. Coche les éléments au fur et à mesure.</p>
+  </div>
+  <div class="card">
+    <h3 style="margin-bottom:10px;">🎨 Choisis ta situation</h3>
+    <div class="chips" id="themeChips"></div>
+  </div>
+  <div class="card">
+    <h3 style="margin-bottom:6px;">📋 Cahier des charges</h3>
+    <p style="color:var(--text2); font-size:14px; margin-bottom:14px;">Clique sur chaque ligne quand c'est fait.</p>
+    <div id="cdcContainer"></div>
+    <div class="note">♻️ Rien n'est imprimé ni enregistré sur le serveur : tes coches restent seulement sur cet écran, pendant ta séance.</div>
+    <div class="reset-row"><button class="btn" onclick="resetChecklist()">↺ Réinitialiser (nouveau groupe)</button></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+let stars = 0;
+function addStars(n){
+  stars += n;
+  const el = document.getElementById('starsChip');
+  el.textContent = '⭐ ' + stars;
+  el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+}
+
+function showView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  const map = {ateliers:'viewAteliers', aide:'viewAide', defi:'viewDefi'};
+  document.getElementById(map[name]).classList.add('active');
+  document.getElementById('tabAtBtn').classList.toggle('active', name==='ateliers');
+  document.getElementById('tabAideBtn').classList.toggle('active', name==='aide');
+  document.getElementById('tabDefiBtn').classList.toggle('active', name==='defi');
+}
+
+function bindOpts(id, okMsg, errMsg){
+  const q = document.getElementById(id);
+  q.querySelectorAll('.opt').forEach(btn=>{
+    btn.onclick = ()=>{
+      if(q.dataset.solved) return;
+      const ok = btn.dataset.ok === '1';
+      const verdict = q.querySelector('.verdict');
+      if(ok){
+        btn.classList.add('good');
+        q.dataset.solved = '1';
+        verdict.className='verdict show ok'; verdict.textContent = okMsg;
+        addStars(1);
+      } else {
+        btn.classList.add('bad'); btn.disabled = true;
+        verdict.className='verdict show no'; verdict.textContent = errMsg;
+      }
+    };
+  });
+}
+bindOpts('q1', '✔ Exact : Internet est un réseau mondial de réseaux interconnectés.', '');
+bindOpts('q2', '✔ Exact : protéger ses informations personnelles est essentiel en ligne.', '✘ Essaie une autre option.');
+bindOpts('q3', '✔ Exact : le bon réflexe est toujours d\'en parler à un adulte de confiance.', '✘ Essaie une autre option.');
+
+const TILES_DATA = [
+  {ico:'🌐', cap:'Le Web', soft:'Consulter des pages et rechercher des informations.'},
+  {ico:'📧', cap:'L\'email', soft:'Envoyer et recevoir des messages électroniques.'},
+  {ico:'💬', cap:'Chat pédagogique', soft:'Échanger en ligne dans un cadre scolaire encadré.'}
+];
+(function buildTiles(){
+  const box = document.getElementById('tilesBox');
+  let done = 0;
+  shuffle(TILES_DATA).forEach(d=>{
+    const b = document.createElement('button');
+    b.className = 'task-tile';
+    b.innerHTML = '<div class="tt-ico">'+d.ico+'</div><div class="tt-cap">'+d.cap+'</div><div class="tt-soft">'+d.soft+'</div>';
+    b.onclick = ()=>{
+      if(b.classList.contains('revealed')) return;
+      b.classList.add('revealed');
+      done++;
+      document.getElementById('tilesCounter').textContent = 'Découvertes : '+done+'/'+TILES_DATA.length;
+      addStars(1);
+    };
+    box.appendChild(b);
+  });
+})();
+
+const ORDER_STEPS = [
+  "Ouvrir sa messagerie et cliquer sur « Nouveau message »",
+  "Saisir l'adresse du destinataire",
+  "Écrire un objet clair et un message poli",
+  "Cliquer sur « Envoyer »"
+];
+(function buildOrder(){
+  const box = document.getElementById('orderBox');
+  let nextIdx = 0;
+  shuffle(ORDER_STEPS.map((text,i)=>({text,i}))).forEach(item=>{
+    const b = document.createElement('button');
+    b.className = 'order-btn';
+    b.innerHTML = '<span class="onum"></span><span class="otext">'+item.text+'</span>';
+    b.onclick = ()=>{
+      if(b.classList.contains('done')) return;
+      if(item.i === nextIdx){
+        nextIdx++;
+        b.querySelector('.onum').textContent = nextIdx;
+        b.classList.add('done');
+        addStars(1);
+      } else {
+        b.classList.add('shake');
+        setTimeout(()=>b.classList.remove('shake'), 350);
+      }
+    };
+    box.appendChild(b);
+  });
+})();
+
+/* ================= AIDE-MÉMOIRE ================= */
+function appBar(title){
+  return '<div class="app-bar"><span class="abtn"></span><span class="abtn"></span><span class="abtn"></span><span class="app-url" id="appUrl">'+title+'</span></div>';
+}
+
+const AIDE = [
+  { cat: "🌐 Navigateur & recherche", items: [
+    { c:"Adresse d'un site (URL)", ou:"www.nom-du-site.extension", a:"Tape l'adresse dans la barre du navigateur, puis Entrée.",
+      visual: '<div class="app-sim">'+appBar('www.exemple.ma')+'<div class="app-body"><div class="browser-page"><div class="bp-title">Page d\'accueil</div>Le contenu du site s\'affiche ici.</div></div></div>' },
+    { c:"Faire une recherche", ou:"Taper des mots-clés dans un moteur de recherche", a:"Utilise des mots-clés précis pour trouver l'information plus vite.",
+      visual: '<div class="app-sim">'+appBar('moteur-de-recherche.ma')+'<div class="app-body"><div class="search-box" id="searchBox">🔍 <span id="searchText"></span><span class="cursor-bar"></span></div></div></div>',
+      textDemo:{type:'search'} }
+  ]},
+  { cat: "📧 Messagerie électronique", items: [
+    { c:"Adresse email", ou:"nom @ domaine . extension", a:"Pas d'espace ; le @ sépare le nom d'utilisateur et le fournisseur." },
+    { c:"Écrire et envoyer un message", ou:"Nouveau message > destinataire > objet > texte > Envoyer", a:"Un objet clair aide le destinataire à comprendre le sujet.",
+      visual: '<div class="app-sim">'+appBar('Messagerie')+'<div class="app-body"><div class="mail-list"><div class="mail-item"><span>À : professeur@ecole.ma</span></div><div class="mail-item"><span class="ms">Objet :</span><span>Question sur le devoir</span></div></div><div class="mail-status" id="mailStatus">✏️ rédaction en cours…</div></div></div>',
+      textDemo:{type:'mail'} }
+  ]},
+  { cat: "💬 Chat pédagogique", items: [
+    { c:"Discuter en ligne poliment", ou:"Écrire des phrases claires et respectueuses, encadré par le professeur", a:"Le chat pédagogique est un espace scolaire encadré, pas un réseau social ouvert.",
+      visual: '<div class="app-sim">'+appBar('Chat de la classe')+'<div class="app-body"><div class="chat-thread" id="chatThread"></div></div></div>',
+      textDemo:{type:'chat'} }
+  ]},
+  { cat: "🛡️ Éthique & sécurité", items: [
+    { c:"Protéger ses informations personnelles", ou:"Ne jamais communiquer nom complet, adresse, mot de passe ou photos à un inconnu", a:"Ce qu'on met en ligne peut rester visible longtemps.",
+      visual: '<div class="shield-box"><div class="shield-ic">🛡️</div><div class="shield-list"><div>❌ Mot de passe</div><div>❌ Adresse personnelle</div><div>❌ Numéro de téléphone</div><div>❌ Photos privées</div></div></div>' },
+    { c:"Réagir face à un message suspect", ou:"Ne pas répondre, ne pas cliquer, en parler à un adulte de confiance", a:"Un adulte de confiance peut t'aider à évaluer la situation.",
+      visual: '<div class="shield-box"><div class="shield-ic" id="alertIc">⚠️</div><div class="td-caption" id="alertCap">message suspect reçu…</div></div>',
+      textDemo:{type:'alert'} }
+  ]}
+];
+
+(function buildAide(){
+  const box = document.getElementById('aideContainer');
+  let uid = 0;
+  AIDE.forEach(group=>{
+    const catDiv = document.createElement('div'); catDiv.className = 'aide-cat'; catDiv.textContent = group.cat;
+    box.appendChild(catDiv);
+    const list = document.createElement('div'); list.className = 'aide-list';
+    group.items.forEach(it=>{
+      uid++;
+      const row = document.createElement('div'); row.className = 'aide-row';
+      const main = document.createElement('div'); main.className = 'aide-row-main';
+      main.innerHTML = '<div class="comp">'+it.c+'</div>'
+        + '<div class="version-txt"><b>📝 VERSION TEXTE</b><br><span class="ou">'+it.ou+'</span>'+(it.a?' — <span class="astuce">'+it.a+'</span>':'')+'</div>';
+      if(it.visual || it.textDemo){
+        const demoBtn = document.createElement('button');
+        demoBtn.className = 'demo-btn'; demoBtn.type = 'button';
+        demoBtn.textContent = "🎬 VERSION VISUELLE";
+        const panelId = 'demo-'+uid;
+        demoBtn.onclick = ()=> toggleDemo(panelId, demoBtn, it);
+        main.appendChild(demoBtn);
+        row.appendChild(main);
+        const panel = document.createElement('div');
+        panel.className = 'aide-row-demo'; panel.id = panelId;
+        row.appendChild(panel);
+      } else {
+        row.appendChild(main);
+      }
+      list.appendChild(row);
+    });
+    box.appendChild(list);
+  });
+})();
+
+let activeDemoInterval = null;
+function stopActiveDemoAnim(){ if(activeDemoInterval){ clearInterval(activeDemoInterval); activeDemoInterval = null; } }
+
+function toggleDemo(panelId, btn, item){
+  const panel = document.getElementById(panelId);
+  const willOpen = !panel.classList.contains('show');
+  stopActiveDemoAnim();
+  document.querySelectorAll('.aide-row-demo.show').forEach(p=>{ if(p.id!==panelId){ p.classList.remove('show'); p.innerHTML=''; } });
+  document.querySelectorAll('.demo-btn.open').forEach(b=>{ if(b!==btn) b.classList.remove('open'); b.textContent='🎬 VERSION VISUELLE'; });
+  if(willOpen){
+    panel.innerHTML = item.visual || '';
+    panel.classList.add('show');
+    btn.classList.add('open'); btn.textContent = '✕ Fermer';
+    if(item.textDemo) activeDemoInterval = startTextDemoAnim(panel, item.textDemo);
+  } else {
+    panel.classList.remove('show'); panel.innerHTML = '';
+    btn.classList.remove('open'); btn.textContent = '🎬 VERSION VISUELLE';
+  }
+}
+
+function startTextDemoAnim(container, td){
+  if(td.type==='search'){
+    const el = container.querySelector('#searchText');
+    const words = ['', 'l', 'le', 'les', 'les p', 'les pl', 'les pla', 'les plan', 'les plane', 'les planet', 'les planete', 'les planetes'];
+    let i=0;
+    const tick = ()=>{ if(el) el.textContent = words[i]; i=(i+1)%words.length; };
+    tick();
+    return setInterval(tick, 250);
+  }
+  if(td.type==='mail'){
+    const el = container.querySelector('#mailStatus');
+    const states = ['✏️ rédaction en cours…', '📤 envoi…', '✅ message envoyé !'];
+    let i=0;
+    const tick = ()=>{ if(el) el.textContent = states[i]; i=(i+1)%states.length; };
+    tick();
+    return setInterval(tick, 1100);
+  }
+  if(td.type==='chat'){
+    const thread = container.querySelector('#chatThread');
+    const msgs = [
+      {who:'Professeur', side:'them', text:'Bonjour, avez-vous une question sur le cours ?'},
+      {who:'Toi', side:'me', text:'Oui, je n\'ai pas compris la topologie en anneau.'},
+      {who:'Professeur', side:'them', text:'Pas de souci, on la revoit ensemble au tableau !'}
+    ];
+    let shown = 0;
+    const tick = ()=>{
+      if(shown >= msgs.length){ thread.innerHTML=''; shown=0; }
+      const m = msgs[shown];
+      const div = document.createElement('div');
+      div.className = 'chat-bubble ' + m.side;
+      div.innerHTML = '<div class="chat-who">'+m.who+'</div>'+m.text;
+      thread.appendChild(div);
+      shown++;
+    };
+    tick();
+    return setInterval(tick, 1300);
+  }
+  if(td.type==='alert'){
+    const ic = container.querySelector('#alertIc'), cap = container.querySelector('#alertCap');
+    const states = [ {ic:'⚠️', c:'message suspect reçu…'}, {ic:'🚫', c:'on ne clique pas, on ne répond pas'}, {ic:'🙋', c:'on en parle à un adulte de confiance'} ];
+    let i=0;
+    const tick = ()=>{ ic.textContent = states[i].ic; cap.textContent = states[i].c; i=(i+1)%states.length; };
+    tick();
+    return setInterval(tick, 1400);
+  }
+  return null;
+}
+
+/* ================= MINI-DÉFI ================= */
+const THEMES = ["Écrire un email poli à ton professeur", "Faire une recherche sur un sujet scolaire", "Discuter sur le chat pédagogique de la classe", "Réagir face à un message suspect"];
+const CDC = [
+  { cat: "COMMUNICATION", color: "#3D3BF3", items: [
+    "Destinataire / adresse correcte",
+    "Objet renseigné",
+    "Message poli et clair"
+  ]},
+  { cat: "RECHERCHE", color: "#0B7A55", items: [
+    "Mots-clés bien choisis",
+    "Site fiable identifié"
+  ]},
+  { cat: "ÉTHIQUE", color: "#5B3FD1", items: [
+    "Aucune information personnelle partagée",
+    "Ton respectueux"
+  ]},
+  { cat: "SÉCURITÉ", color: "#A14A06", items: [
+    "Bon réflexe identifié face à une situation suspecte (en parler à un adulte)"
+  ]}
+];
+
+(function buildThemes(){
+  const box = document.getElementById('themeChips');
+  THEMES.forEach(th=>{
+    const b = document.createElement('button');
+    b.className = 'chip'; b.textContent = th;
+    b.onclick = ()=>{
+      document.querySelectorAll('#themeChips .chip').forEach(c=>c.classList.remove('selected'));
+      b.classList.add('selected');
+    };
+    box.appendChild(b);
+  });
+})();
+
+let totalItems = 0, checkedCount = 0;
+(function buildCdc(){
+  const box = document.getElementById('cdcContainer');
+  CDC.forEach(group=>{
+    const g = document.createElement('div'); g.className = 'cdc-group';
+    const head = document.createElement('div'); head.className = 'cdc-head'; head.style.background = group.color; head.textContent = group.cat;
+    g.appendChild(head);
+    group.items.forEach(text=>{
+      totalItems++;
+      const row = document.createElement('label'); row.className = 'cdc-item';
+      const cb = document.createElement('input'); cb.type = 'checkbox';
+      const span = document.createElement('span'); span.textContent = text;
+      cb.onchange = ()=>{
+        row.classList.toggle('checked', cb.checked);
+        checkedCount += cb.checked ? 1 : -1;
+        if(cb.checked) addStars(1);
+      };
+      row.appendChild(cb); row.appendChild(span);
+      g.appendChild(row);
+    });
+    box.appendChild(g);
+  });
+})();
+function resetChecklist(){
+  document.querySelectorAll('#cdcContainer input[type=checkbox]').forEach(cb=>{
+    cb.checked = false;
+    cb.closest('.cdc-item').classList.remove('checked');
+  });
+  document.querySelectorAll('#themeChips .chip').forEach(c=>c.classList.remove('selected'));
+  checkedCount = 0;
+}
+</script>
+</body>
+</html>

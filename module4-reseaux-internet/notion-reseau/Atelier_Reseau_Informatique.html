@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atelier — Notion de réseau informatique</title>
+<style>
+:root{
+  --text:#2C2C2B; --text2:#7D7A75; --soft:#F9F8F7; --border:#E6E5E3;
+  --blue:#2783DE; --blue-soft:#E5F2FC; --green:#46A171; --green-soft:#E8F1EC;
+  --orange:#D5803B; --orange-soft:#FBEBDE; --purple:#7E5FB3; --purple-soft:#F0EAF8;
+  --navy:#0F6E73; --radius:12px;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; color:var(--text); background:var(--soft); line-height:1.55; font-size:16px;}
+button{font-family:inherit; cursor:pointer;}
+.topbar{position:sticky; top:0; z-index:50; background:var(--navy); color:#fff; padding:12px 16px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+.topbar b{font-size:16px;}
+.topbar .tabs{display:flex; gap:8px; margin-left:auto; flex-wrap:wrap;}
+.tab-btn{border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.08); color:#fff; border-radius:8px; padding:8px 14px; font-size:14px; font-weight:600;}
+.tab-btn.active{background:#fff; color:var(--navy);}
+.stars-chip{background:rgba(255,255,255,.14); border-radius:8px; padding:8px 12px; font-size:14px; font-weight:800;}
+.stars-chip.pop{animation:pop .35s ease;}
+@keyframes pop{0%{transform:scale(1);}40%{transform:scale(1.25);}100%{transform:scale(1);}}
+.wrap{max-width:960px; margin:0 auto; padding:24px 16px 64px;}
+.view{display:none;}
+.view.active{display:block; animation:fade .3s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.card{background:#fff; border:1px solid var(--border); border-radius:var(--radius); padding:22px 24px; margin-bottom:16px;}
+.mission{border-left:6px solid var(--orange); background:var(--orange-soft); border-radius:0 var(--radius) var(--radius) 0; padding:20px 24px; margin-bottom:16px;}
+.mission h3{color:var(--orange); margin-bottom:8px;}
+.chips{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;}
+.chip{border:1px solid var(--border); background:var(--soft); border-radius:20px; padding:8px 16px; font-size:14px; font-weight:600; cursor:pointer;}
+.chip.selected{background:var(--navy); border-color:var(--navy); color:#fff;}
+.cdc-group{border-radius:10px; overflow:hidden; margin-bottom:14px; border:1px solid var(--border);}
+.cdc-head{padding:10px 16px; font-weight:800; color:#fff; font-size:14px; letter-spacing:.3px;}
+.cdc-item{display:flex; align-items:flex-start; gap:10px; padding:11px 16px; border-top:1px solid var(--border); font-size:15px; cursor:pointer; background:#fff;}
+.cdc-item:hover{background:var(--soft);}
+.cdc-item input{margin-top:3px; width:18px; height:18px; flex:none;}
+.cdc-item.checked{background:var(--green-soft);}
+.cdc-item.checked span{text-decoration:line-through; color:var(--text2);}
+.note{border:1px solid var(--purple); background:var(--purple-soft); color:#4a3566; border-radius:10px; padding:14px 18px; font-size:14px; font-style:italic; margin-top:10px;}
+.reset-row{text-align:right; margin-top:10px;}
+.btn{border:1px solid var(--border); background:#fff; border-radius:8px; padding:8px 14px; font-size:13px; font-weight:700; color:var(--text);}
+.btn:hover{border-color:var(--navy);}
+
+.qcm-q{font-weight:700; font-size:15px; margin-bottom:12px;}
+.qcm-opts{display:flex; flex-direction:column; gap:8px;}
+.opt{text-align:left; border:1px solid var(--border); background:var(--soft); border-radius:8px; padding:10px 14px; font-size:14px;}
+.opt:hover{border-color:var(--navy);}
+.opt.good{background:var(--green-soft); border-color:var(--green); font-weight:700;}
+.opt.bad{background:#FBE5EF; border-color:#C22A6B; opacity:.7;}
+.verdict{margin-top:10px; font-size:14px; font-weight:700; display:none; border-radius:8px; padding:10px 14px;}
+.verdict.show{display:block; animation:fade .25s ease;}
+.verdict.ok{background:var(--green-soft); color:#1E7A4C;}
+.verdict.no{background:#FBE5EF; color:#9c1c53;}
+
+.tiles{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; margin-top:6px;}
+.task-tile{border:1px solid var(--border); background:var(--soft); border-radius:10px; padding:16px 10px; text-align:center; min-height:100px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;}
+.task-tile .tt-ico{font-size:26px;}
+.task-tile .tt-cap{font-weight:800; font-size:13px;}
+.task-tile .tt-soft{display:none; font-size:12px; color:var(--text2);}
+.task-tile.revealed{background:var(--purple-soft); border-color:var(--navy);}
+.task-tile.revealed .tt-soft{display:block;}
+
+.aide-cat{background:var(--navy); color:#fff; font-weight:800; padding:9px 16px; border-radius:8px 8px 0 0; font-size:14px; margin-top:14px;}
+.aide-cat:first-child{margin-top:0;}
+.aide-list{border:1px solid var(--border); border-top:none; border-radius:0 0 8px 8px; overflow:hidden; margin-bottom:14px;}
+.aide-row{border-top:1px solid var(--border); background:#fff;}
+.aide-row-main{display:grid; grid-template-columns:1fr auto; gap:4px 14px; padding:12px 14px; align-items:start;}
+.aide-row-main .comp{grid-column:1; font-weight:800; font-size:15px;}
+.aide-row-main .version-txt{grid-column:1/2; font-size:13px; color:var(--text2);}
+.aide-row-main .version-txt b{color:var(--text); font-weight:700; font-size:12px;}
+.aide-row-main .ou{color:var(--navy); font-weight:700;}
+.aide-row-main .astuce{color:var(--text2); font-style:italic;}
+.demo-btn{grid-column:2; grid-row:1 / span 2; align-self:center; border:1px solid var(--navy); background:#E3F3F3; color:#0F6E73; border-radius:20px; padding:8px 14px; font-size:12px; font-weight:800; white-space:nowrap;}
+.demo-btn.open{background:var(--navy); color:#fff;}
+.aide-row-demo{display:none; padding:16px; background:#EEF8F8; border-top:1px dashed #b8dfe0;}
+.aide-row-demo.show{display:block; animation:fade .25s ease;}
+@media (max-width:760px){
+  .aide-row-main{grid-template-columns:1fr;}
+  .demo-btn{grid-column:1; grid-row:auto; justify-self:start; margin-top:6px;}
+}
+
+.net-sim{max-width:340px; margin:0 auto; text-align:center;}
+.net-sim svg{width:100%; height:auto; background:#fff; border:1px solid #dfe0e2; border-radius:8px;}
+.net-caption{font-size:12px; color:#0F6E73; font-weight:700; margin-top:10px;}
+
+.comp-diagram{display:flex; align-items:center; justify-content:center; gap:6px; flex-wrap:wrap; padding:10px 0;}
+.comp-node{display:flex; flex-direction:column; align-items:center; gap:4px; font-size:11px; color:var(--text2); font-weight:700;}
+.comp-node .ic{font-size:28px;}
+.comp-link{color:#c9c9c9; font-size:20px;}
+
+.pro-con{max-width:420px; margin:0 auto;}
+.pc-tag{display:inline-block; font-weight:800; font-size:13px; padding:6px 16px; border-radius:16px; margin-bottom:10px;}
+.pc-tag.good{background:var(--green-soft); color:#1E7A4C;}
+.pc-tag.bad{background:#FBE5EF; color:#9c1c53;}
+.pc-list{text-align:left; font-size:14px; display:inline-block;}
+.pc-list div{padding:4px 0;}
+
+.aide-mode-note{display:flex; align-items:center; gap:10px; background:var(--purple-soft); border:1px solid var(--purple); color:#4a3566; border-radius:10px; padding:12px 16px; font-size:14px; margin-bottom:16px;}
+.aide-mode-note .big{font-size:22px;}
+@media (max-width:640px){
+  .topbar{flex-direction:column; align-items:flex-start;}
+  .topbar .tabs{margin-left:0;}
+}
+/* ==== Charte Bitou ==== */
+@media screen {
+  :root{
+    --ink:#1B1740; --sun:#FFD23F; --sun-l:#FFF3BF;
+    --text:#1B1740; --text2:#5B577E; --canvas:#FFFFFF; --soft:#F1EFFF; --soft2:#E6E4FF; --border:#CFCBF2;
+    --blue:#3D3BF3; --blue-soft:#DDDCFF; --green:#0B7A55; --green-soft:#D5F7EA;
+    --orange:#A14A06; --orange-soft:#FFF3BF; --red:#B4233A; --red-soft:#FFE0E5;
+    --purple:#5B3FD1; --purple-soft:#ECE8FF; --navy:#1B1740; --radius:18px;
+  }
+  body{font-family:"Arial Rounded MT Bold","Nunito","Trebuchet MS","Segoe UI",system-ui,sans-serif;
+    background-color:var(--soft); background-image:radial-gradient(var(--blue-soft) 1.5px,transparent 1.5px); background-size:26px 26px;}
+  :focus-visible{outline:4px solid var(--blue); outline-offset:3px;}
+
+  .desk-sim,.win-stage,.explorer,.ribbon-sim,.app-sim,.code-sim,.scratch-sim,.net-sim,.aide-row-demo{
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;}
+
+  .topbar{background:var(--navy); color:#fff; border-bottom:3px solid var(--ink);}
+  .tab-btn{border-radius:999px; font-weight:800;}
+  .tab-btn.active{background:var(--sun); border-color:var(--sun); color:var(--ink);}
+
+  .card,.q,.notebook{border:3px solid var(--ink); border-radius:18px; box-shadow:4px 4px 0 var(--ink);}
+  .mission,.sp{border:3px solid var(--ink); border-radius:16px; background:var(--sun-l); box-shadow:4px 4px 0 var(--ink);}
+  .mission h3,.sp h3{color:var(--ink);}
+
+  .btn{border:3px solid var(--ink); border-radius:999px; background:var(--sun); color:var(--ink); font-weight:800;
+    box-shadow:3px 3px 0 var(--ink); transition:transform .08s,box-shadow .08s;}
+  .btn:hover{border-color:var(--ink);}
+  .btn:active:not(:disabled){transform:translate(3px,3px); box-shadow:0 0 0 var(--ink);}
+  .btn.primary{background:var(--blue); border-color:var(--ink); color:#fff;}
+
+  .chip{border:2px solid var(--ink); background:#fff; border-radius:999px;}
+  .chip.selected{background:var(--blue); border-color:var(--ink); color:#fff;}
+  .opt,.order-btn,.item{border:2px solid var(--ink); background:#fff; border-radius:12px;}
+  .opt:hover,.order-btn:hover{background:var(--blue-soft); border-color:var(--ink);}
+  .opt.good,.order-btn.done{background:var(--green-soft); border-color:var(--green);}
+  .opt.bad{background:var(--red-soft); border-color:var(--red); color:var(--red); opacity:1;}
+  .verdict.ok,.feedback.ok{background:var(--green-soft); color:var(--green);}
+  .verdict.no,.feedback.err{background:var(--red-soft); color:var(--red);}
+  .feedback{border-width:2px;}
+  .feedback.info{border-color:var(--blue);}
+
+  .task-tile{border:2px solid var(--ink); background:#fff; border-radius:14px; box-shadow:3px 3px 0 var(--ink);}
+  .task-tile.revealed{background:var(--blue-soft); border-color:var(--ink);}
+  .cdc-group{border:3px solid var(--ink); border-radius:14px; box-shadow:3px 3px 0 var(--ink);}
+  .note,.aide-mode-note{border:2px solid var(--ink); background:var(--purple-soft); color:var(--ink); border-radius:12px;}
+  .aide-list{border:3px solid var(--ink); border-top:none;}
+  .demo-btn{border:2px solid var(--ink); background:var(--blue-soft); color:var(--ink); border-radius:999px;}
+  .demo-btn.open{background:var(--blue); color:#fff;}
+  .td-caption{color:var(--blue);}
+
+  .dot{border:2px solid var(--ink); border-radius:12px;}
+  .dot.active{background:var(--blue); border-color:var(--ink); color:#fff;}
+  .hud-chip,.hud-btn,.phase-tag,.phase-time{border:2px solid var(--ink);}
+  .dot,.hud-chip,.hud-btn{color:var(--ink);}
+  .dot.active{color:#fff;}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <b>🖧 Notion de réseau informatique</b>
+  <span class="stars-chip" id="starsChip">⭐ 0</span>
+  <div class="tabs">
+    <button class="tab-btn active" id="tabAtBtn" onclick="showView('ateliers')">🎮 Ateliers</button>
+    <button class="tab-btn" id="tabAideBtn" onclick="showView('aide')">📖 Aide-mémoire</button>
+    <button class="tab-btn" id="tabDefiBtn" onclick="showView('defi')">🎯 Mini-défi</button>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ============ VUE ATELIERS ============ -->
+<section class="view active" id="viewAteliers">
+  <div class="mission">
+    <h3>🎯 Objectif</h3>
+    <p>Comprendre ce qu'est un réseau informatique, ses différents types selon la taille, les principales topologies, et ses avantages / inconvénients.</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:10px;">Atelier 1 — Qu'est-ce qu'un réseau informatique ?</h3>
+    <div class="qcm" id="q1">
+      <p class="qcm-q">Choisis la meilleure définition :</p>
+      <div class="qcm-opts">
+        <button class="opt" data-ok="1">Un ensemble d'ordinateurs reliés entre eux pour échanger des informations</button>
+        <button class="opt" data-ok="0">Un seul ordinateur très puissant</button>
+        <button class="opt" data-ok="0">Un logiciel de messagerie</button>
+        <button class="opt" data-ok="0">Un type de virus informatique</button>
+      </div>
+      <div class="verdict"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:4px;">Atelier 2 — Les types de réseaux selon leur taille</h3>
+    <p style="color:var(--text2); font-size:14px; margin-bottom:10px;">Clique sur chaque tuile pour découvrir sa signification.</p>
+    <p style="font-size:13px; font-weight:700; color:var(--navy); margin-bottom:10px;" id="tilesCounter1">Découvertes : 0/3</p>
+    <div class="tiles" id="tilesBox1"></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:4px;">Atelier 3 — Les topologies de réseau</h3>
+    <p style="color:var(--text2); font-size:14px; margin-bottom:10px;">Clique sur chaque tuile pour découvrir comment les ordinateurs sont reliés.</p>
+    <p style="font-size:13px; font-weight:700; color:var(--navy); margin-bottom:10px;" id="tilesCounter2">Découvertes : 0/3</p>
+    <div class="tiles" id="tilesBox2"></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:10px;">Atelier 4 — Avantages et inconvénients</h3>
+    <div class="qcm" id="q2" style="margin-bottom:18px;">
+      <p class="qcm-q">Quel est un avantage d'un réseau informatique ?</p>
+      <div class="qcm-opts">
+        <button class="opt" data-ok="1">Partager facilement des fichiers et une imprimante</button>
+        <button class="opt" data-ok="0">Il ne tombe jamais en panne</button>
+        <button class="opt" data-ok="0">Il fonctionne sans électricité</button>
+        <button class="opt" data-ok="0">Il n'a besoin d'aucun câble ni Wifi</button>
+      </div>
+      <div class="verdict"></div>
+    </div>
+    <div class="qcm" id="q3">
+      <p class="qcm-q">Quel est un inconvénient possible d'un réseau ?</p>
+      <div class="qcm-opts">
+        <button class="opt" data-ok="1">Une panne peut affecter plusieurs utilisateurs à la fois</button>
+        <button class="opt" data-ok="0">Il coûte toujours moins cher qu'un ordinateur seul</button>
+        <button class="opt" data-ok="0">Il rend le partage de fichiers impossible</button>
+        <button class="opt" data-ok="0">Il n'existe aucun risque de sécurité</button>
+      </div>
+      <div class="verdict"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VUE AIDE-MÉMOIRE ============ -->
+<section class="view" id="viewAide">
+  <div class="card">
+    <h3>📖 Aide-mémoire — Réseaux informatiques</h3>
+    <p style="color:var(--text2); font-size:14px; margin-bottom:12px;">Consulte cette liste chaque fois que tu ne te souviens plus d'une notion.</p>
+    <div class="aide-mode-note"><span class="big">🎬</span><span>Tu ne comprends pas une consigne écrite ? Clique sur <b>« 🎬 VERSION VISUELLE »</b> : un schéma animé montre comment les données circulent dans le réseau.</span></div>
+  </div>
+  <div id="aideContainer"></div>
+</section>
+
+<!-- ============ VUE MINI-DÉFI ============ -->
+<section class="view" id="viewDefi">
+  <div class="mission">
+    <h3>🎯 Ton mini-défi</h3>
+    <p>Choisis un lieu, puis propose le <b>type de réseau</b> et la <b>topologie</b> les plus adaptés, avec leurs <b>avantages / inconvénients</b>. Coche les éléments au fur et à mesure.</p>
+  </div>
+  <div class="card">
+    <h3 style="margin-bottom:10px;">🎨 Choisis ton lieu</h3>
+    <div class="chips" id="themeChips"></div>
+  </div>
+  <div class="card">
+    <h3 style="margin-bottom:6px;">📋 Cahier des charges</h3>
+    <p style="color:var(--text2); font-size:14px; margin-bottom:14px;">Clique sur chaque ligne quand c'est fait.</p>
+    <div id="cdcContainer"></div>
+    <div class="note">♻️ Rien n'est imprimé ni enregistré sur le serveur : tes coches restent seulement sur cet écran, pendant ta séance.</div>
+    <div class="reset-row"><button class="btn" onclick="resetChecklist()">↺ Réinitialiser (nouveau groupe)</button></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+let stars = 0;
+function addStars(n){
+  stars += n;
+  const el = document.getElementById('starsChip');
+  el.textContent = '⭐ ' + stars;
+  el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+}
+
+function showView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  const map = {ateliers:'viewAteliers', aide:'viewAide', defi:'viewDefi'};
+  document.getElementById(map[name]).classList.add('active');
+  document.getElementById('tabAtBtn').classList.toggle('active', name==='ateliers');
+  document.getElementById('tabAideBtn').classList.toggle('active', name==='aide');
+  document.getElementById('tabDefiBtn').classList.toggle('active', name==='defi');
+}
+
+function bindOpts(id, okMsg, errMsg){
+  const q = document.getElementById(id);
+  q.querySelectorAll('.opt').forEach(btn=>{
+    btn.onclick = ()=>{
+      if(q.dataset.solved) return;
+      const ok = btn.dataset.ok === '1';
+      const verdict = q.querySelector('.verdict');
+      if(ok){
+        btn.classList.add('good');
+        q.dataset.solved = '1';
+        verdict.className='verdict show ok'; verdict.textContent = okMsg;
+        addStars(1);
+      } else {
+        btn.classList.add('bad'); btn.disabled = true;
+        verdict.className='verdict show no'; verdict.textContent = errMsg;
+      }
+    };
+  });
+}
+bindOpts('q1', '✔ Exact : un réseau relie des ordinateurs pour qu\'ils échangent des informations.', '');
+bindOpts('q2', '✔ Exact : le partage de ressources (fichiers, imprimante) est un avantage majeur.', '✘ Essaie une autre option.');
+bindOpts('q3', '✔ Exact : dans un réseau, une panne (ex. du serveur) peut toucher plusieurs utilisateurs.', '✘ Essaie une autre option.');
+
+const TILES_1 = [
+  {ico:'🏠', cap:'LAN', soft:'Réseau Local — relie des appareils proches (une salle, un immeuble).'},
+  {ico:'🏙️', cap:'MAN', soft:'Réseau Métropolitain — relie des appareils à l\'échelle d\'une ville.'},
+  {ico:'🌍', cap:'WAN', soft:'Réseau Étendu — relie des appareils sur un pays ou le monde entier (comme Internet).'}
+];
+function makeTiles(boxId, counterId, data){
+  const box = document.getElementById(boxId);
+  let done = 0;
+  shuffle(data).forEach(d=>{
+    const b = document.createElement('button');
+    b.className = 'task-tile';
+    b.innerHTML = '<div class="tt-ico">'+d.ico+'</div><div class="tt-cap">'+d.cap+'</div><div class="tt-soft">'+d.soft+'</div>';
+    b.onclick = ()=>{
+      if(b.classList.contains('revealed')) return;
+      b.classList.add('revealed');
+      done++;
+      document.getElementById(counterId).textContent = 'Découvertes : '+done+'/'+data.length;
+      addStars(1);
+    };
+    box.appendChild(b);
+  });
+}
+makeTiles('tilesBox1','tilesCounter1', TILES_1);
+
+const TILES_2 = [
+  {ico:'📏', cap:'Bus', soft:'Tous les ordinateurs sont reliés à un même câble central (le bus).'},
+  {ico:'⭐', cap:'Étoile', soft:'Chaque ordinateur est relié à un appareil central (switch / concentrateur).'},
+  {ico:'⭕', cap:'Anneau', soft:'Les ordinateurs sont reliés en boucle fermée, les uns après les autres.'}
+];
+makeTiles('tilesBox2','tilesCounter2', TILES_2);
+
+/* ================= AIDE-MÉMOIRE ================= */
+function svgBus(){
+  return '<svg viewBox="0 0 300 140" xmlns="http://www.w3.org/2000/svg">'
+    + '<line x1="30" y1="90" x2="270" y2="90" stroke="#0F6E73" stroke-width="4"/>'
+    + [50,120,190,260].map(x=>'<line x1="'+x+'" y1="50" x2="'+x+'" y2="90" stroke="#0F6E73" stroke-width="2"/><circle cx="'+x+'" cy="38" r="14" fill="#E3F3F3" stroke="#0F6E73" stroke-width="2"/><text x="'+x+'" y="43" font-size="14" text-anchor="middle">💻</text>').join('')
+    + '<circle r="6" fill="#D5803B"><animateMotion dur="2.5s" repeatCount="indefinite" path="M30,90 L270,90 L30,90"/></circle>'
+    + '</svg>';
+}
+function svgEtoile(){
+  return '<svg viewBox="0 0 300 160" xmlns="http://www.w3.org/2000/svg">'
+    + '<line x1="150" y1="80" x2="150" y2="25" stroke="#0F6E73" stroke-width="2"/>'
+    + '<line x1="150" y1="80" x2="255" y2="80" stroke="#0F6E73" stroke-width="2"/>'
+    + '<line x1="150" y1="80" x2="150" y2="135" stroke="#0F6E73" stroke-width="2"/>'
+    + '<line x1="150" y1="80" x2="45" y2="80" stroke="#0F6E73" stroke-width="2"/>'
+    + '<circle cx="150" cy="80" r="17" fill="#0F6E73"/><text x="150" y="86" font-size="15" text-anchor="middle">🔀</text>'
+    + [[150,25],[255,80],[150,135],[45,80]].map(p=>'<circle cx="'+p[0]+'" cy="'+p[1]+'" r="14" fill="#E3F3F3" stroke="#0F6E73" stroke-width="2"/><text x="'+p[0]+'" y="'+(p[1]+5)+'" font-size="14" text-anchor="middle">💻</text>').join('')
+    + '<circle r="6" fill="#D5803B"><animateMotion dur="2.5s" repeatCount="indefinite" path="M45,80 L150,80 L150,135 L150,80 L45,80"/></circle>'
+    + '</svg>';
+}
+function svgAnneau(){
+  return '<svg viewBox="0 0 300 160" xmlns="http://www.w3.org/2000/svg">'
+    + '<circle cx="150" cy="80" r="55" fill="none" stroke="#0F6E73" stroke-width="3"/>'
+    + [[205,80],[150,135],[95,80],[150,25]].map(p=>'<circle cx="'+p[0]+'" cy="'+p[1]+'" r="14" fill="#E3F3F3" stroke="#0F6E73" stroke-width="2"/><text x="'+p[0]+'" y="'+(p[1]+5)+'" font-size="14" text-anchor="middle">💻</text>').join('')
+    + '<circle r="6" fill="#D5803B"><animateMotion dur="3s" repeatCount="indefinite" path="M150,25 A55,55 0 1,1 149,25 Z"/></circle>'
+    + '</svg>';
+}
+
+const AIDE = [
+  { cat: "🖧 Types de réseaux", items: [
+    { c:"LAN — Réseau Local", ou:"Local Area Network", a:"Échelle d'une salle ou d'un immeuble (ex : le réseau du lycée).",
+      visual:'<div class="comp-diagram"><div class="comp-node"><span class="ic">🏠</span>une salle / un immeuble</div><div class="comp-link">→</div><div class="comp-node"><span class="ic">💻💻💻</span>quelques appareils proches</div></div>' },
+    { c:"MAN — Réseau Métropolitain", ou:"Metropolitan Area Network", a:"Échelle d'une ville (relie plusieurs bâtiments ou établissements).",
+      visual:'<div class="comp-diagram"><div class="comp-node"><span class="ic">🏙️</span>une ville</div><div class="comp-link">→</div><div class="comp-node"><span class="ic">🏢🏫🏢</span>plusieurs bâtiments reliés</div></div>' },
+    { c:"WAN — Réseau Étendu", ou:"Wide Area Network", a:"Échelle d'un pays ou du monde entier — Internet est le plus grand WAN.",
+      visual:'<div class="comp-diagram"><div class="comp-node"><span class="ic">🌍</span>un pays / le monde</div><div class="comp-link">→</div><div class="comp-node"><span class="ic">🏢...🏢</span>des réseaux reliés entre eux</div></div>' }
+  ]},
+  { cat: "🔗 Topologies de réseau", items: [
+    { c:"Topologie en bus", ou:"Tous les ordinateurs sur un même câble central", a:"Simple et économique, mais si le câble central est coupé, tout le réseau tombe en panne.",
+      visual: svgBus(), caption:"le signal circule sur le câble unique, tous les postes le reçoivent" },
+    { c:"Topologie en étoile", ou:"Chaque ordinateur relié à un appareil central (switch)", a:"La plus utilisée aujourd'hui : si un câble est coupé, un seul poste est isolé.",
+      visual: svgEtoile(), caption:"les données passent toujours par l'appareil central" },
+    { c:"Topologie en anneau", ou:"Les ordinateurs reliés en boucle fermée", a:"Les données circulent dans un sens autour de la boucle, poste après poste.",
+      visual: svgAnneau(), caption:"les données font le tour de la boucle" }
+  ]},
+  { cat: "⚙️ Composants", items: [
+    { c:"Les composants d'un réseau", ou:"Ordinateur • câble ou Wifi • switch/routeur • serveur", a:"Chaque élément a un rôle précis dans la circulation des données.",
+      visual:'<div class="comp-diagram"><div class="comp-node"><span class="ic">💻</span>Ordinateur</div><div class="comp-link">—</div><div class="comp-node"><span class="ic">📡</span>Câble / Wifi</div><div class="comp-link">—</div><div class="comp-node"><span class="ic">🔀</span>Switch / Routeur</div><div class="comp-link">—</div><div class="comp-node"><span class="ic">🗄️</span>Serveur</div></div>' }
+  ]},
+  { cat: "⚖️ Avantages / Inconvénients", items: [
+    { c:"Avantages et inconvénients d'un réseau", ou:"Partage de ressources, mais risques et pannes possibles", a:"À peser selon le contexte (une salle de classe, une entreprise…).",
+      textDemo:{type:'procon'} }
+  ]}
+];
+
+(function buildAide(){
+  const box = document.getElementById('aideContainer');
+  let uid = 0;
+  AIDE.forEach(group=>{
+    const catDiv = document.createElement('div'); catDiv.className = 'aide-cat'; catDiv.textContent = group.cat;
+    box.appendChild(catDiv);
+    const list = document.createElement('div'); list.className = 'aide-list';
+    group.items.forEach(it=>{
+      uid++;
+      const row = document.createElement('div'); row.className = 'aide-row';
+      const main = document.createElement('div'); main.className = 'aide-row-main';
+      main.innerHTML = '<div class="comp">'+it.c+'</div>'
+        + '<div class="version-txt"><b>📝 VERSION TEXTE</b><br><span class="ou">'+it.ou+'</span>'+(it.a?' — <span class="astuce">'+it.a+'</span>':'')+'</div>';
+      const demoBtn = document.createElement('button');
+      demoBtn.className = 'demo-btn'; demoBtn.type = 'button';
+      demoBtn.textContent = "🎬 VERSION VISUELLE";
+      const panelId = 'demo-'+uid;
+      demoBtn.onclick = ()=> toggleDemo(panelId, demoBtn, it);
+      main.appendChild(demoBtn);
+      row.appendChild(main);
+      const panel = document.createElement('div');
+      panel.className = 'aide-row-demo'; panel.id = panelId;
+      row.appendChild(panel);
+      list.appendChild(row);
+    });
+    box.appendChild(list);
+  });
+})();
+
+let activeDemoInterval = null;
+function stopActiveDemoAnim(){ if(activeDemoInterval){ clearInterval(activeDemoInterval); activeDemoInterval = null; } }
+
+function toggleDemo(panelId, btn, item){
+  const panel = document.getElementById(panelId);
+  const willOpen = !panel.classList.contains('show');
+  stopActiveDemoAnim();
+  document.querySelectorAll('.aide-row-demo.show').forEach(p=>{ if(p.id!==panelId){ p.classList.remove('show'); p.innerHTML=''; } });
+  document.querySelectorAll('.demo-btn.open').forEach(b=>{ if(b!==btn) b.classList.remove('open'); b.textContent='🎬 VERSION VISUELLE'; });
+  if(willOpen){
+    let html = '';
+    if(item.visual){
+      html += '<div class="net-sim">'+item.visual+(item.caption?'<div class="net-caption">'+item.caption+'</div>':'')+'</div>';
+    }
+    if(item.textDemo){
+      html += renderTextDemo(item.textDemo);
+    }
+    panel.innerHTML = html;
+    panel.classList.add('show');
+    btn.classList.add('open'); btn.textContent = '✕ Fermer';
+    if(item.textDemo) activeDemoInterval = startTextDemoAnim(panel, item.textDemo);
+  } else {
+    panel.classList.remove('show'); panel.innerHTML = '';
+    btn.classList.remove('open'); btn.textContent = '🎬 VERSION VISUELLE';
+  }
+}
+
+function renderTextDemo(td){
+  if(td.type==='procon'){
+    return '<div class="pro-con"><div id="pcTag" class="pc-tag good">✓ Avantages</div><div id="pcList" class="pc-list"></div></div>';
+  }
+  return '';
+}
+function startTextDemoAnim(container, td){
+  if(td.type==='procon'){
+    const tag = container.querySelector('#pcTag'), list = container.querySelector('#pcList');
+    const pro = ['Partage de fichiers et d\'imprimante', 'Communication rapide entre postes', 'Travail collaboratif facilité'];
+    const con = ['Une panne peut toucher plusieurs utilisateurs', 'Besoin de maintenance et de sécurité', 'Coût d\'installation du matériel'];
+    let showingPro = true;
+    const tick = ()=>{
+      showingPro = !showingPro;
+      tag.className = 'pc-tag ' + (showingPro ? 'good' : 'bad');
+      tag.textContent = showingPro ? '✓ Avantages' : '✗ Inconvénients';
+      list.innerHTML = (showingPro ? pro : con).map(t=>'<div>• '+t+'</div>').join('');
+    };
+    tick();
+    return setInterval(tick, 1800);
+  }
+  return null;
+}
+
+/* ================= MINI-DÉFI ================= */
+const THEMES = ["Une salle de classe", "Un immeuble à plusieurs étages", "Une ville entière", "Deux salles très éloignées"];
+const CDC = [
+  { cat: "TYPE DE RÉSEAU", color: "#3D3BF3", items: [
+    "Le bon type identifié (LAN, MAN ou WAN)",
+    "Une justification donnée (échelle, distance)"
+  ]},
+  { cat: "TOPOLOGIE", color: "#0B7A55", items: [
+    "Une topologie choisie (bus, étoile ou anneau)",
+    "Une raison donnée pour ce choix"
+  ]},
+  { cat: "AVANTAGES / INCONVÉNIENTS", color: "#5B3FD1", items: [
+    "Au moins un avantage cité",
+    "Au moins un inconvénient cité"
+  ]},
+  { cat: "COMPOSANTS", color: "#A14A06", items: [
+    "Au moins deux composants nécessaires nommés"
+  ]}
+];
+
+(function buildThemes(){
+  const box = document.getElementById('themeChips');
+  THEMES.forEach(th=>{
+    const b = document.createElement('button');
+    b.className = 'chip'; b.textContent = th;
+    b.onclick = ()=>{
+      document.querySelectorAll('#themeChips .chip').forEach(c=>c.classList.remove('selected'));
+      b.classList.add('selected');
+    };
+    box.appendChild(b);
+  });
+})();
+
+let totalItems = 0, checkedCount = 0;
+(function buildCdc(){
+  const box = document.getElementById('cdcContainer');
+  CDC.forEach(group=>{
+    const g = document.createElement('div'); g.className = 'cdc-group';
+    const head = document.createElement('div'); head.className = 'cdc-head'; head.style.background = group.color; head.textContent = group.cat;
+    g.appendChild(head);
+    group.items.forEach(text=>{
+      totalItems++;
+      const row = document.createElement('label'); row.className = 'cdc-item';
+      const cb = document.createElement('input'); cb.type = 'checkbox';
+      const span = document.createElement('span'); span.textContent = text;
+      cb.onchange = ()=>{
+        row.classList.toggle('checked', cb.checked);
+        checkedCount += cb.checked ? 1 : -1;
+        if(cb.checked) addStars(1);
+      };
+      row.appendChild(cb); row.appendChild(span);
+      g.appendChild(row);
+    });
+    box.appendChild(g);
+  });
+})();
+function resetChecklist(){
+  document.querySelectorAll('#cdcContainer input[type=checkbox]').forEach(cb=>{
+    cb.checked = false;
+    cb.closest('.cdc-item').classList.remove('checked');
+  });
+  document.querySelectorAll('#themeChips .chip').forEach(c=>c.classList.remove('selected'));
+  checkedCount = 0;
+}
+</script>
+</body>
+</html>
