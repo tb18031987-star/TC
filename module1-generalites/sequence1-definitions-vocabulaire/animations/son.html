@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🎙️ Animation — Coder et décoder un son</title>
+<style>
+:root{
+  --ink:#1B1740; --paper:#F1EFFF; --card:#fff;
+  --blue:#3D3BF3; --blue-l:#DDDCFF;
+  --sun:#FFD23F; --sun-l:#FFF3BF;
+  --coral:#FF5D73; --coral-l:#FFE0E5;
+  --mint:#22C58B; --mint-l:#D5F7EA;
+  --bd:3px solid var(--ink);
+  --sh:4px 4px 0 var(--ink);
+  --mono:"Consolas","SF Mono","Courier New",monospace;
+}
+*{box-sizing:border-box}
+html{font-size:17px}
+body{margin:0;color:var(--ink);background:var(--paper);min-height:100vh;
+  background-image:radial-gradient(var(--blue-l) 1.5px,transparent 1.5px);background-size:26px 26px;
+  font-family:"Arial Rounded MT Bold","Nunito","Trebuchet MS","Segoe UI",system-ui,sans-serif;line-height:1.5}
+h1,h2,h3{line-height:1.2;margin:0 0 .5rem}
+p{margin:0 0 .7rem}
+button{font:inherit;color:inherit}
+:focus-visible{outline:4px solid var(--blue);outline-offset:3px}
+
+.top{background:var(--ink);color:#fff;padding:.9rem 1.2rem;text-align:center}
+.top h1{font-size:1.5rem;margin:0}
+.top p{margin:.3rem 0 0;opacity:.85;font-size:.95rem}
+
+.wrap{max-width:920px;margin:0 auto;padding:1.4rem 1rem 4rem}
+
+.btn{font-weight:800;border:var(--bd);border-radius:999px;padding:.6rem 1.4rem;background:var(--sun);
+  box-shadow:3px 3px 0 var(--ink);cursor:pointer;transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--ink)}
+.btn.blue{background:var(--blue);color:#fff}
+.btn.big{font-size:1.1rem;padding:.75rem 1.6rem}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+.card{background:var(--card);border:var(--bd);border-radius:18px;box-shadow:var(--sh);padding:1.2rem 1.4rem;margin-bottom:1.2rem}
+.instr{background:var(--sun-l);border:var(--bd);border-radius:14px;padding:.9rem 1.1rem;margin-bottom:1.2rem;font-size:1.02rem}
+.instr b{color:var(--blue)}
+
+.phase-title{display:flex;align-items:center;gap:.6rem;font-size:1.15rem;margin-bottom:.8rem}
+.phase-badge{background:var(--ink);color:#fff;border-radius:50%;width:2rem;height:2rem;display:flex;align-items:center;justify-content:center;font-weight:800;flex:none}
+.phase-badge.coral{background:var(--coral)}
+
+.wavebox{border:var(--bd);border-radius:14px;background:#fff;padding:.8rem;margin:.8rem auto;max-width:380px;text-align:center}
+.wavebox svg{width:100%;height:auto;display:block}
+.wavebox small{display:block;color:#7D7A75;font-weight:700;font-size:.75rem;margin-bottom:.3rem}
+
+.track{position:relative;padding-top:4.4rem;margin:.8rem 0 1.2rem}
+.stns{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem}
+.stn{border:var(--bd);border-radius:14px;background:#fff;text-align:center;padding:.6rem .3rem;transition:background .2s,transform .2s}
+.stn .em{display:block;font-size:2.1rem}
+.stn .lb{font-size:.85rem;font-weight:800}
+.stn.on{background:var(--sun);transform:translateY(-4px)}
+.packet{position:absolute;top:0;left:16.6%;transform:translateX(-50%);opacity:0;min-width:3.4rem;text-align:center;padding:.35rem .8rem;
+  background:var(--coral);color:#fff;border:var(--bd);border-radius:14px;box-shadow:3px 3px 0 var(--ink);font-family:var(--mono);font-weight:800;font-size:1.05rem;
+  transition:left .45s ease-in-out,opacity .3s;white-space:nowrap}
+
+.narr{min-height:2.6rem;font-weight:700;background:var(--sun-l);border:var(--bd);border-radius:12px;padding:.5rem .9rem;margin:.7rem 0}
+
+.wordcards{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin:.9rem 0}
+.wordcard{display:inline-flex;flex-direction:column;align-items:center;gap:.15rem;border:var(--bd);border-radius:12px;padding:.45rem .6rem;background:#fff;animation:pop .3s both}
+.wordcard .A{font-size:1.05rem;font-weight:800;font-family:var(--mono)}
+.wordcard .lab{font-size:.66rem;color:#7D7A75}
+.wordcard .B{font-size:.75rem;font-family:var(--mono);font-weight:800;color:var(--blue)}
+@keyframes pop{from{transform:scale(.3);opacity:.2}70%{transform:scale(1.15)}to{transform:scale(1);opacity:1}}
+
+.fluxbox{border:var(--bd);border-radius:12px;background:var(--blue-l);padding:.7rem 1rem;margin-top:.8rem;font-family:var(--mono);font-weight:800;
+  font-size:.85rem;text-align:center;word-break:break-all;min-height:1.6rem}
+
+.speaker-out{text-align:center;margin:1rem auto;max-width:380px}
+.speaker-out .ic{font-size:2.6rem;display:inline-block;transition:transform .15s}
+.speaker-out .ic.pulse{animation:pulse .3s ease}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
+
+.msg{margin-top:1rem;font-weight:800;font-size:1.05rem;min-height:1.6rem;text-align:center}
+.msg.ok{color:#0B7A55}
+.actions{display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap;margin-top:1.2rem}
+.note{font-size:.9rem;color:#5b577e;text-align:center;margin-top:.6rem}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>🎙️ Coder et décoder un son</h1>
+  <p>Séquence 1 — Définitions et vocabulaire de base · Le son, un 3ᵉ type d'information (après le texte et l'image)</p>
+</header>
+
+<main class="wrap">
+  <div class="instr">
+    <p>Le microphone capte un son qui <b>monte et descend</b> (une onde sonore). L'ordinateur découpe cette onde en plusieurs points (des <b>échantillons</b>), et code la hauteur de chaque point en binaire — exactement comme on codait la couleur de chaque pixel !</p>
+    <p>Ici, chaque échantillon a une hauteur de <b>0 à 7</b>, codée sur <b>3 bits</b>.</p>
+  </div>
+
+  <div class="card">
+    <div class="wavebox">
+      <small>🎙️ Son capté par le microphone (8 échantillons)</small>
+      <svg viewBox="0 0 320 120" id="srcWave">
+        <polyline points="20,68 60,44 100,20 140,44 180,68 220,92 260,104 300,92" fill="none" stroke="#3D3BF3" stroke-width="3"/>
+      </svg>
+    </div>
+
+    <div class="track">
+      <div class="packet" id="packet"></div>
+      <div class="stns">
+        <div class="stn" id="stnMic"><span class="em">🎙️</span><span class="lb">Microphone</span></div>
+        <div class="stn" id="stnUC"><span class="em">🖥️</span><span class="lb">Unité centrale</span></div>
+        <div class="stn" id="stnSpk"><span class="em">🔊</span><span class="lb">Haut-parleurs</span></div>
+      </div>
+    </div>
+
+    <div class="phase-title"><span class="phase-badge" id="badge1">1</span> Codage : le son est échantillonné, point par point</div>
+    <button class="btn blue big" id="btnPhase1">🎙️ Enregistrer et coder le son</button>
+    <div class="narr" id="narr1" style="display:none"></div>
+    <div class="wordcards" id="wordcards1"></div>
+    <div class="fluxbox" id="fluxbox" style="display:none"></div>
+
+    <div id="phase2Block" style="display:none; margin-top:1.4rem;">
+      <div class="phase-title"><span class="phase-badge coral" id="badge2">2</span> Décodage : le son est reconstitué, point par point</div>
+      <button class="btn blue big" id="btnPhase2">🔊 Décoder et jouer le son</button>
+      <div class="narr" id="narr2" style="display:none"></div>
+      <div class="wordcards" id="wordcards2"></div>
+      <div class="wavebox">
+        <small>🔊 Son reconstitué pour les haut-parleurs</small>
+        <svg viewBox="0 0 320 120" id="dstWave">
+          <polyline id="dstLine" points="" fill="none" stroke="#22C58B" stroke-width="3"/>
+        </svg>
+      </div>
+      <div class="speaker-out">
+        <span class="ic" id="speakerIcon">🔈</span>
+      </div>
+    </div>
+
+    <div class="msg" id="msg"></div>
+
+    <div class="actions">
+      <button class="btn" id="resetBtn">↺ Recommencer</button>
+    </div>
+    <p class="note">Rien n'est enregistré : cette page sert de démonstration à revoir autant de fois que tu veux.</p>
+  </div>
+</main>
+
+<script>
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+const SVGNS = 'http://www.w3.org/2000/svg';
+
+// 8 échantillons de hauteur (0 à 7), codés sur 3 bits
+const XS = [20,60,100,140,180,220,260,300];
+const AMPS = [3,5,7,5,3,1,0,1];
+const yOf = a => 104 - a*12;
+const toBin3 = n => n.toString(2).padStart(3,'0');
+const SAMPLES = AMPS.map((a,i) => ({ x:XS[i], y:yOf(a), amp:a, bin:toBin3(a) }));
+
+// Points de la source, avec petits cercles
+const srcWave = document.getElementById('srcWave');
+SAMPLES.forEach((s, i) => {
+  const c = document.createElementNS(SVGNS, 'circle');
+  c.setAttribute('cx', s.x); c.setAttribute('cy', s.y); c.setAttribute('r', 5);
+  c.setAttribute('fill', '#fff'); c.setAttribute('stroke', '#1B1740'); c.setAttribute('stroke-width', 2);
+  c.id = 'srcPt' + i;
+  srcWave.appendChild(c);
+});
+
+const stnMic = document.getElementById('stnMic');
+const stnUC = document.getElementById('stnUC');
+const stnSpk = document.getElementById('stnSpk');
+const packet = document.getElementById('packet');
+const stns = [stnMic, stnUC, stnSpk];
+
+function moveTo(i, txt){
+  if (txt != null) packet.textContent = txt;
+  packet.style.left = ((i + .5) * 100 / 3) + '%';
+  stns.forEach((s, j) => s.classList.toggle('on', j === i));
+}
+function resetTrack(){
+  packet.style.transition = 'none';
+  moveTo(0, '');
+  void packet.offsetWidth;
+  packet.style.transition = '';
+  packet.style.opacity = 0;
+}
+
+const btnPhase1 = document.getElementById('btnPhase1');
+const btnPhase2 = document.getElementById('btnPhase2');
+const narr1 = document.getElementById('narr1');
+const narr2 = document.getElementById('narr2');
+const wordcards1 = document.getElementById('wordcards1');
+const wordcards2 = document.getElementById('wordcards2');
+const fluxbox = document.getElementById('fluxbox');
+const phase2Block = document.getElementById('phase2Block');
+const msg = document.getElementById('msg');
+const dstLine = document.getElementById('dstLine');
+const speakerIcon = document.getElementById('speakerIcon');
+const resetBtn = document.getElementById('resetBtn');
+
+btnPhase1.onclick = async () => {
+  btnPhase1.disabled = true;
+  narr1.style.display = 'block';
+  packet.style.opacity = 1;
+
+  for (let i = 0; i < SAMPLES.length; i++){
+    const s = SAMPLES[i];
+    document.getElementById('srcPt'+i).setAttribute('fill', '#FFD23F');
+    document.getElementById('srcPt'+i).setAttribute('r', 7);
+    narr1.textContent = 'Échantillon ' + (i+1) + ' / 8 : hauteur ' + s.amp + '…';
+    moveTo(0, String(s.amp));
+    await sleep(180);
+    moveTo(1, String(s.amp));
+    await sleep(380);
+
+    const card = document.createElement('div');
+    card.className = 'wordcard';
+    card.innerHTML = '<span class="A">'+s.amp+'</span><span class="lab">hauteur</span><span class="B">'+s.bin+'</span>';
+    wordcards1.appendChild(card);
+    narr1.textContent = 'Échantillon ' + (i+1) + ' codé : ' + s.amp + ' → ' + s.bin;
+    await sleep(280);
+  }
+
+  fluxbox.style.display = 'block';
+  fluxbox.textContent = SAMPLES.map(s => s.bin).join(' ');
+  narr1.textContent = '✅ Les 8 échantillons du son ont été codés en binaire.';
+  msg.textContent = '';
+  phase2Block.style.display = 'block';
+  btnPhase2.disabled = false;
+  phase2Block.scrollIntoView({ behavior:'smooth', block:'nearest' });
+};
+
+btnPhase2.onclick = async () => {
+  btnPhase2.disabled = true;
+  narr2.style.display = 'block';
+  let pointsStr = '';
+
+  for (let i = 0; i < SAMPLES.length; i++){
+    const s = SAMPLES[i];
+    narr2.textContent = 'Groupe ' + (i+1) + ' / 8 : ' + s.bin + ' part de l\'unité centrale…';
+    moveTo(1, s.bin);
+    await sleep(180);
+    moveTo(2, s.bin);
+    await sleep(380);
+
+    const card = document.createElement('div');
+    card.className = 'wordcard';
+    card.innerHTML = '<span class="B">'+s.bin+'</span><span class="lab">binaire</span><span class="A">'+s.amp+'</span>';
+    wordcards2.appendChild(card);
+
+    pointsStr += s.x + ',' + s.y + ' ';
+    dstLine.setAttribute('points', pointsStr.trim());
+    speakerIcon.textContent = '🔊';
+    speakerIcon.classList.remove('pulse'); void speakerIcon.offsetWidth; speakerIcon.classList.add('pulse');
+
+    narr2.textContent = s.bin + ' décodé → hauteur ' + s.amp;
+    await sleep(280);
+  }
+
+  narr2.textContent = '✅ Les 8 échantillons ont été décodés : l\'onde sonore est reconstituée.';
+  msg.textContent = '🎉 Bravo ! Le son a été capté, codé en binaire, puis décodé et rejoué par les haut-parleurs.';
+  msg.className = 'msg ok';
+  packet.style.opacity = 0;
+  stns.forEach(s => s.classList.remove('on'));
+};
+
+resetBtn.onclick = () => {
+  resetTrack();
+  stns.forEach(s => s.classList.remove('on'));
+  SAMPLES.forEach((s,i) => {
+    const pt = document.getElementById('srcPt'+i);
+    pt.setAttribute('fill', '#fff'); pt.setAttribute('r', 5);
+  });
+  btnPhase1.disabled = false;
+  btnPhase2.disabled = true;
+  narr1.style.display = 'none'; narr1.textContent = '';
+  narr2.style.display = 'none'; narr2.textContent = '';
+  wordcards1.innerHTML = ''; wordcards2.innerHTML = '';
+  fluxbox.style.display = 'none'; fluxbox.textContent = '';
+  phase2Block.style.display = 'none';
+  dstLine.setAttribute('points', '');
+  speakerIcon.textContent = '🔈'; speakerIcon.classList.remove('pulse');
+  msg.textContent = ''; msg.className = 'msg';
+};
+
+resetTrack();
+stns.forEach(s => s.classList.remove('on'));
+</script>
+<!-- a11y-clavier -->
+<script>
+(function(){
+  // Rend utilisables au clavier (Tab, Entrée/Espace, flèches) les éléments cliquables qui ne sont pas des boutons natifs.
+  var NATIVE = 'button,a[href],input,select,textarea,summary';
+  function enhance(){
+    document.querySelectorAll('body *').forEach(function(el){
+      if (typeof el.onclick !== 'function' || el.matches(NATIVE) || el.hasAttribute('data-kbd')) return;
+      el.setAttribute('data-kbd', '');
+      if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+      if (!el.hasAttribute('role')) el.setAttribute('role', 'button');
+      if (!el.textContent.trim() && !el.hasAttribute('aria-label')) {
+        el.setAttribute('aria-label', 'Case ' + (Array.prototype.indexOf.call(el.parentNode.children, el) + 1));
+      }
+    });
+  }
+  document.addEventListener('keydown', function(e){
+    var el = e.target;
+    if (!(el instanceof Element) || !el.hasAttribute('data-kbd')) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      el.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true}));
+      return;
+    }
+    var dir = {ArrowRight: 1, ArrowLeft: -1, ArrowDown: 'down', ArrowUp: 'up'}[e.key];
+    if (!dir) return;
+    var sibs = Array.prototype.filter.call(el.parentNode.children, function(s){ return s.hasAttribute('data-kbd'); });
+    if (sibs.length < 2) return;
+    var cols = getComputedStyle(el.parentNode).gridTemplateColumns.split(' ').filter(function(c){ return c && c !== 'none'; }).length || 1;
+    var step = dir === 'down' ? cols : dir === 'up' ? -cols : dir;
+    var next = sibs[sibs.indexOf(el) + step];
+    if (next) { e.preventDefault(); next.focus(); }
+  });
+  document.querySelectorAll('#msg,.msg,#progress,.progress,.narr').forEach(function(el){
+    if (!el.hasAttribute('aria-live')) el.setAttribute('aria-live', 'polite');
+  });
+  var pending = false;
+  new MutationObserver(function(){
+    if (pending) return;
+    pending = true;
+    setTimeout(function(){ pending = false; enhance(); }, 0);
+  }).observe(document.body, {childList: true, subtree: true});
+  enhance();
+})();
+</script>
+</body>
+</html>

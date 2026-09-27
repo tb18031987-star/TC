@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le langage machine et le système binaire</title>
+<style>
+/* ============ Jetons de design ============ */
+:root{
+  --ink:#1B1740; --paper:#F1EFFF; --card:#fff;
+  --blue:#3D3BF3; --blue-l:#DDDCFF;
+  --sun:#FFD23F; --sun-l:#FFF3BF;
+  --coral:#FF5D73; --coral-l:#FFE0E5;
+  --mint:#22C58B; --mint-l:#D5F7EA;
+  --sky:#BFE6FF;
+  --bd:3px solid var(--ink);
+  --sh:4px 4px 0 var(--ink);
+  --mono:"Consolas","SF Mono","Courier New",monospace;
+}
+*{box-sizing:border-box}
+html{font-size:17px}
+body{margin:0;color:var(--ink);background:var(--paper);min-height:100vh;
+  background-image:radial-gradient(var(--blue-l) 1.5px,transparent 1.5px);background-size:26px 26px;
+  font-family:"Arial Rounded MT Bold","Nunito","Trebuchet MS","Segoe UI",system-ui,sans-serif;line-height:1.5}
+h1,h2,h3{line-height:1.15;margin:0 0 .6rem}
+p{margin:0 0 .8rem}
+.mono{font-family:var(--mono);font-weight:800}
+button{font:inherit;color:inherit}
+:focus-visible{outline:4px solid var(--blue);outline-offset:3px}
+
+/* ============ Boutons et petits éléments ============ */
+.btn{font-weight:800;border:var(--bd);border-radius:999px;padding:.55rem 1.3rem;background:var(--sun);
+  box-shadow:3px 3px 0 var(--ink);cursor:pointer;transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--ink)}
+.btn.blue{background:var(--blue);color:#fff}
+.btn.mint{background:var(--mint)}
+.btn.coral{background:var(--coral)}
+.btn.big{font-size:1.15rem;padding:.75rem 1.7rem}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.mini{border:var(--bd);background:#fff;border-radius:12px;width:2.4rem;height:2.4rem;cursor:pointer;font-size:1.1rem;box-shadow:2px 2px 0 var(--ink)}
+.chip{border:var(--bd);border-radius:999px;padding:.1rem .8rem;font-weight:800;background:#fff}
+.okc{background:var(--mint-l)} .errc{background:var(--coral-l)}
+.card{background:var(--card);border:var(--bd);border-radius:18px;box-shadow:var(--sh);padding:1.2rem 1.4rem}
+.lead{font-size:1.05rem}
+
+/* ============ En-tête et moniteur 50 min ============ */
+.top{position:sticky;top:0;z-index:20;display:flex;flex-wrap:wrap;gap:.7rem 1.2rem;align-items:center;justify-content:space-between;
+  padding:.6rem 1rem;background:var(--ink);color:#fff;border-bottom:var(--bd)}
+.brand{display:flex;align-items:center;gap:.6rem;font-weight:800}
+.brand b{font-family:var(--mono);background:var(--sun);color:var(--ink);border-radius:8px;padding:.1rem .5rem}
+.timer{display:grid;gap:.25rem;min-width:min(340px,100%);flex:1;max-width:420px}
+.tface{display:flex;align-items:center;gap:.6rem;justify-content:space-between}
+.tlab{font-size:.8rem;opacity:.8}
+#tmr{font-size:1.8rem;line-height:1;background:#fff;color:var(--ink);border-radius:10px;padding:.1rem .7rem;border:var(--bd)}
+#tmr.late{background:var(--coral)}
+.tbar{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.seg{height:10px;border-radius:6px;background:#3a3566;overflow:hidden}
+.seg i{display:block;height:100%;width:0;background:var(--sun)}
+.tstat{font-size:.8rem}
+.tstat.ok{color:#8FF0C8} .tstat.bad{color:#FFB0BC}
+.tools{display:flex;align-items:center;gap:.5rem}
+
+/* ============ Cadre principal ============ */
+#app{max-width:1000px;margin:0 auto;padding:1rem 1rem 6rem}
+body.paused #app{filter:blur(10px);pointer-events:none}
+.pausebanner{display:none;position:fixed;inset:35% 0 auto;text-align:center;font-size:2rem;font-weight:800;z-index:30}
+body.paused .pausebanner{display:block}
+
+/* ============ Page de garde ============ */
+.cover{display:grid;grid-template-columns:1.1fr 1fr;gap:1.6rem;align-items:start;padding-top:1rem}
+.hero h1{font-size:2.6rem}
+.hero .sub{font-size:1.4rem;color:var(--blue);font-weight:800}
+.hero .lvl{display:inline-block;background:var(--sun);border:var(--bd);border-radius:10px;padding:.1rem .7rem;margin-bottom:.8rem;font-weight:800}
+.flipper{display:inline-grid;place-items:center;min-width:11rem;height:5rem;padding:0 1.2rem;margin:.6rem 0 1rem;
+  background:var(--blue);color:#fff;border:var(--bd);border-radius:16px;box-shadow:var(--sh);font-family:var(--mono);font-weight:800;font-size:2.4rem}
+.rules{padding-left:1.2rem}
+.rules li{margin-bottom:.3rem}
+.setup label{display:block;font-weight:800;margin:.6rem 0 .2rem}
+.inp{font:inherit;width:100%;padding:.5rem .8rem;border:var(--bd);border-radius:12px;background:#fff}
+.inp.mono{letter-spacing:.05em}
+.err{color:#C21F3A;font-weight:800;min-height:1.4rem}
+.resume{background:var(--sun-l);margin-top:1rem}
+
+/* ============ Barre de progression ============ */
+.chs{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.6rem}
+.ch{flex:1;min-width:140px;display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:.5rem;align-items:center;
+  border:var(--bd);border-radius:14px;padding:.35rem .7rem;background:#fff}
+.ch .n{grid-row:span 2;display:grid;place-items:center;width:1.9rem;height:1.9rem;border-radius:50%;border:var(--bd);font-weight:800;background:var(--paper)}
+.ch .t{font-weight:800;font-size:.9rem;line-height:1.1}
+.ch small{font-size:.75rem;opacity:.7}
+.ch.done{background:var(--mint-l)} .ch.done .n{background:var(--mint)}
+.ch.cur{background:var(--blue);color:#fff;box-shadow:var(--sh)} .ch.cur .n{background:var(--sun);color:var(--ink)}
+.ch.lock{opacity:.55}
+.sts{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem}
+.s{border:var(--bd);border-radius:999px;padding:.15rem .8rem;font-size:.9rem;font-weight:800;background:#fff}
+.s.done{background:var(--mint-l)} .s.cur{background:var(--sun)} .s.lock{opacity:.5}
+
+/* ============ Scène d’une étape ============ */
+.stage{min-height:340px}
+.stage-h{font-size:1.6rem;display:flex;align-items:center;gap:.6rem}
+.stage-h .sm{font-size:.95rem;font-weight:700;opacity:.65}
+.foot{margin-top:1.4rem;text-align:right}
+
+/* Questions */
+.q{border:var(--bd);border-radius:14px;padding:.9rem 1rem;margin:0 0 1rem;background:var(--sun-l)}
+.q.solved{background:var(--mint-l)}
+.qt{font-weight:800;margin-bottom:.6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opt{border:var(--bd);border-radius:12px;background:#fff;padding:.4rem 1rem;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 var(--ink)}
+.opt:hover:not(:disabled){background:var(--blue-l)}
+.opt.good{background:var(--mint)} .opt.bad{background:var(--coral-l);text-decoration:line-through}
+.opt:disabled:not(.good){opacity:.6}
+.fb{margin:.6rem 0 0;font-weight:700;min-height:1.2rem}
+.fb.good{color:#0B7A55} .fb.bad{color:#C21F3A}
+.row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.row .inp{flex:1;min-width:8rem}
+.shake{animation:shake .35s}
+@keyframes shake{20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+
+/* Phrases à trous */
+.gapline{font-size:1.15rem;line-height:2.4}
+.gap{font:inherit;font-weight:800;min-width:5.2rem;border:3px dashed var(--ink);border-radius:10px;background:#fff;padding:.05rem .6rem;cursor:pointer}
+.gap.act{background:var(--sun);border-style:solid}
+.gap.full{background:var(--mint);border-style:solid;cursor:default}
+.bank{display:flex;flex-wrap:wrap;gap:.5rem;margin:.6rem 0 1rem}
+.bchip{border:var(--bd);border-radius:10px;background:var(--blue);color:#fff;padding:.25rem .9rem;font-weight:800;cursor:pointer;box-shadow:2px 2px 0 var(--ink)}
+.bchip:active{transform:translate(2px,2px);box-shadow:none}
+
+/* Bits, lampes */
+.bits{display:inline-flex;gap:4px;flex-wrap:wrap;vertical-align:middle}
+.bit{display:inline-grid;place-items:center;width:1.9rem;height:2.4rem;border:var(--bd);border-radius:8px;background:#fff;font-family:var(--mono);font-weight:800;
+  animation:pop .35s both;animation-delay:calc(var(--i,0)*60ms)}
+.bit.on{background:var(--sun)}
+@keyframes pop{from{transform:scale(.2);opacity:0}70%{transform:scale(1.2)}to{transform:scale(1);opacity:1}}
+.lamps{display:flex;gap:.8rem;flex-wrap:wrap;margin:1rem 0}
+.lamp{width:5.6rem;border:var(--bd);border-radius:16px;background:#fff;padding:.5rem .3rem;text-align:center;cursor:pointer;box-shadow:var(--sh)}
+.lamp .bulb{width:2.6rem;height:2.6rem;margin:0 auto .3rem;border-radius:50%;border:var(--bd);background:#ddd;transition:background .15s,box-shadow .15s}
+.lamp.on .bulb{background:var(--sun);box-shadow:0 0 0 6px var(--sun-l),0 0 22px 6px var(--sun)}
+.lamp b{display:block;font-size:1.3rem}
+.lamp small{display:block;font-size:.75rem}
+.total{font-size:1.3rem;font-weight:800;margin:.4rem 0}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin:1rem 0}
+.compare div{border:var(--bd);border-radius:14px;padding:.6rem;text-align:center;background:#fff}
+.compare b{display:block;font-size:2rem;font-family:var(--mono)}
+
+/* Trajet de la lettre A */
+.track{position:relative;padding-top:4.2rem;margin:.6rem 0 1.2rem}
+.stns{display:grid;grid-template-columns:repeat(5,1fr);gap:.4rem}
+.stn{border:var(--bd);border-radius:14px;background:#fff;text-align:center;padding:.4rem .2rem;transition:background .2s,transform .2s}
+.stn .em{display:block;font-size:1.9rem}
+.stn .lb{font-size:.78rem;font-weight:800}
+.stn.on{background:var(--sun);transform:translateY(-4px)}
+.packet{position:absolute;top:0;left:10%;transform:translateX(-50%);opacity:0;min-width:3.4rem;text-align:center;padding:.3rem .7rem;
+  background:var(--coral);color:#fff;border:var(--bd);border-radius:14px;box-shadow:3px 3px 0 var(--ink);font-family:var(--mono);font-weight:800;font-size:1.3rem;
+  transition:left .8s ease-in-out,opacity .3s}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;margin:.6rem 0}
+.lnk{border:var(--bd);border-radius:14px;padding:.3rem .9rem;text-align:center;background:var(--blue-l);animation:pop .4s both}
+.lnk small{display:block;font-size:.75rem;font-weight:700}
+.lnk b{font-size:1.3rem;font-family:var(--mono)}
+.arrow{font-size:1.5rem;font-weight:800;animation:pop .4s both}
+
+/* Explorateurs */
+.letters{display:flex;flex-wrap:wrap;gap:.35rem;margin:.6rem 0}
+.letters button{width:2.2rem;height:2.2rem;border:var(--bd);border-radius:8px;background:#fff;font-weight:800;cursor:pointer;font-family:var(--mono)}
+.letters button.seen{background:var(--mint-l)} .letters button.cur{background:var(--sun)}
+.exout{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;border:var(--bd);border-radius:14px;background:var(--sun-l);padding:.7rem 1rem;min-height:4.4rem}
+.exout .big{font-size:2rem;font-family:var(--mono);font-weight:800}
+.trow{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin:.4rem 0;animation:pop .4s both}
+.trow .ch2{width:2.4rem;height:2.4rem;display:grid;place-items:center;background:var(--coral);color:#fff;border:var(--bd);border-radius:10px;font-family:var(--mono);font-weight:800}
+.trow .code{min-width:2.6rem;text-align:center;font-family:var(--mono);font-weight:800;font-size:1.2rem}
+.cpu{margin-top:1rem;border:var(--bd);border-radius:16px;background:var(--ink);color:#fff;padding:.6rem 1rem;overflow:hidden;box-shadow:0 0 0 5px var(--blue-l)}
+.cpu .stream{white-space:nowrap;font-family:var(--mono);font-weight:800;font-size:1.4rem;color:var(--sun);animation:flow 6s linear infinite}
+@keyframes flow{from{transform:translateX(-60%)}to{transform:translateX(60%)}}
+.sl{width:100%;max-width:520px;accent-color:var(--blue)}
+
+/* Divisions successives */
+.div{border:var(--bd);border-radius:14px;background:#fff;padding:.6rem 1rem;margin:.6rem 0;font-family:var(--mono);font-weight:700}
+.dl{padding:.1rem 0;animation:pop .35s both}
+.dl .rest{color:var(--coral);background:transparent;padding:0 .3rem;border-radius:6px}
+.dl.hl .rest{background:var(--sun);color:var(--ink)}
+.res{margin-top:.5rem;font-size:1.2rem}
+details{margin-top:.5rem}
+summary{cursor:pointer;font-weight:800}
+
+/* Cahier, tableaux */
+.notebook{background:#FFFEF5;border:var(--bd);border-radius:14px;padding:.8rem 1.2rem;margin:.6rem 0 1rem;
+  background-image:repeating-linear-gradient(transparent,transparent 31px,#cfd8ff 32px);line-height:32px}
+.notebook p{margin:0;line-height:32px;transition:opacity .5s}
+.notebook .hid{opacity:0}
+.notebook .ex{font-family:var(--mono);font-weight:800;color:var(--blue)}
+.notebook h3{line-height:32px;margin:0}
+.ascii{display:grid;grid-template-columns:repeat(auto-fill,minmax(4.2rem,1fr));gap:.3rem;margin:.6rem 0}
+.ascii span{border:2px solid var(--ink);border-radius:8px;background:#fff;text-align:center;font-size:.85rem;font-family:var(--mono);font-weight:800}
+.wts{display:flex;gap:4px;font-size:.7rem;font-family:var(--mono);font-weight:800}
+.wts span{width:1.9rem;text-align:center}
+.pick{display:flex;flex-wrap:wrap;gap:.5rem;margin:.5rem 0}
+.pick .opt{font-family:var(--mono)}
+.ord{position:relative}
+.ord .num{display:inline-grid;place-items:center;width:1.6rem;height:1.6rem;border-radius:50%;background:var(--ink);color:#fff;margin-right:.4rem;font-size:.85rem}
+
+/* Explications, poids des bits */
+.scene{background:var(--sky);margin-bottom:1rem;box-shadow:3px 3px 0 var(--ink)}
+.scene p:last-child{margin-bottom:0}
+.chat{font-size:1.3rem;font-weight:800}
+.narr{min-height:3.2rem;font-weight:700;background:var(--sun-l);border:var(--bd);border-radius:12px;padding:.5rem .9rem;margin:.8rem 0}
+.bw{display:inline-flex;gap:4px;margin:.4rem 0}
+.bwc{display:grid;justify-items:center;gap:2px}
+.bwc small{font-family:var(--mono);font-weight:800;font-size:.75rem}
+.packet{white-space:nowrap}
+/* Bitou */
+#bitou{position:fixed;right:.8rem;bottom:.8rem;z-index:25;display:flex;align-items:flex-end;gap:.4rem;pointer-events:none}
+#bubble{max-width:250px;background:#fff;border:var(--bd);border-radius:16px;padding:.5rem .8rem;font-size:.9rem;font-weight:700;box-shadow:var(--sh);
+  opacity:0;transform:translateY(8px);transition:.25s}
+#bitou.show #bubble{opacity:1;transform:none}
+#bitou.oops #bubble{background:var(--coral-l)}
+.conf{position:fixed;top:-30px;z-index:60;pointer-events:none;font-family:var(--mono);font-weight:800;font-size:1.5rem}
+
+/* Cahier (fenêtre) */
+dialog{border:var(--bd);border-radius:18px;box-shadow:var(--sh);max-width:640px;width:92%;padding:1.2rem;color:var(--ink)}
+dialog::backdrop{background:rgba(27,23,64,.6)}
+
+/* ============ Bilan ============ */
+.bilan h1{font-size:1.9rem}
+.info{display:grid;grid-template-columns:auto 1fr;gap:.2rem 1rem;margin-bottom:1rem}
+.info dt{font-weight:800} .info dd{margin:0}
+.results{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.8rem;margin:1rem 0}
+.res-c{border:var(--bd);border-radius:14px;padding:.6rem;text-align:center;background:#fff}
+.res-c b{display:block;font-size:1.9rem;font-family:var(--mono)}
+.res-c.stars{grid-column:1/-1;background:var(--sun);font-size:2.4rem;letter-spacing:.2rem}
+.res-c.stars small{display:block;font-size:1rem;letter-spacing:0}
+.map svg{width:100%;height:auto;display:block}
+.write table{width:100%;border-collapse:collapse}
+.write th,.write td{border:2px solid var(--ink);padding:.2rem .5rem;height:2.2rem;text-align:left}
+.actions{display:flex;gap:.8rem;flex-wrap:wrap;margin:1.2rem 0}
+
+@media (max-width:760px){
+  html{font-size:16px}
+  .cover{grid-template-columns:1fr}
+  .hero h1{font-size:2rem}
+  .ch .t{display:none} .ch.cur .t{display:block}
+  .ch{min-width:0}
+  .stn .lb{font-size:.62rem} .stn .em{font-size:1.4rem}
+  #bubble{max-width:170px;font-size:.8rem}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.notebook .hid{opacity:1}}
+
+/* ============ Impression (bilan) ============ */
+@page{size:A4;margin:10mm}
+@media print{
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:#fff}
+  .no-print,.top,.pausebanner,#bitou,dialog{display:none!important}
+  #app{padding:0;max-width:none}
+  .card{box-shadow:none;padding:.5rem .8rem;break-inside:avoid}
+  .bilan h1{font-size:1.4rem}
+  html{font-size:13px}
+}
+</style>
+</head>
+<body>
+
+<!-- En-tête : chrono de 50 minutes, score, cahier, son -->
+<header class="top no-print">
+  <div class="brand"><b>0101</b><span>Langage machine</span></div>
+  <div class="timer">
+    <div class="tface">
+      <span class="tlab">Temps restant (50 min)</span>
+      <span id="tmr" class="mono">50:00</span>
+      <button id="pause" class="mini" type="button" title="Pause" aria-label="Pause">⏸</button>
+    </div>
+    <div class="tbar" id="tbar"></div>
+    <span class="tstat" id="tstat">Le chrono démarre avec le cours.</span>
+  </div>
+  <div class="tools">
+    <span class="chip okc" id="okc" title="Bonnes réponses">✓ 0</span>
+    <span class="chip errc" id="errc" title="Erreurs">✗ 0</span>
+    <button id="cahierBtn" class="mini" type="button" title="Mon cahier" aria-label="Mon cahier">📒</button>
+    <button id="snd" class="mini" type="button" title="Son" aria-label="Activer le son">🔇</button>
+  </div>
+</header>
+
+<main id="app"></main>
+<div class="pausebanner">⏸ Pause : appuie sur ▶ pour continuer</div>
+
+<!-- Mascotte Bitou -->
+<div id="bitou" class="no-print" aria-live="polite">
+  <div id="bubble"></div>
+  <svg viewBox="0 0 64 64" width="58" height="58" aria-hidden="true">
+    <line x1="32" y1="4" x2="32" y2="15" stroke="#1B1740" stroke-width="3"/>
+    <circle cx="32" cy="6" r="4" fill="#FFD23F" stroke="#1B1740" stroke-width="3"/>
+    <rect x="8" y="26" width="6" height="12" rx="3" fill="#FF5D73" stroke="#1B1740" stroke-width="3"/>
+    <rect x="50" y="26" width="6" height="12" rx="3" fill="#FF5D73" stroke="#1B1740" stroke-width="3"/>
+    <rect x="12" y="15" width="40" height="38" rx="11" fill="#3D3BF3" stroke="#1B1740" stroke-width="3"/>
+    <circle cx="24" cy="31" r="6" fill="#fff" stroke="#1B1740" stroke-width="2.5"/><circle cx="25" cy="32" r="2.5" fill="#1B1740"/>
+    <circle cx="40" cy="31" r="6" fill="#fff" stroke="#1B1740" stroke-width="2.5"/><circle cx="41" cy="32" r="2.5" fill="#1B1740"/>
+    <path d="M23 44 Q32 50 41 44" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+  </svg>
+</div>
+
+<dialog id="cahier"><div id="cahierBody"></div><p style="text-align:right;margin:.6rem 0 0"><button class="btn" type="button" id="cahierClose">Fermer</button></p></dialog>
+
+<script>
+/* =====================================================================
+   COURS INTERACTIF : Le langage machine et le système binaire
+   Fonctionne 100 % hors ligne : aucun serveur, aucune bibliothèque externe.
+   Plan du code :
+   1. Outils      2. État et chrono     3. Types de questions
+   4. Contenu des chapitres             5. Écrans (garde, leçon, bilan)
+   ===================================================================== */
+(() => {
+'use strict';
+
+/* ---------- 1. Outils ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+// Fabrique d’éléments : h('div', {class:'x', onclick:fn}, enfants...)
+const h = (tag, a = {}, ...kids) => {
+  const e = document.createElement(tag);
+  for (const k in a) {
+    const v = a[k];
+    if (k === 'class') e.className = v;
+    else if (k === 'html') e.innerHTML = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v);
+  }
+  kids.flat().forEach(c => { if (c != null && c !== false) e.append(c.nodeType ? c : document.createTextNode(c)); });
+  return e;
+};
+const sleep = ms => new Promise(r => setTimeout(r, reduce ? Math.min(ms, 60) : ms));
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const norm = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+const bin = (n, l = 0) => n.toString(2).padStart(l, '0');
+const isBin = (v, n, len) => { v = v.replace(/\s/g, ''); return /^[01]+$/.test(v) && parseInt(v, 2) === n && (!len || v.length === len); };
+const shake = el => { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); };
+const shuffle = a => { const b = a.slice(); do { for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } } while (b.every((x, i) => x === a[i])); return b; };
+const bitsRow = (str, extra = '') => h('span', { class: 'bits ' + extra }, [...str].map((c, i) => h('span', { class: 'bit' + (c === '1' ? ' on' : ''), style: '--i:' + i }, c)));
+const scrollTo = el => el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'nearest' });
+
+/* Sons (facultatifs, générés par le navigateur) */
+let soundOn = false, ac;
+function tone(f, d = .12, t = 0, type = 'square') {
+  if (!soundOn) return;
+  try {
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    const o = ac.createOscillator(), g = ac.createGain(), s = ac.currentTime + t;
+    o.type = type; o.frequency.value = f; g.gain.setValueAtTime(.05, s);
+    g.gain.exponentialRampToValueAtTime(.0001, s + d);
+    o.connect(g); g.connect(ac.destination); o.start(s); o.stop(s + d);
+  } catch (e) {}
+}
+const sfx = { ok: () => { tone(660, .1); tone(880, .14, .09); }, bad: () => tone(160, .25, 0, 'sawtooth'), win: () => [523, 659, 784, 1047].forEach((f, i) => tone(f, .16, i * .1)) };
+
+/* Confettis : des 0 et des 1 qui tombent */
+function confetti(n = 26) {
+  if (reduce) return;
+  const cols = ['#3D3BF3', '#FF5D73', '#22C58B', '#FFB800'];
+  for (let i = 0; i < n; i++) {
+    const e = h('span', { class: 'conf' }, Math.random() < .5 ? '0' : '1');
+    e.style.left = Math.random() * 100 + 'vw'; e.style.color = cols[i % 4];
+    document.body.append(e);
+    e.animate([{ transform: 'translateY(0) rotate(0)', opacity: 1 }, { transform: `translateY(${innerHeight + 60}px) rotate(${Math.random() * 540 - 270}deg)`, opacity: .8 }],
+      { duration: 1400 + Math.random() * 1400, easing: 'cubic-bezier(.2,.6,.4,1)' }).onfinish = () => e.remove();
+  }
+}
+
+/* Mascotte */
+let bt;
+function say(msg, mood = 'hi') {
+  const b = $('#bitou'); $('#bubble').textContent = msg; b.className = 'show ' + mood;
+  clearTimeout(bt); bt = setTimeout(() => b.classList.remove('show'), 7000);
+}
+
+/* ---------- 2. État, sauvegarde, chrono ---------- */
+const TOTAL = 3000;                       // 50 minutes en secondes
+const KEY = 'cours-binaire-v2';
+const MINS = [5, 8, 8, 9, 12, 8];        // minutes par chapitre (total 50)
+const CUM = MINS.map((m, i) => MINS.slice(0, i + 1).reduce((a, c) => a + c, 0) * 60);
+const fresh = () => ({ ok: 0, err: 0, used: 0, ch: 0, st: 0, started: false, done: false, paused: false, cahier: [] });
+let S = fresh();
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+const load = () => { try { return JSON.parse(localStorage.getItem(KEY)); } catch (e) { return null; } };
+const wipe = () => { try { localStorage.removeItem(KEY); } catch (e) {} };
+
+function record(good, hint) {
+  if (good) { S.ok++; sfx.ok(); } else { S.err++; sfx.bad(); if (hint) say(hint, 'oops'); }
+  updateChips(); save();
+}
+function updateChips() { $('#okc').textContent = '✓ ' + S.ok; $('#errc').textContent = '✗ ' + S.err; }
+
+const fmt = sec => { const n = sec < 0; sec = Math.abs(sec); return (n ? '−' : '') + String(Math.floor(sec / 60)).padStart(2, '0') + ':' + String(sec % 60).padStart(2, '0'); };
+const tbar = $('#tbar');
+tbar.style.gridTemplateColumns = MINS.map(m => m + 'fr').join(' ');
+MINS.forEach(() => tbar.append(h('div', { class: 'seg' }, h('i'))));
+function drawTimer() {
+  const left = TOTAL - S.used;
+  const t = $('#tmr'); t.textContent = fmt(left); t.classList.toggle('late', left <= 300);
+  [...tbar.children].forEach((s, i) => { const start = i ? CUM[i - 1] : 0; s.firstChild.style.width = Math.max(0, Math.min(1, (S.used - start) / (CUM[i] - start))) * 100 + '%'; });
+  const st = $('#tstat');
+  if (!S.started) { st.textContent = 'Le chrono démarre avec le cours.'; st.className = 'tstat'; }
+  else if (S.done) { st.textContent = 'Cours terminé en ' + fmt(S.used) + '.'; st.className = 'tstat ok'; }
+  else if (S.ch < Math.max(0, CUM.findIndex(c => S.used < c) === -1 ? CUM.length - 1 : CUM.findIndex(c => S.used < c))) { st.textContent = '⚠ En retard : accélère !'; st.className = 'tstat bad'; }
+  else { st.textContent = '✔ Dans les temps'; st.className = 'tstat ok'; }
+}
+setInterval(() => {
+  if (S.started && !S.paused && !S.done) {
+    S.used++; drawTimer(); if (S.used % 5 === 0) save();
+    if (S.used === TOTAL) { say('⏰ Les 50 minutes sont écoulées ! Termine ta mission.', 'oops'); sfx.win(); }
+  }
+}, 1000);
+$('#pause').onclick = () => {
+  if (!S.started || S.done) return;
+  S.paused = !S.paused; document.body.classList.toggle('paused', S.paused); $('#pause').textContent = S.paused ? '▶' : '⏸'; save();
+};
+$('#snd').onclick = () => { soundOn = !soundOn; $('#snd').textContent = soundOn ? '🔊' : '🔇'; sfx.ok(); };
+$('#cahierBtn').onclick = () => {
+  const body = $('#cahierBody'); body.replaceChildren(h('h2', {}, '📒 Mon cahier'));
+  const list = [...new Set(S.cahier)].sort();
+  if (!list.length) body.append(h('p', {}, 'Tes traces écrites apparaîtront ici au fil du cours.'));
+  list.forEach(i => body.append(h('div', { class: 'notebook', html: '<h3>' + CH[i].title + '</h3>' + TR[i] })));
+  $('#cahier').showModal();
+};
+$('#cahierClose').onclick = () => $('#cahier').close();
+
+/* ---------- 3. Types de questions ---------- */
+// Choix multiple (aussi utilisé pour Vrai/Faux)
+function mcq(host, o, done) {
+  const box = h('div', { class: 'q' }, h('p', { class: 'qt' }, o.q));
+  const list = h('div', { class: 'opts' }), fb = h('p', { class: 'fb', 'aria-live': 'polite' });
+  let over = false;
+  o.opts.forEach((t, i) => {
+    const b = h('button', { class: 'opt', type: 'button' }, t);
+    b.onclick = () => {
+      if (over || b.disabled) return;
+      if (i === o.ok) {
+        over = true; b.classList.add('good'); record(true); box.classList.add('solved');
+        fb.className = 'fb good'; fb.textContent = '✅ ' + (o.why || 'Bravo !');
+        [...list.children].forEach(x => x.disabled = true); done && done();
+      } else {
+        b.classList.add('bad'); b.disabled = true; record(false, o.hint || 'Regarde bien et réessaie !');
+        fb.className = 'fb bad'; fb.textContent = '❌ ' + (o.hint || 'Pas tout à fait, réessaie !');
+      }
+    };
+    list.append(b);
+  });
+  box.append(list, fb); host.append(box); scrollTo(box); return box;
+}
+const tf = (host, q, ok, why, done) => mcq(host, { q, opts: ['Vrai', 'Faux'], ok: ok ? 0 : 1, why }, done);
+
+// Réponse à saisir
+function ask(host, o, done) {
+  const box = h('div', { class: 'q' }, h('p', { class: 'qt' }, o.q), o.pre || null);
+  const inp = h('input', { class: 'inp' + (o.mono ? ' mono' : ''), type: 'text', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', placeholder: o.ph || 'Ta réponse', 'aria-label': o.q });
+  const btn = h('button', { class: 'btn blue', type: 'button' }, 'Valider');
+  const fb = h('p', { class: 'fb', 'aria-live': 'polite' });
+  const row = h('div', { class: 'row' }, inp, btn);
+  if (o.help) {
+    const hb = h('button', { class: 'btn', type: 'button' }, '💡 Indice');
+    hb.onclick = () => { hb.disabled = true; box.append(o.help()); };
+    row.append(hb);
+  }
+  const test = () => {
+    const v = inp.value.trim(); if (!v) return;
+    if (o.check(v)) {
+      record(true); inp.disabled = btn.disabled = true; box.classList.add('solved');
+      fb.className = 'fb good'; fb.textContent = '✅ ' + (o.why || 'Bravo !');
+      o.after && o.after(box); done && done();
+    } else {
+      record(false, o.hint); fb.className = 'fb bad'; fb.textContent = '❌ ' + (o.hint || 'Ce n’est pas ça, réessaie !'); shake(inp); inp.select();
+    }
+  };
+  btn.onclick = test; inp.onkeydown = e => { if (e.key === 'Enter') test(); };
+  box.append(row, fb); host.append(box); scrollTo(box); inp.focus({ preventScroll: true }); return box;
+}
+
+// Phrase à trous : on clique sur une étiquette pour remplir le trou actif
+function gapfill(host, o, done) {
+  const box = h('div', { class: 'q' }); const line = h('p', { class: 'gapline' });
+  const slots = [], filled = []; let active = 0;
+  o.parts.forEach(p => {
+    if (typeof p === 'number') {
+      const s = h('button', { class: 'gap', type: 'button', 'aria-label': 'Trou ' + (p + 1) }, '…');
+      s.onclick = () => { if (!filled[p]) { active = p; paint(); } };
+      slots[p] = s; line.append(s);
+    } else line.append(p);
+  });
+  const fb = h('p', { class: 'fb' }); const bank = h('div', { class: 'bank' });
+  const paint = () => slots.forEach((s, i) => s.classList.toggle('act', !filled[i] && i === active));
+  o.bank.forEach(w => {
+    const c = h('button', { class: 'bchip', type: 'button' }, w);
+    c.onclick = () => {
+      if (filled[active]) return;
+      const dup = (o.unique || []).some(g => g.includes(active) && g.some(j => j !== active && filled[j] === w));
+      if (o.gaps[active].includes(w) && !dup) {
+        filled[active] = w; slots[active].textContent = w; slots[active].classList.add('full'); record(true);
+        fb.className = 'fb good'; fb.textContent = '✅';
+        const nx = slots.findIndex((_, i) => !filled[i]);
+        if (nx === -1) { box.classList.add('solved'); paint(); done && done(); } else { active = nx; paint(); }
+      } else {
+        record(false, 'Ce mot ne va pas ici. Relis la phrase !'); fb.className = 'fb bad'; fb.textContent = '❌ Essaie un autre mot.'; shake(slots[active]);
+      }
+    };
+    bank.append(c);
+  });
+  box.append(line, bank, fb); host.append(box); paint(); return box;
+}
+
+// Remettre des étapes dans l’ordre (clics successifs)
+function orderQ(host, o, done) {
+  const box = h('div', { class: 'q ord' }, h('p', { class: 'qt' }, o.q)); const list = h('div', { class: 'opts' }); let n = 0;
+  shuffle(o.items).forEach(t => {
+    const b = h('button', { class: 'opt', type: 'button' }, t);
+    b.onclick = () => {
+      if (b.disabled) return;
+      if (t === o.items[n]) {
+        n++; b.disabled = true; b.classList.add('good'); b.prepend(h('span', { class: 'num' }, String(n))); sfx.ok();
+        if (n === o.items.length) { record(true); box.classList.add('solved'); done && done(); }
+      } else { record(false, 'Ce n’est pas la prochaine étape. Pense au voyage de l’information !'); shake(b); }
+    };
+    list.append(b);
+  });
+  box.append(list); host.append(box); scrollTo(box);
+}
+
+// Enchaîne des questions l’une après l’autre
+function seq(host, fns, done) {
+  let i = 0;
+  const next = () => { if (i >= fns.length) { done && done(); return; } const f = fns[i++]; f(host, () => setTimeout(next, 500)); };
+  next();
+}
+const label = t => (host, cb) => { host.append(h('h3', {}, t)); cb(); };
+
+/* Divisions successives : décimal → binaire */
+const divRows = n => { const r = []; let q = n; while (q > 0) { r.push([q, Math.floor(q / 2), q % 2]); q = Math.floor(q / 2); } return r; };
+function divBox(n) {
+  const b = h('div', { class: 'div' });
+  divRows(n).forEach(([a, q, r]) => b.append(h('div', { class: 'dl' }, `${a} ÷ 2 = ${q}  `, h('span', { class: 'rest' }, 'reste ' + r))));
+  b.append(h('div', { class: 'res' }, `On lit les restes de bas en haut : ${n} = ${bin(n)}₂`)); return b;
+}
+const divHelp = n => () => h('details', { open: '' }, h('summary', {}, 'Divisions de ' + n), divBox(n));
+
+/* ---------- 4. Contenu ---------- */
+const b = t => h('b', {}, t);
+const scene = (...k) => h('div', { class: 'card scene' }, ...k);
+const asciiTable = () => h('div', { class: 'ascii' }, [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'].map(c => h('span', {}, c + ' = ' + c.charCodeAt(0))));
+const groupNote = t => h('p', { class: 'lead' }, '👥 ', t);
+// Bits avec le « poids » de chaque case au-dessus
+const bitsW = (str, W) => h('div', { class: 'bw' }, [...str].map((c, i) => h('div', { class: 'bwc' }, h('small', {}, String(W[i])), h('span', { class: 'bit' + (c === '1' ? ' on' : '') }, c))));
+const wOf = L => Array.from({ length: L }, (_, i) => 2 ** (L - 1 - i));
+// Rangée de lampes cliquables
+function lampSet(W, on, cb, lab) {
+  const wrap = h('div', { class: 'lamps' });
+  const els = W.map((w, i) => {
+    const bt = h('button', { class: 'lamp', type: 'button', 'aria-pressed': 'false' }, h('div', { class: 'bulb' }), h('b', {}, '0'), h('small', {}, lab ? lab(w, i) : 'vaut ' + w));
+    bt.onclick = () => { on[i] ^= 1; sfx.ok(); draw(); cb && cb(); }; wrap.append(bt); return bt;
+  });
+  const draw = () => els.forEach((bt, i) => { bt.classList.toggle('on', !!on[i]); bt.setAttribute('aria-pressed', !!on[i]); bt.querySelector('b').textContent = on[i]; });
+  draw(); return { wrap, draw };
+}
+// Piste animée avec un paquet qui se déplace de case en case
+function makeTrack(items) {
+  const n = items.length;
+  const cells = items.map(([e, l]) => h('div', { class: 'stn' }, h('span', { class: 'em' }, e), h('span', { class: 'lb' }, l)));
+  const pk = h('div', { class: 'packet' }, ''), el = h('div', { class: 'track' }, pk, h('div', { class: 'stns', style: `grid-template-columns:repeat(${n},1fr)` }, cells));
+  const move = (i, txt) => { if (txt != null) pk.textContent = txt; pk.style.left = ((i + .5) * 100 / n) + '%'; cells.forEach((c, j) => c.classList.toggle('on', j === i)); };
+  const reset = (txt) => { pk.style.transition = 'none'; move(0, txt); void pk.offsetWidth; pk.style.transition = ''; pk.style.opacity = 1; };
+  return { el, move, pk, reset };
+}
+const nextPhase = (zone, fn, txt = 'Suite ➜') => { const bt = h('button', { class: 'btn blue', type: 'button', style: 'margin-top:.6rem' }, txt); bt.onclick = fn; zone.append(bt); scrollTo(bt); };
+
+// Traces écrites (recopiées dans le cahier) : une par chapitre
+const TR = [
+  '<p>Un système informatique est un ensemble d’éléments <b>interconnectés</b> qui permettent de <b>traiter l’information</b>.</p><p class="ex">Donnée → Traitement → Résultat</p>',
+  '<p>Le système informatique <b>ne comprend pas directement</b> le langage humain.</p><p>Pour traiter les informations, il utilise un langage appelé <b>langage machine</b>.</p><p>Le langage machine représente les informations sous <b>forme binaire</b>.</p>',
+  '<p>Le système binaire utilise <b>deux symboles</b> : <b>0</b> et <b>1</b>.</p><p>Chaque symbole est appelé un <b>bit</b>.</p><p class="ex">Exemple : 5 → 101</p>',
+  '<p>La transformation d’une information humaine vers une forme comprise par le système informatique s’appelle le <b>codage</b>.</p><p class="ex">A → Code ASCII → 65 → 01000001</p>',
+  '<p><b>Décimal → binaire</b> : on divise par 2 jusqu’à obtenir 0, puis on lit les restes de bas en haut.</p><p><b>Binaire → décimal</b> : on additionne les poids (…, 8, 4, 2, 1) des bits égaux à 1.</p><p class="ex">15 = 1111₂ et 1010₂ = 8 + 2 = 10</p>'
+];
+const trace = i => async (host, done) => {
+  host.append(h('p', { class: 'lead' }, 'Lis bien, puis recopie cette trace écrite dans ton cahier ✍️'));
+  const nb = h('div', { class: 'notebook', html: TR[i] }); host.append(nb);
+  const ps = [...nb.children]; ps.forEach(p => p.classList.add('hid'));
+  const btn = h('button', { class: 'btn mint big', type: 'button' }, '✅ C’est copié dans mon cahier'); btn.hidden = true; host.append(btn);
+  btn.onclick = () => { if (!S.cahier.includes(i)) S.cahier.push(i); save(); btn.disabled = true; done(); };
+  for (const p of ps) { await sleep(700); p.classList.remove('hid'); }
+  btn.hidden = false;
+};
+
+/* ----- Chapitre 0 : Rappel de la dernière leçon ----- */
+const SCEN = [
+  { name: 'Exemple 1 : calculer', d: '2 + 3', p: 'il additionne les deux nombres', r: '5' },
+  { name: 'Exemple 2 : écrire en majuscules', d: 'salam', p: 'il change les lettres en majuscules', r: 'SALAM' },
+  { name: 'Exemple 3 : jouer', d: 'appui sur ↑', p: 'le jeu calcule le mouvement', r: 'le héros saute' }
+];
+async function playFlow(zone, sc) {
+  const tk = makeTrack([['📥', 'Données'], ['⚙️', 'Traitement'], ['📤', 'Résultat']]), cap = h('p', { class: 'narr', 'aria-live': 'polite' });
+  zone.replaceChildren(h('p', { class: 'lead' }, b(sc.name)), tk.el, cap);
+  tk.reset(sc.d); cap.textContent = '1. Je donne une donnée : ' + sc.d; await sleep(1900);
+  tk.move(1, '⚙️'); cap.textContent = '2. Le système traite la donnée : ' + sc.p; await sleep(2100);
+  tk.move(2, sc.r); cap.textContent = '3. Il donne un résultat : ' + sc.r; await sleep(1500);
+}
+function act0(host, done) {
+  host.append(scene(h('p', { class: 'lead' }, '📚 Rappel de la dernière leçon : un système informatique ', b('reçoit'), ' des données, les ', b('traite'), ' et donne un ', b('résultat'), '. Regarde l’animation !')));
+  const zone = h('div'), qz = h('div'), btn = h('button', { class: 'btn blue big', type: 'button' }, '▶ Lancer : calculer 2 + 3');
+  host.append(btn, zone, qz);
+  btn.onclick = async () => {
+    btn.disabled = true; await playFlow(zone, SCEN[0]);
+    seq(qz, [
+      (h2, cb) => mcq(h2, { q: 'Que représente « 2 + 3 » ?', opts: ['Une donnée', 'Un résultat', 'Un traitement'], ok: 0, why: 'C’est la donnée qu’on donne au système.', hint: 'C’est ce qu’on donne au départ.' }, cb),
+      (h2, cb) => mcq(h2, { q: 'Que fait le système informatique avec 2 + 3 ?', opts: ['Il l’efface', 'Il le reçoit, le calcule et affiche 5', 'Il l’imprime sans le lire'], ok: 1, why: 'Reçoit, traite, produit un résultat.' }, cb)
+    ], () => { confetti(10); done(); });
+  };
+}
+const ded0 = (host, done) => {
+  host.append(h('p', { class: 'lead' }, 'À toi de retrouver le rôle du système informatique : clique sur un trou, puis sur le bon mot.'));
+  gapfill(host, { parts: ['Un système informatique ', 0, ' des données, les ', 1, ' et produit un ', 2, '.'], gaps: [['reçoit'], ['traite'], ['résultat']], bank: ['reçoit', 'traite', 'résultat', 'efface', 'oublie'] }, done);
+};
+function ex0(host, done) {
+  host.append(h('p', { class: 'lead' }, 'Regarde encore 2 exemples de la vie de tous les jours. Clique sur un exemple :'));
+  const zone = h('div'), seen = new Set(), row = h('div', { class: 'row' });
+  SCEN.slice(1).forEach((sc, i) => {
+    const bt = h('button', { class: 'btn', type: 'button' }, sc.name);
+    bt.onclick = async () => { row.querySelectorAll('button').forEach(x => x.disabled = true); await playFlow(zone, sc); row.querySelectorAll('button').forEach(x => x.disabled = false); seen.add(i); bt.classList.add('mint'); if (seen.size >= 2) done(); };
+    row.append(bt);
+  });
+  host.append(row, zone);
+}
+const exo0 = (host, done) => seq(host, [
+  (h2, cb) => mcq(h2, { q: 'Tu tapes la lettre « A » au clavier. C’est …', opts: ['une donnée', 'un traitement', 'un résultat'], ok: 0, why: 'La lettre A est la donnée.' }, cb),
+  (h2, cb) => mcq(h2, { q: 'L’ordinateur calcule 2 + 3. C’est …', opts: ['une donnée', 'un traitement', 'un résultat'], ok: 1, why: 'Calculer, c’est traiter.' }, cb),
+  (h2, cb) => mcq(h2, { q: 'L’écran affiche 5. C’est …', opts: ['une donnée', 'un traitement', 'un résultat'], ok: 2, why: 'Ce qui s’affiche est le résultat.' }, cb)
+], () => { host.append(scene(h('p', { class: 'lead' }, '🕵️ ', b('Question du jour :'), ' quand tu tapes la lettre A, est-ce que l’ordinateur comprend vraiment cette lettre ? Réponse dans le chapitre suivant !'))); done(); });
+
+/* ----- Chapitre 1 : Le langage machine ----- */
+function act1(host, done) {
+  host.append(scene(h('p', { class: 'lead' }, 'Imagine un robot 🤖 qui comprend seulement la lumière : lampe allumée 💡 ou éteinte 🌑.'), h('p', { class: 'chat' }, '🧑 « Bonjour ! »  →  🤖 « ??? »'), h('p', {}, 'Il ne comprend pas notre langue. L’ordinateur, c’est pareil : il a son propre langage. Voyons-le avec la lettre ', b('A'), ' !')));
+  const tk = makeTrack([['🧑‍🎓', 'Élève'], ['⌨️', 'Clavier'], ['🖥️', 'Système'], ['⚙️', 'Processeur'], ['💾', 'Mémoire']]);
+  host.append(tk.el);
+  const zone = h('div'), go1 = h('button', { class: 'btn blue big', type: 'button' }, '⌨️ Taper la lettre A'); host.append(go1, zone);
+  go1.onclick = async () => {
+    go1.disabled = true; tk.reset('A');
+    for (let i = 0; i <= 2; i++) { tk.move(i); await sleep(950); }
+    tk.pk.textContent = '❓';
+    mcq(zone, { q: 'L’ordinateur voit-il la lettre A comme nous ?', opts: ['Oui, il voit un A comme nous', 'Non, il la reçoit sous une forme codée qu’il sait traiter', 'Oui, mais seulement sur l’écran'], ok: 1,
+      why: 'Exact ! Voyons ce qui se cache dans le paquet.', hint: 'L’ordinateur n’a pas d’yeux et ne connaît pas l’alphabet !' }, () => {
+      const open = h('button', { class: 'btn big', type: 'button' }, '🔬 Ouvrir le paquet'); zone.append(open);
+      open.onclick = async () => {
+        open.disabled = true; const chain = h('div', { class: 'chain' }), narr = h('p', { class: 'narr' }); zone.append(chain, narr);
+        const items = [['la lettre', 'A', 'On part de la lettre A.'], ['son numéro (code ASCII)', '65', 'D’abord, la lettre devient un numéro : 65.'], ['écrit avec des 0 et des 1', '01000001', 'Ensuite, ce numéro s’écrit avec des 0 et des 1 : c’est le binaire.']];
+        for (let i = 0; i < items.length; i++) {
+          if (i) chain.append(h('span', { class: 'arrow' }, '→'));
+          chain.append(h('div', { class: 'lnk' }, h('small', {}, items[i][0]), h('b', {}, items[i][1]))); narr.textContent = items[i][2]; await sleep(1500);
+        }
+        tk.move(3, '01000001'); await sleep(1000); tk.move(4); await sleep(900);
+        zone.append(h('p', { class: 'fb good' }, '💡 L’ordinateur ne garde jamais la lettre A : il garde 01000001. Ce langage fait de 0 et de 1 s’appelle le langage machine.'));
+        confetti(14); done();
+      };
+    });
+  };
+}
+const ded1 = (host, done) => {
+  host.append(h('p', { class: 'lead' }, 'À toi de déduire : clique sur un trou, puis sur le bon mot.'));
+  gapfill(host, { parts: ['L’ordinateur ne comprend pas directement le ', 0, ' humain. Il utilise un langage appelé le ', 1, ', qui n’emploie que des ', 2, ' et des ', 3, '.'],
+    gaps: [['langage'], ['langage machine'], ['0', '1'], ['0', '1']], unique: [[2, 3]], bank: ['langage', 'langage machine', '0', '1', 'images', 'sons'] }, done);
+};
+function ex1(host, done) {
+  host.append(h('p', { class: 'lead' }, 'Choisis une lettre : regarde son numéro, puis son écriture en 0 et 1. Teste ', b('3 lettres différentes'), ' !'));
+  const seen = new Set(), out = h('div', { class: 'exout' }, 'Clique sur une lettre 👇'), cnt = h('p', { class: 'fb' }, '0 / 3'), grid = h('div', { class: 'letters' });
+  [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'].forEach(l => {
+    const bt = h('button', { type: 'button' }, l);
+    bt.onclick = () => {
+      const c = l.charCodeAt(0); seen.add(l); bt.classList.add('seen'); [...grid.children].forEach(x => x.classList.remove('cur')); bt.classList.add('cur');
+      out.replaceChildren(h('span', { class: 'big' }, l), '→ numéro →', h('span', { class: 'big' }, String(c)), '→ binaire →', bitsRow(bin(c, 8)));
+      cnt.textContent = Math.min(seen.size, 3) + ' / 3'; if (seen.size >= 3) { cnt.textContent = '✅ Chaque lettre a son propre numéro et sa propre écriture en 0 et 1.'; done(); }
+    };
+    grid.append(bt);
+  });
+  host.append(grid, out, cnt);
+}
+const exo1 = (host, done) => seq(host, [
+  (h2, cb) => ask(h2, { q: 'Exercice 1 : Le système informatique utilise un langage appelé …', check: v => norm(v).includes('machine'), hint: 'Indice : le langage de la … (m-a-c-h…)', why: 'Le langage machine !' }, cb),
+  (h2, cb) => tf(h2, 'Exercice 2.1 : L’ordinateur comprend directement les lettres comme nous.', false, 'Faux : il doit d’abord les coder.', cb),
+  (h2, cb) => tf(h2, 'Exercice 2.2 : Le langage machine utilise les symboles 0 et 1.', true, 'Vrai : c’est le système binaire.', cb),
+  (h2, cb) => { h2.append(h('h3', {}, 'Exercice 3 : complète la chaîne')); gapfill(h2, { parts: ['Information humaine → ', 0, ' → Information traitée par l’ordinateur'], gaps: [['Codage binaire']], bank: ['Décodage', 'Codage binaire', 'Impression', 'Effacement'] }, cb); }
+], done);
+
+/* ----- Chapitre 2 : Le bit (3 phases progressives) ----- */
+function act2(host, done) {
+  const zone = h('div'); host.append(zone); phase1();
+  function phase1() {
+    zone.replaceChildren(scene(h('p', { class: 'lead' }, '💡 Une lampe est un interrupteur : ', b('éteinte = 0'), ' et ', b('allumée = 1'), '.'), h('p', {}, 'Clique sur la lampe pour l’allumer, puis pour l’éteindre.')));
+    const on = [0], seen = new Set([0]); let shown = false;
+    const ls = lampSet([1], on, () => { seen.add(on[0]); if (seen.size === 2 && !shown) { shown = true; zone.append(h('p', { class: 'fb good' }, '✅ Tu as vu les 2 états : 0 et 1. Une lampe = un « bit ».')); confetti(6); nextPhase(zone, phase2); } }, () => 'la lampe');
+    zone.append(ls.wrap);
+  }
+  function phase2() {
+    zone.replaceChildren(scene(h('p', { class: 'lead' }, 'Avec ', b('2 lampes'), ', on peut faire plusieurs messages. Trouve les ', b('4 combinaisons'), ' possibles !')));
+    const on = [0, 0], found = new Set(), slots = ['00', '01', '10', '11'].map(c => h('span', { class: 'chip' }, '…')); let shown = false;
+    const ls = lampSet([1, 1], on, () => { const k = on.join(''); found.add(k); slots.forEach((s, i) => { const c = ['00', '01', '10', '11'][i]; if (found.has(c)) s.textContent = c; });
+      if (found.size === 4 && !shown) { shown = true; zone.append(h('p', { class: 'fb good' }, '✅ Avec 2 bits, on fait 4 messages différents. Plus il y a de lampes, plus on peut écrire de choses !')); nextPhase(zone, phase3); } }, () => 'lampe');
+    zone.append(ls.wrap, h('div', { class: 'row' }, 'Trouvées :', slots)); found.add('00'); slots[0].textContent = '00';
+  }
+  function phase3() {
+    zone.replaceChildren(scene(h('p', { class: 'lead' }, 'Pour écrire des nombres, chaque lampe a une valeur : ', b('8, 4, 2, 1'), '. On ', b('additionne'), ' les valeurs des lampes allumées.'), h('p', {}, 'Exemple : si les lampes 4 et 1 sont allumées, le total est 4 + 1 = 5.')));
+    const W = [8, 4, 2, 1], on = [0, 0, 0, 0], targets = [1, 2, 3, 5]; let ti = 0;
+    const goal = h('div', { class: 'total' }), total = h('div', { class: 'total' }), fb = h('p', { class: 'fb' });
+    const sum = () => on.reduce((s, v, i) => s + v * W[i], 0);
+    const ls = lampSet(W, on, () => { total.textContent = 'Total des lampes allumées : ' + sum(); });
+    const setGoal = () => { goal.textContent = '🎯 Objectif : allume les lampes pour faire ' + targets[ti]; on.fill(0); ls.draw(); total.textContent = 'Total des lampes allumées : 0'; };
+    const chk = h('button', { class: 'btn blue', type: 'button' }, 'Vérifier');
+    chk.onclick = () => {
+      if (sum() === targets[ti]) {
+        record(true); fb.className = 'fb good'; fb.textContent = '✅ ' + targets[ti] + ' s’écrit ' + on.join('') + ' en binaire !'; ti++;
+        if (ti < targets.length) setGoal(); else {
+          chk.disabled = true; goal.textContent = '🏁 Bravo !';
+          zone.append(h('div', { class: 'compare' }, h('div', {}, 'Humain', h('b', {}, '5')), h('div', {}, 'Machine', h('b', {}, '101'))), h('p', { class: 'fb good' }, '💡 L’humain écrit 5, la machine écrit 101 : elle n’utilise que des 0 et des 1.')); confetti(14); done();
+        }
+      } else { record(false, 'Additionne seulement les valeurs des lampes allumées.'); fb.className = 'fb bad'; fb.textContent = '❌ Le total n’est pas ' + targets[ti] + '. Change les lampes.'; }
+    };
+    zone.append(goal, ls.wrap, total, chk, fb); setGoal();
+  }
+}
+const ded2 = (host, done) => gapfill(host, { parts: ['Le système binaire utilise ', 0, ' symboles : ', 1, ' et ', 2, '. Chaque symbole s’appelle un ', 3, '.'],
+  gaps: [['2'], ['0', '1'], ['0', '1'], ['bit']], unique: [[1, 2]], bank: ['2', '0', '1', '10', 'bit', 'octet'] }, done);
+function ex2(host, done) {
+  host.append(h('p', { class: 'lead' }, 'Déplace le curseur : l’humain voit un nombre, la machine voit des bits. Les valeurs des bits à 1 s’additionnent. Essaie ', b('4 nombres différents'), ' !'));
+  const seen = new Set(), sl = h('input', { class: 'sl', type: 'range', min: 0, max: 15, value: 0, 'aria-label': 'Nombre de 0 à 15' });
+  const hum = h('b', { class: 'mono', style: 'font-size:2.4rem' }, '0'), mac = h('div'), cnt = h('p', { class: 'fb' }, '0 / 4');
+  const draw = () => {
+    const n = +sl.value, s = bin(n, 4), parts = [...s].map((c, i) => c === '1' ? [8, 4, 2, 1][i] : null).filter(Boolean);
+    hum.textContent = n; mac.replaceChildren(bitsW(s, [8, 4, 2, 1]), h('p', { class: 'mono' }, n === 0 ? 'Aucune lampe allumée : 0' : parts.join(' + ') + ' = ' + n));
+    seen.add(n); cnt.textContent = seen.size >= 4 ? '✅ Tu as compris : chaque nombre a son écriture en bits.' : seen.size + ' / 4'; if (seen.size >= 4) done();
+  };
+  sl.oninput = draw; host.append(sl, h('div', { class: 'compare' }, h('div', {}, 'Humain', hum), h('div', {}, 'Machine', mac)), cnt); draw(); seen.clear(); cnt.textContent = '0 / 4';
+}
+const exo2 = (host, done) => seq(host, [
+  (h2, cb) => mcq(h2, { q: 'Combien de symboles le système binaire utilise-t-il ?', opts: ['2', '8', '10', '16'], ok: 0, why: 'Seulement 0 et 1.', hint: '« bi » veut dire deux, comme dans « bicyclette ».' }, cb),
+  (h2, cb) => mcq(h2, { q: 'Un bit peut valoir …', opts: ['0 ou 1', 'de 0 à 9', 'A ou B', 'n’importe quel nombre'], ok: 0, why: 'Un bit = 0 ou 1.' }, cb),
+  (h2, cb) => mcq(h2, { q: 'Une lampe allumée correspond à quel bit ?', opts: ['0', '1'], ok: 1, why: 'Allumé = 1, éteint = 0.' }, cb),
+  (h2, cb) => mcq(h2, { q: 'Comment la machine écrit-elle le nombre 5 ?', opts: ['5', '101', '55', '1111'], ok: 1, why: '5 = 4 + 1 = 101₂.', hint: '5 = 4 + 1 : quelles lampes (8, 4, 2, 1) sont allumées ?' }, cb)
+], done);
+
+/* ----- Chapitre 3 : Le codage ----- */
+function act3(host, done) {
+  host.append(scene(h('p', { class: 'lead' }, '🎽 Dans une équipe de foot, chaque joueur a un ', b('numéro'), ' sur son maillot. En informatique, chaque lettre a aussi un numéro : c’est le ', b('code ASCII'), '.'), h('p', {}, 'Voici un extrait du tableau ASCII :')));
+  host.append(asciiTable());
+  const zone = h('div'); host.append(zone);
+  ask(zone, { q: 'Cherche dans le tableau : quel est le code ASCII de la lettre D ?', mono: true, ph: 'un nombre', check: v => v === '68', hint: 'Regarde le tableau : « D = … »', why: 'D = 68 !' }, () => {
+    zone.append(h('p', { class: 'lead', style: 'margin-top:1rem' }, 'Bien ! Maintenant, utilise la ', b('machine à coder'), ' : tape un mot (5 caractères maximum).'));
+    const inp = h('input', { class: 'inp', value: 'ALI', maxlength: 5, 'aria-label': 'Mot à coder', style: 'max-width:14rem' });
+    const btn = h('button', { class: 'btn blue', type: 'button' }, '⚙️ Coder'); const table = h('div'), z2 = h('div'); let first = true;
+    zone.append(h('div', { class: 'row' }, inp, btn), table, z2);
+    btn.onclick = async () => {
+      const w = [...inp.value].filter(c => c.charCodeAt(0) >= 32 && c.charCodeAt(0) <= 126).slice(0, 5);
+      if (!w.length) { inp.value = ''; shake(inp); return; }
+      btn.disabled = true; table.replaceChildren(h('p', { class: 'narr' }, 'Lettre → numéro → écriture en 0 et 1'));
+      for (const c of w) {
+        const n = c.charCodeAt(0);
+        table.append(h('div', { class: 'trow' }, h('span', { class: 'ch2' }, c === ' ' ? '␣' : c), '→', h('span', { class: 'code' }, String(n)), '→', bitsRow(bin(n, 8)))); await sleep(650);
+      }
+      btn.disabled = false;
+      if (first) {
+        first = false;
+        mcq(z2, { q: 'Combien de bits la machine utilise-t-elle pour chaque lettre ?', opts: ['4', '8', '16', '2'], ok: 1, why: 'Ici, 8 bits (8 cases) pour chaque lettre.', hint: 'Compte les cases d’une ligne !' }, () => {
+          z2.append(h('p', { class: 'fb good' }, '💡 Ton mot a été transformé en nombres, puis en 0 et 1. On apprendra à calculer ces 0 et 1 au chapitre suivant.')); confetti(12); done();
+        });
+      }
+    };
+  });
+}
+const ded3 = (host, done) => seq(host, [
+  (h2, cb) => gapfill(h2, { parts: ['La transformation d’une information humaine vers une forme comprise par l’ordinateur s’appelle le ', 0, '.'], gaps: [['codage']], bank: ['codage', 'décodage', 'traitement', 'stockage'] }, cb),
+  (h2, cb) => gapfill(h2, { parts: ['Exemple : A → Code ', 0, ' → ', 1, ' → ', 2], gaps: [['ASCII'], ['65'], ['01000001']], bank: ['ASCII', '65', '66', '01000001', '01000010', 'HTML'] }, cb)
+], done);
+function ex3(host, done) {
+  host.append(h('p', { class: 'lead' }, 'Envoyons le mot ', b('OK'), ' au processeur : regarde le codage en action.'));
+  const zone = h('div'), btn = h('button', { class: 'btn blue big', type: 'button' }, '▶ Envoyer OK au processeur'); host.append(btn, zone);
+  btn.onclick = async () => {
+    btn.disabled = true;
+    for (const c of 'OK') {
+      const n = c.charCodeAt(0);
+      zone.append(h('div', { class: 'trow' }, h('span', { class: 'ch2' }, c), '→ numéro →', h('span', { class: 'code' }, String(n)), '→ binaire →', bitsRow(bin(n, 8)))); await sleep(1000);
+    }
+    zone.append(h('div', { class: 'cpu' }, h('div', {}, '⚙️ Le processeur reçoit et traite les 0 et 1 …'), h('div', { class: 'stream' }, '01001111 01001011 01001111 01001011 01001111 01001011')));
+    await sleep(1200); confetti(12); done();
+  };
+}
+const exo3 = (host, done) => seq(host, [
+  (h2, cb) => orderQ(h2, { q: 'Remets le voyage de l’information dans l’ordre (clique dans l’ordre) :', items: ['Information humaine (ex : A)', 'Codage', 'Nombre (code ASCII : 65)', 'Binaire (01000001)', 'Traitement par le processeur'] }, cb),
+  (h2, cb) => mcq(h2, { q: 'Quel est le code ASCII de la lettre A ?', opts: ['65', '01', '10', '100'], ok: 0, why: 'A → 65 → 01000001.' }, cb),
+  (h2, cb) => mcq(h2, { q: 'Que veut dire « coder » une information ?', opts: ['La supprimer', 'La transformer sous une forme comprise par l’ordinateur', 'La dessiner', 'La recopier à la main'], ok: 1, why: 'C’est le codage !' }, cb)
+], done);
+
+/* ----- Chapitre 4 : Les conversions (très guidé) ----- */
+function act4(host, done) {
+  host.append(scene(h('p', { class: 'lead' }, 'Comment écrire ', b('5'), ' avec seulement des 0 et des 1 ? On fait des ', b('divisions par 2'), ' et on regarde les ', b('restes'), '.'), h('p', {}, 'Clique sur « Étape suivante » et lis les explications.')));
+  const n = 5, rows = divRows(n), narr = h('p', { class: 'narr', 'aria-live': 'polite' }, 'Prêt ? On commence avec le nombre 5.'), box = h('div', { class: 'div' }), out = h('div', { class: 'res' }); let i = 0;
+  const btn = h('button', { class: 'btn blue', type: 'button' }, 'Étape suivante ▶'); host.append(btn, narr, box, out);
+  btn.onclick = async () => {
+    if (i < rows.length) {
+      const [a, q, r] = rows[i++]; box.append(h('div', { class: 'dl' }, `${a} ÷ 2 = ${q}  `, h('span', { class: 'rest' }, 'reste ' + r)));
+      narr.textContent = `Étape ${i} : on divise ${a} par 2. Comme ${a} = 2 × ${q} + ${r}, le quotient est ${q} et le reste est ${r}. ` + (q === 0 ? 'Le quotient vaut 0 : on s’arrête !' : `On continue avec ${q}.`);
+      if (i === rows.length) btn.textContent = 'Lire les restes ↑';
+    } else {
+      btn.disabled = true; narr.textContent = 'Maintenant, on lit les restes de BAS EN HAUT : ils forment le nombre en binaire.'; out.append('Résultat : '); const line = h('span', { class: 'bits' }); out.append(line);
+      const dls = [...box.children];
+      for (let k = rows.length - 1; k >= 0; k--) { dls[k].classList.add('hl'); line.append(h('span', { class: 'bit on' }, String(rows[k][2]))); sfx.ok(); await sleep(900); }
+      out.append(h('p', { class: 'mono', style: 'margin-top:.6rem' }, '5 = 101₂ (vérification : 4 + 1 = 5 ✔)')); confetti(12); done();
+    }
+  };
+}
+const ded4 = (host, done) => seq(host, [
+  (h2, cb) => gapfill(h2, { parts: ['Pour passer du décimal au binaire, on divise par ', 0, ' jusqu’à obtenir un quotient égal à ', 1, '. Puis on lit les restes de bas en ', 2, '.'], gaps: [['2'], ['0'], ['haut']], bank: ['2', '10', '0', '1', 'haut', 'bas'] }, cb),
+  (h2, cb) => gapfill(h2, { parts: ['Pour passer du binaire au décimal, on ', 0, ' les valeurs des bits égaux à ', 1, '.'], gaps: [['additionne'], ['1']], bank: ['additionne', 'soustrait', '0', '1'] }, cb)
+], done);
+function ex4(host, done) {
+  host.append(scene(h('p', { class: 'lead' }, 'Dans l’autre sens : du binaire vers le décimal. Chaque bit a une ', b('valeur'), ' (… 8, 4, 2, 1). On additionne les valeurs des bits qui valent 1.')));
+  const zone = h('div'), demo = h('button', { class: 'btn blue big', type: 'button' }, '▶ Voir avec 101'); host.append(demo, zone);
+  demo.onclick = async () => {
+    demo.disabled = true; const narr = h('p', { class: 'narr' }); const bw = bitsW('101', [4, 2, 1]); zone.append(bw, narr);
+    const cells = [...bw.querySelectorAll('.bit')], W = [4, 2, 1], s = '101'; let tot = 0;
+    for (let i = 0; i < 3; i++) { cells[i].style.outline = '4px solid #FF5D73'; const v = +s[i] * W[i]; tot += v; narr.textContent = `Bit ${s[i]} × valeur ${W[i]} = ${v}`; await sleep(1300); }
+    narr.textContent = 'On additionne : 4 + 0 + 1 = 5. Donc 101₂ = 5 ✔'; await sleep(700); challenge();
+  };
+  function challenge() {
+    zone.append(h('p', { class: 'lead', style: 'margin-top:1rem' }, b('À toi !'), ' Allume les lampes pour faire 6, puis 9.'));
+    const W = [8, 4, 2, 1], on = [0, 0, 0, 0], targets = [6, 9]; let ti = 0; const calc = h('p', { class: 'total mono' }), fb = h('p', { class: 'fb' }), goal = h('p', { class: 'total' });
+    const draw = () => {
+      const sum = on.reduce((s, v, i) => s + v * W[i], 0); calc.textContent = on.map((v, i) => `${v}×${W[i]}`).join(' + ') + ' = ' + sum;
+      if (sum === targets[ti]) { fb.className = 'fb good'; fb.textContent = `✅ ${targets[ti]} = ${on.join('')}₂`; sfx.win(); ti++; if (ti < targets.length) setTimeout(reset, 1200); else { goal.textContent = '🏁 Bravo !'; confetti(12); done(); } }
+    };
+    const ls = lampSet(W, on, draw, w => 'valeur ' + w);
+    const reset = () => { on.fill(0); ls.draw(); goal.textContent = '🎯 Objectif : ' + targets[ti]; fb.textContent = ''; calc.textContent = '0×8 + 0×4 + 0×2 + 0×1 = 0'; };
+    zone.append(goal, ls.wrap, calc, fb); reset();
+  }
+}
+// Division guidée : l’élève remplit chaque ligne, puis lit les restes
+function guidedDiv(host, n, cb) {
+  const rows = divRows(n), box = h('div', { class: 'q' }, h('p', { class: 'qt' }, `Convertis ${n} en binaire, ligne par ligne.`)); host.append(box); let i = 0;
+  const step = () => {
+    if (i >= rows.length) { ask(box, { q: 'Lis les restes de bas en haut. Que vaut ' + n + ' en binaire ?', mono: true, ph: 'ex : 101', check: v => isBin(v, n), hint: 'Commence par le dernier reste (en bas) et remonte.', why: `${n} = ${bin(n)}₂` }, cb); return; }
+    const [a, q, r] = rows[i], iq = h('input', { class: 'inp mono', style: 'max-width:4.5rem', inputmode: 'numeric', 'aria-label': 'quotient' }), ir = h('input', { class: 'inp mono', style: 'max-width:4.5rem', inputmode: 'numeric', 'aria-label': 'reste' });
+    const okb = h('button', { class: 'btn blue', type: 'button' }, 'Valider'), line = h('div', { class: 'row', style: 'margin:.4rem 0' }, `${a} ÷ 2 = `, iq, ' reste ', ir, okb); box.append(line); iq.focus({ preventScroll: true });
+    okb.onclick = () => {
+      if (iq.value !== '' && ir.value !== '' && +iq.value === q && +ir.value === r) { record(true); iq.disabled = ir.disabled = okb.disabled = true; i++; step(); }
+      else { record(false, `Cherche : ${a} = 2 × ? + ?  (le premier ? est le quotient, le second est le reste)`); shake(line); }
+    };
+  };
+  step();
+}
+function exo4(host, done) {
+  const dec = n => (h2, cb) => ask(h2, { q: `Convertis ${n} en binaire.`, mono: true, ph: 'ex : 1011', check: v => isBin(v, n), hint: 'Divise par 2, note les restes, lis de bas en haut. Utilise l’indice !', help: divHelp(n), after: bx => bx.append(divBox(n)), why: `${n} = ${bin(n)}₂` }, cb);
+  const bd = (s, n) => (h2, cb) => ask(h2, { q: `Convertis ${s} en décimal.`, ph: 'un nombre', pre: bitsW(s, wOf(s.length)), check: v => +v === n && /^\d+$/.test(v), hint: 'Additionne les valeurs (au-dessus) des bits égaux à 1.', why: `${s} = ${n}` }, cb);
+  seq(host, [label('Étape 1 : je suis guidé(e)'), (h2, cb) => guidedDiv(h2, 6, cb), label('Étape 2 : à toi seul(e)'), ...[8, 10, 15].map(dec), label('Binaire → décimal'), bd('101', 5), bd('110', 6), bd('1010', 10)], () => {
+    done();
+    const bonus = h('button', { class: 'btn coral', type: 'button' }, '🏆 Défi expert (facultatif, les erreurs comptent)'), zone = h('div'); host.append(h('hr'), bonus, zone);
+    bonus.onclick = () => { bonus.disabled = true; seq(zone, [label('Nombres plus grands'), ...[25, 45, 64, 100, 127, 255].map(dec)], () => { confetti(20); say('Champion·ne du binaire ! 🏆'); }); };
+  });
+}
+
+/* ----- Chapitre 5 : Défis de groupe ----- */
+function mission1(host, done) {
+  host.append(groupNote('Un message secret arrive dans le processeur ! Pour chaque octet : 1) additionne les valeurs des bits à 1, 2) cherche le nombre dans le tableau ASCII pour trouver la lettre.'), asciiTable());
+  const word = 'BIT', fns = [...word].map((c, i) => (h2, cb) => {
+    const code = c.charCodeAt(0);
+    h2.append(h('p', { class: 'qt', style: 'margin-top:1rem' }, 'Octet ' + (i + 1) + ' :'), bitsW(bin(code, 8), wOf(8)));
+    seq(h2, [
+      (h3, cb2) => ask(h3, { q: 'Quel nombre représente cet octet ?', mono: true, ph: 'un nombre', check: v => +v === code && /^\d+$/.test(v), hint: 'Additionne seulement les valeurs au-dessus des bits égaux à 1.', why: 'Nombre : ' + code }, cb2),
+      (h3, cb2) => ask(h3, { q: 'Quelle lettre a ce numéro ASCII ?', ph: 'une lettre', check: v => v.trim().toUpperCase() === c, hint: 'Cherche ' + code + ' dans le tableau.', why: 'Lettre : ' + c }, cb2)
+    ], cb);
+  });
+  seq(host, fns, () => { host.append(h('p', { class: 'lead fb good' }, '🔓 Message décodé : BIT !')); confetti(20); done(); });
+}
+function mission2(host, done) {
+  host.append(groupNote('Chaque liste contient UNE conversion fausse. Trouvez-la, puis corrigez-la.'));
+  const hunt = (title, lines, fixQ, fixCheck, fixWhy) => (h2, cb) => {
+    h2.append(h('h3', {}, title)); const list = h('div', { class: 'opts' }), zone = h('div'); let over = false;
+    lines.forEach(l => {
+      const bt = h('button', { class: 'opt mono', type: 'button' }, l.t);
+      bt.onclick = () => {
+        if (over || bt.disabled) return;
+        if (l.bad) { over = true; bt.classList.add('bad'); [...list.children].forEach(x => x.disabled = true); record(true); sfx.ok(); ask(zone, { q: fixQ, mono: true, check: fixCheck, hint: 'Refais la conversion pas à pas.', why: fixWhy }, cb); }
+        else { bt.disabled = true; bt.classList.add('good'); record(false, 'Celle-ci est correcte. Vérifie les autres !'); }
+      };
+      list.append(bt);
+    });
+    h2.append(list, zone); scrollTo(list);
+  };
+  seq(host, [
+    hunt('Décimal → binaire', [{ t: '6 = 110' }, { t: '9 = 1001' }, { t: '12 = 1010', bad: 1 }, { t: '7 = 111' }], 'Écris la bonne valeur de 12 en binaire :', v => isBin(v, 12), '12 = 1100₂'),
+    hunt('Binaire → décimal', [{ t: '101 = 5' }, { t: '1101 = 12', bad: 1 }, { t: '1000 = 8' }, { t: '111 = 7' }], 'Écris la bonne valeur de 1101 en décimal :', v => +v === 13 && /^\d+$/.test(v), '1101₂ = 8 + 4 + 1 = 13')
+  ], () => { confetti(16); done(); });
+}
+function mission3(host, done) {
+  host.append(groupNote('Vous êtes le processeur ! Chaque membre du groupe code UNE lettre du mot ABC en 8 bits.'));
+  const letters = [...'ABC'];
+  seq(host, letters.map(c => (h2, cb) => {
+    const n = c.charCodeAt(0);
+    ask(h2, { q: `Lettre ${c} : code ASCII ${n}. Écris son octet en binaire (8 bits).`, mono: true, ph: '8 bits', check: v => isBin(v, n, 8), hint: 'Il faut 8 bits : complète avec des 0 à gauche. Astuce : 64 + 1 = 65.', help: divHelp(n), why: `${c} → ${n} → ${bin(n, 8)}` }, cb);
+  }), () => {
+    const all = letters.map(c => bin(c.charCodeAt(0), 8)).join(' ');
+    host.append(h('div', { class: 'cpu' }, h('div', {}, '⚙️ Le processeur reçoit le mot ABC :'), h('div', { class: 'stream' }, all + ' ' + all)));
+    host.append(h('p', { class: 'lead fb good', style: 'margin-top:1rem' }, '🎉 Mission accomplie : vous parlez le langage machine !')); confetti(30); sfx.win(); done();
+  });
+}
+
+/* Plan des chapitres et durées (total : 50 minutes) */
+const STEP = { act: ['🎬', 'Activité'], ded: ['💡', 'Je déduis'], tr: ['✍️', 'Trace écrite'], ex: ['🔍', 'Exemple'], exo: ['🏋️', 'Exercice'] };
+const std = (a, d, t, e, x) => [[...STEP.act, a], [...STEP.ded, d], [...STEP.tr, trace(t)], [...STEP.ex, e], [...STEP.exo, x]].map(([icon, label, render]) => ({ icon, label, render }));
+const CH = [
+  { title: 'Rappel', steps: std(act0, ded0, 0, ex0, exo0) },
+  { title: 'Le langage machine', steps: std(act1, ded1, 1, ex1, exo1) },
+  { title: 'Le bit', steps: std(act2, ded2, 2, ex2, exo2) },
+  { title: 'Le codage', steps: std(act3, ded3, 3, ex3, exo3) },
+  { title: 'Les conversions', steps: std(act4, ded4, 4, ex4, exo4) },
+  { title: 'Défis de groupe', steps: [{ icon: '🔓', label: 'Mission 1 : décryptage', render: mission1 }, { icon: '🕵️', label: 'Mission 2 : correction', render: mission2 }, { icon: '⚙️', label: 'Mission 3 : ABC', render: mission3 }] }
+];
+
+/* ---------- 5. Écrans ---------- */
+const app = $('#app');
+
+function renderCover(saved) {
+  document.body.classList.remove('paused'); $('#pause').textContent = '⏸'; drawTimer();
+  const flip = h('div', { class: 'flipper', 'aria-hidden': 'true' }, 'A'); const seqF = ['A', '65', '01000001']; let fi = 0;
+  const iv = setInterval(() => {
+    if (!flip.isConnected) return clearInterval(iv);
+    flip.animate([{ transform: 'rotateX(0)' }, { transform: 'rotateX(90deg)' }], { duration: 170 }).onfinish = () => {
+      fi = (fi + 1) % 3; flip.textContent = seqF[fi]; flip.style.fontSize = fi === 2 ? '1.9rem' : '2.4rem';
+      flip.animate([{ transform: 'rotateX(-90deg)' }, { transform: 'rotateX(0)' }], { duration: 170 });
+    };
+  }, 2400);
+  const start = h('button', { class: 'btn blue big', type: 'button' }, '🚀 Lancer le cours');
+  start.onclick = () => {
+    S = { ...fresh(), started: true }; updateChips(); drawTimer(); save();
+    say('C’est parti ! Je suis Bitou, je t’aiderai en cas d’erreur. 🤖'); go(0, 0);
+  };
+  app.replaceChildren(h('div', { class: 'cover' },
+    h('div', { class: 'hero' },
+      h('span', { class: 'lvl' }, 'Tronc commun · Informatique'),
+      h('h1', {}, 'Le langage du système informatique'),
+      h('p', { class: 'sub' }, 'Le système binaire'),
+      flip,
+      h('p', {}, 'Séquence : Représentation de l’information (1 heure)'),
+      h('p', { class: 'lead' }, h('b', {}, 'Professeur : EL MOUTAOUAKIL Khalid')),
+      h('ul', { class: 'rules' }, h('li', {}, 'On commence par un rappel de la dernière leçon, puis on avance pas à pas : impossible de sauter une étape.'), h('li', {}, 'Chaque erreur compte pour le score et les étoiles.'), h('li', {}, 'Le chrono de 50 minutes démarre dès que vous lancez le cours.'))),
+    h('div', {},
+      h('div', { class: 'card setup' }, h('h2', {}, 'Prêts à commencer ?'), start),
+      saved ? h('div', { class: 'card resume' }, h('p', {}, h('b', {}, 'Un cours est déjà en cours.')),
+        h('button', { class: 'btn mint', type: 'button', onclick: () => { S = { ...fresh(), ...saved, paused: false }; updateChips(); drawTimer(); S.done ? renderBilan() : go(S.ch, S.st); } }, '↩ Reprendre là où vous vous êtes arrêtés')) : null)));
+}
+
+function go(ch, st) { S.ch = ch; S.st = st; save(); renderLesson(); window.scrollTo(0, 0); }
+
+function renderLesson() {
+  const c = CH[S.ch], step = c.steps[S.st];
+  const chs = h('nav', { class: 'chs', 'aria-label': 'Chapitres' }, CH.map((x, i) => h('div', { class: 'ch ' + (i < S.ch ? 'done' : i === S.ch ? 'cur' : 'lock') }, h('span', { class: 'n' }, i < S.ch ? '✓' : i === 0 ? '↺' : String(i)), h('span', { class: 't' }, x.title), h('small', {}, '≈ ' + MINS[i] + ' min'))));
+  const sts = h('div', { class: 'sts' }, c.steps.map((s, i) => h('span', { class: 's ' + (i < S.st ? 'done' : i === S.st ? 'cur' : 'lock') }, (i < S.st ? '✓ ' : s.icon + ' ') + s.label)));
+  const host = h('div'), foot = h('div', { class: 'foot' });
+  const last = S.st === c.steps.length - 1, final = last && S.ch === CH.length - 1;
+  const nextBtn = h('button', { class: 'btn blue big', type: 'button' }, final ? 'Voir mon bilan 🏆' : last ? 'Chapitre suivant ➜' : 'Étape suivante ➜'); nextBtn.hidden = true;
+  nextBtn.onclick = () => { if (final) finish(); else if (last) { confetti(20); sfx.win(); say('Chapitre terminé, bravo ! 🎉'); go(S.ch + 1, 0); } else go(S.ch, S.st + 1); };
+  foot.append(nextBtn);
+  app.replaceChildren(chs, sts, h('section', { class: 'card stage' }, h('h2', { class: 'stage-h' }, h('span', {}, step.icon), step.label, h('span', { class: 'sm' }, S.ch ? 'Chapitre ' + S.ch + ' : ' + c.title : 'Rappel de la dernière leçon')), host, foot));
+  drawTimer(); let fin = false;
+  step.render(host, () => { if (fin) return; fin = true; nextBtn.hidden = false; sfx.win(); say('Étape réussie ! Clique sur « suivant ».'); scrollTo(nextBtn); });
+}
+
+function finish() { S.done = true; S.paused = false; save(); drawTimer(); renderBilan(); window.scrollTo(0, 0); confetti(50); sfx.win(); }
+
+// Carte mentale (SVG, adaptée à l’impression)
+function mindmap() {
+  const nodes = [
+    ['Langage humain', 'lettres, mots, chiffres', 'l’ordinateur ne les comprend pas', 20, 20, '#BFE6FF', 125, 55],
+    ['Système binaire', 'deux symboles seulement', '0 et 1', 530, 20, '#D5F7EA', 635, 55],
+    ['Bit', '1 symbole = 1 bit', '0 = éteint, 1 = allumé', 545, 175, '#FFF3BF', 650, 210],
+    ['Codage', 'transformer l’information', 'humaine en binaire', 530, 340, '#FFE0E5', 635, 375],
+    ['Exemple ASCII', 'A → 65 → 01000001', 'un code, pas la lettre', 20, 340, '#DDDCFF', 125, 375],
+    ['Conversions', 'décimal → binaire : ÷ 2', 'binaire → décimal : puissances de 2', 10, 175, '#D5F7EA', 115, 210]
+  ];
+  const cols = ['#3D3BF3', '#22C58B', '#FFB800', '#FF5D73', '#3D3BF3', '#22C58B'];
+  const ns = 'http://www.w3.org/2000/svg';
+  const wrap = h('div', { class: 'map', html: `<svg viewBox="0 0 760 420" role="img" aria-label="Carte mentale du cours">
+    ${nodes.map((n, i) => `<line x1="380" y1="205" x2="${n[6]}" y2="${n[7]}" stroke="${cols[i]}" stroke-width="5" stroke-linecap="round"/>`).join('')}
+    <ellipse cx="380" cy="205" rx="112" ry="46" fill="#FFD23F" stroke="#1B1740" stroke-width="4"/>
+    <text x="380" y="200" text-anchor="middle" font-size="19" font-weight="800" fill="#1B1740">Langage</text>
+    <text x="380" y="222" text-anchor="middle" font-size="19" font-weight="800" fill="#1B1740">machine</text>
+    ${nodes.map(n => `<rect x="${n[3]}" y="${n[4]}" width="220" height="70" rx="14" fill="${n[5]}" stroke="#1B1740" stroke-width="3"/>
+      <text x="${n[3] + 110}" y="${n[4] + 24}" text-anchor="middle" font-size="15" font-weight="800" fill="#1B1740">${n[0]}</text>
+      <text x="${n[3] + 110}" y="${n[4] + 44}" text-anchor="middle" font-size="11.5" fill="#1B1740">${n[1]}</text>
+      <text x="${n[3] + 110}" y="${n[4] + 60}" text-anchor="middle" font-size="11.5" fill="#1B1740">${n[2]}</text>`).join('')}
+  </svg>` });
+  return wrap;
+}
+
+function renderBilan() {
+  const tot = S.ok + S.err, score = tot ? Math.round(100 * S.ok / tot) : 0;
+  const stars = S.err < 10 ? 3 : S.err <= 25 ? 2 : 1;      // 3 étoiles : < 10 erreurs ; 2 : de 10 à 25 ; 1 : plus de 25
+  const msg = ['', 'Continuez à vous entraîner : le binaire n’aura bientôt plus de secret !', 'Très bien ! Encore un petit effort pour les 3 étoiles.', 'Excellent : votre groupe parle couramment le langage machine !'][stars];
+  const date = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+  const rc = (v, l) => h('div', { class: 'res-c' }, h('b', {}, String(v)), l);
+  app.replaceChildren(h('section', { class: 'bilan' },
+    h('h1', {}, 'Bilan du cours : Le langage machine et le système binaire'),
+    h('div', { class: 'card' }, h('dl', { class: 'info' },
+      h('dt', {}, 'Date :'), h('dd', {}, date),
+      h('dt', {}, 'Temps utilisé :'), h('dd', {}, fmt(S.used) + ' sur 50:00'), h('dt', {}, 'Professeur :'), h('dd', {}, 'EL MOUTAOUAKIL Khalid'))),
+    h('div', { class: 'results' },
+      h('div', { class: 'res-c stars' }, '⭐'.repeat(stars) + '☆'.repeat(3 - stars), h('small', {}, stars + ' étoile' + (stars > 1 ? 's' : '') + ' : ' + msg)),
+      rc(score + ' / 100', 'Score'), rc(S.ok, 'Bonnes réponses'), rc(S.err, 'Erreurs'), rc(tot, 'Réponses données')),
+    h('div', { class: 'card' }, h('h2', {}, 'Carte mentale : ce qu’il faut retenir'), mindmap()),
+    h('div', { class: 'card write', style: 'margin-top:1rem' }, h('h3', {}, 'À compléter à la main'),
+      h('table', {}, h('thead', {}, h('tr', {}, ['Nom', 'Prénom', 'Classe', 'Groupe'].map(t => h('th', {}, t)))), h('tbody', {}, [1, 2, 3, 4].map(() => h('tr', {}, [1, 2, 3, 4].map(() => h('td'))))))),
+    h('div', { class: 'actions no-print' },
+      h('button', { class: 'btn blue big', type: 'button', onclick: () => window.print() }, '🖨️ Imprimer le bilan'),
+      h('button', { class: 'btn coral', type: 'button', onclick: () => { if (confirm('Recommencer ? Les résultats du groupe seront effacés.')) { wipe(); S = fresh(); updateChips(); renderCover(null); } } }, '↻ Nouveau groupe')),
+    h('p', { class: 'no-print' }, 'Astuce : dans la fenêtre d’impression, choisis « Enregistrer au format PDF » pour obtenir un fichier PDF.')));
+}
+
+/* ---------- Démarrage ---------- */
+const saved = load();
+updateChips(); drawTimer();
+if (saved && saved.started) { renderCover(saved); } else renderCover(null);
+})();
+</script>
+<!-- a11y-clavier -->
+<script>
+(function(){
+  // Rend utilisables au clavier (Tab, Entrée/Espace, flèches) les éléments cliquables qui ne sont pas des boutons natifs.
+  var NATIVE = 'button,a[href],input,select,textarea,summary';
+  function enhance(){
+    document.querySelectorAll('body *').forEach(function(el){
+      if (typeof el.onclick !== 'function' || el.matches(NATIVE) || el.hasAttribute('data-kbd')) return;
+      el.setAttribute('data-kbd', '');
+      if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+      if (!el.hasAttribute('role')) el.setAttribute('role', 'button');
+      if (!el.textContent.trim() && !el.hasAttribute('aria-label')) {
+        el.setAttribute('aria-label', 'Case ' + (Array.prototype.indexOf.call(el.parentNode.children, el) + 1));
+      }
+    });
+  }
+  document.addEventListener('keydown', function(e){
+    var el = e.target;
+    if (!(el instanceof Element) || !el.hasAttribute('data-kbd')) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      el.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true}));
+      return;
+    }
+    var dir = {ArrowRight: 1, ArrowLeft: -1, ArrowDown: 'down', ArrowUp: 'up'}[e.key];
+    if (!dir) return;
+    var sibs = Array.prototype.filter.call(el.parentNode.children, function(s){ return s.hasAttribute('data-kbd'); });
+    if (sibs.length < 2) return;
+    var cols = getComputedStyle(el.parentNode).gridTemplateColumns.split(' ').filter(function(c){ return c && c !== 'none'; }).length || 1;
+    var step = dir === 'down' ? cols : dir === 'up' ? -cols : dir;
+    var next = sibs[sibs.indexOf(el) + step];
+    if (next) { e.preventDefault(); next.focus(); }
+  });
+  document.querySelectorAll('#msg,.msg,#progress,.progress,.narr').forEach(function(el){
+    if (!el.hasAttribute('aria-live')) el.setAttribute('aria-live', 'polite');
+  });
+  var pending = false;
+  new MutationObserver(function(){
+    if (pending) return;
+    pending = true;
+    setTimeout(function(){ pending = false; enhance(); }, 0);
+  }).observe(document.body, {childList: true, subtree: true});
+  enhance();
+})();
+</script>
+</body>
+</html>

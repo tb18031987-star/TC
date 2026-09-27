@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🖱️ Animation — Coder le mouvement de la souris</title>
+<style>
+:root{
+  --ink:#1B1740; --paper:#F1EFFF; --card:#fff;
+  --blue:#3D3BF3; --blue-l:#DDDCFF;
+  --sun:#FFD23F; --sun-l:#FFF3BF;
+  --coral:#FF5D73; --coral-l:#FFE0E5;
+  --mint:#22C58B; --mint-l:#D5F7EA;
+  --bd:3px solid var(--ink);
+  --sh:4px 4px 0 var(--ink);
+  --mono:"Consolas","SF Mono","Courier New",monospace;
+}
+*{box-sizing:border-box}
+html{font-size:17px}
+body{margin:0;color:var(--ink);background:var(--paper);min-height:100vh;
+  background-image:radial-gradient(var(--blue-l) 1.5px,transparent 1.5px);background-size:26px 26px;
+  font-family:"Arial Rounded MT Bold","Nunito","Trebuchet MS","Segoe UI",system-ui,sans-serif;line-height:1.5}
+h1,h2,h3{line-height:1.2;margin:0 0 .5rem}
+p{margin:0 0 .7rem}
+button{font:inherit;color:inherit}
+:focus-visible{outline:4px solid var(--blue);outline-offset:3px}
+
+.top{background:var(--ink);color:#fff;padding:.9rem 1.2rem;text-align:center}
+.top h1{font-size:1.5rem;margin:0}
+.top p{margin:.3rem 0 0;opacity:.85;font-size:.95rem}
+
+.wrap{max-width:1000px;margin:0 auto;padding:1.4rem 1rem 4rem}
+
+.btn{font-weight:800;border:var(--bd);border-radius:999px;padding:.6rem 1.4rem;background:var(--sun);
+  box-shadow:3px 3px 0 var(--ink);cursor:pointer;transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--ink)}
+.btn.blue{background:var(--blue);color:#fff}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+.card{background:var(--card);border:var(--bd);border-radius:18px;box-shadow:var(--sh);padding:1.1rem 1.3rem;margin-bottom:1.2rem}
+.instr{background:var(--sun-l);border:var(--bd);border-radius:14px;padding:.9rem 1.1rem;margin-bottom:1.2rem;font-size:1.02rem}
+.instr b{color:var(--blue)}
+
+.phase-title{display:flex;align-items:center;gap:.6rem;font-size:1.15rem;margin-bottom:.8rem}
+.phase-badge{background:var(--ink);color:#fff;border-radius:50%;width:2rem;height:2rem;display:flex;align-items:center;justify-content:center;font-weight:800;flex:none}
+.phase-badge.coral{background:var(--coral)}
+
+.track{position:relative;padding-top:4.2rem;margin:.6rem 0 1.2rem}
+.stns{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
+.stn{border:var(--bd);border-radius:14px;background:#fff;text-align:center;padding:.5rem .2rem;transition:background .2s,transform .2s}
+.stn .em{display:block;font-size:1.9rem}
+.stn .lb{font-size:.78rem;font-weight:800}
+.stn.on{background:var(--sun);transform:translateY(-4px)}
+.packet{position:absolute;top:0;left:16.6%;transform:translateX(-50%);opacity:0;min-width:3.4rem;text-align:center;padding:.3rem .7rem;
+  background:var(--coral);color:#fff;border:var(--bd);border-radius:14px;box-shadow:3px 3px 0 var(--ink);font-family:var(--mono);font-weight:800;font-size:1.05rem;
+  transition:left .6s ease-in-out,opacity .3s;white-space:nowrap}
+
+.stage{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;align-items:start}
+@media (max-width:700px){ .stage{grid-template-columns:1fr; } }
+.padWrap{text-align:center}
+.padWrap h2{font-size:1rem;display:flex;align-items:center;justify-content:center;gap:.4rem}
+.pad{display:inline-block;border:var(--bd);border-radius:12px;background:#fff;padding:.7rem;box-shadow:var(--sh)}
+.pad small{display:block;font-size:.7rem;font-weight:700;color:#7D7A75;margin-bottom:.4rem}
+.grid8{display:grid;grid-template-columns:repeat(8,28px);grid-template-rows:repeat(8,28px);gap:2px;margin:0 auto}
+.cell{border:1.5px solid #dfe0e6;border-radius:4px;background:#fafaff;display:flex;align-items:center;justify-content:center;font-size:.9rem;position:relative}
+.cell.target{cursor:pointer}
+.cell.target:hover{background:var(--sun-l)}
+.cell.chosen{background:var(--sun);border-color:var(--ink)}
+.cell.cursor{background:var(--mint-l);border-color:var(--ink)}
+
+.coords{display:flex;gap:1rem;justify-content:center;margin:1rem 0;flex-wrap:wrap}
+.coordcard{border:var(--bd);border-radius:12px;padding:.5rem .9rem;background:#fff;text-align:center}
+.coordcard .k{font-size:.75rem;color:#7D7A75;font-weight:700}
+.coordcard .v{font-size:1.2rem;font-weight:800;font-family:var(--mono);color:var(--blue)}
+.coordcard .b{font-size:.85rem;font-family:var(--mono);font-weight:800}
+
+.narr{min-height:2.4rem;font-weight:700;background:var(--sun-l);border:var(--bd);border-radius:12px;padding:.5rem .9rem;margin:.7rem 0;text-align:center}
+.msg{margin-top:1rem;font-weight:800;font-size:1.05rem;min-height:1.6rem;text-align:center}
+.msg.ok{color:#0B7A55}
+.actions{display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap;margin-top:1.1rem}
+.note{font-size:.9rem;color:#5b577e;text-align:center;margin-top:.6rem}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>🖱️ Coder le mouvement de la souris</h1>
+  <p>Séquence 1 — Définitions et vocabulaire de base · Souris → Unité centrale → Écran</p>
+</header>
+
+<main class="wrap">
+  <div class="instr">
+    <p>Même un simple <b>mouvement de souris</b> doit être codé ! Sa position est définie par deux nombres : <b>x</b> (horizontal) et <b>y</b> (vertical), chacun codé en binaire.</p>
+    <p>👉 Clique sur la case 🎯 dans la zone de la souris pour « déplacer » la souris jusqu'à cette position.</p>
+  </div>
+
+  <div class="card">
+    <div class="track">
+      <div class="packet" id="packet"></div>
+      <div class="stns">
+        <div class="stn" id="stnSouris"><span class="em">🖱️</span><span class="lb">Souris</span></div>
+        <div class="stn" id="stnUC"><span class="em">🖥️</span><span class="lb">Unité centrale</span></div>
+        <div class="stn" id="stnEcran"><span class="em">🖵</span><span class="lb">Écran</span></div>
+      </div>
+    </div>
+
+    <div class="phase-title"><span class="phase-badge" id="badge1">1</span> Codage : la position de la souris est mesurée</div>
+    <div class="stage">
+      <div class="padWrap">
+        <h2>🖱️ Zone de la souris</h2>
+        <div class="pad">
+          <small>Clique sur la cible 🎯</small>
+          <div class="grid8" id="padGrid"></div>
+        </div>
+      </div>
+      <div class="padWrap">
+        <h2>🖥️ Unité centrale</h2>
+        <div class="coords" id="coords"></div>
+      </div>
+    </div>
+    <div class="narr" id="narr1" style="display:none"></div>
+    <button class="btn blue" id="btnPhase1" disabled>📤 Coder et envoyer la position</button>
+
+    <div id="phase2Block" style="display:none; margin-top:1.4rem;">
+      <div class="phase-title"><span class="phase-badge coral" id="badge2">2</span> Décodage : le curseur apparaît à l'écran</div>
+      <button class="btn blue" id="btnPhase2">🖥️ Décoder et afficher le curseur</button>
+      <div class="narr" id="narr2" style="display:none"></div>
+      <div class="padWrap" style="margin-top:.8rem;">
+        <h2>🖵 Écran</h2>
+        <div class="pad">
+          <small>Le curseur va apparaître ici</small>
+          <div class="grid8" id="screenGrid"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="msg" id="msg"></div>
+    <div class="actions">
+      <button class="btn" id="resetBtn">↺ Recommencer</button>
+    </div>
+    <p class="note">Rien n'est enregistré : cette page sert de démonstration à revoir autant de fois que tu veux.</p>
+  </div>
+</main>
+
+<script>
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+const toBin3 = n => n.toString(2).padStart(3,'0');
+
+// Position cible : x = colonne (0-7), y = ligne (0-7)
+const TARGET = { x: 5, y: 2 };
+
+const padGrid = document.getElementById('padGrid');
+const screenGrid = document.getElementById('screenGrid');
+const coords = document.getElementById('coords');
+const btnPhase1 = document.getElementById('btnPhase1');
+const btnPhase2 = document.getElementById('btnPhase2');
+const narr1 = document.getElementById('narr1');
+const narr2 = document.getElementById('narr2');
+const phase2Block = document.getElementById('phase2Block');
+const msg = document.getElementById('msg');
+const resetBtn = document.getElementById('resetBtn');
+const packet = document.getElementById('packet');
+const stnSouris = document.getElementById('stnSouris');
+const stnUC = document.getElementById('stnUC');
+const stnEcran = document.getElementById('stnEcran');
+const stns = [stnSouris, stnUC, stnEcran];
+
+let chosen = false;
+
+function buildPad(){
+  padGrid.innerHTML = '';
+  for (let y = 0; y < 8; y++){
+    for (let x = 0; x < 8; x++){
+      const c = document.createElement('div');
+      c.className = 'cell';
+      if (x === TARGET.x && y === TARGET.y){
+        c.classList.add('target');
+        c.textContent = '🎯';
+        c.onclick = () => chooseTarget(c);
+      }
+      padGrid.appendChild(c);
+    }
+  }
+}
+function buildScreen(){
+  screenGrid.innerHTML = '';
+  for (let y = 0; y < 8; y++){
+    for (let x = 0; x < 8; x++){
+      const c = document.createElement('div');
+      c.className = 'cell';
+      c.dataset.x = x; c.dataset.y = y;
+      screenGrid.appendChild(c);
+    }
+  }
+}
+
+function chooseTarget(cell){
+  if (chosen) return;
+  chosen = true;
+  cell.classList.add('chosen');
+  coords.innerHTML =
+    '<div class="coordcard"><div class="k">x (colonne)</div><div class="v">'+TARGET.x+'</div><div class="b">'+toBin3(TARGET.x)+'</div></div>' +
+    '<div class="coordcard"><div class="k">y (ligne)</div><div class="v">'+TARGET.y+'</div><div class="b">'+toBin3(TARGET.y)+'</div></div>';
+  btnPhase1.disabled = false;
+}
+
+function moveTo(i, txt){
+  if (txt != null) packet.textContent = txt;
+  packet.style.left = ((i + .5) * 100 / 3) + '%';
+  stns.forEach((s, j) => s.classList.toggle('on', j === i));
+}
+
+btnPhase1.onclick = async () => {
+  btnPhase1.disabled = true;
+  narr1.style.display = 'block';
+  packet.style.opacity = 1;
+  narr1.textContent = 'La position (x='+TARGET.x+', y='+TARGET.y+') est codée : x='+toBin3(TARGET.x)+', y='+toBin3(TARGET.y)+'…';
+  moveTo(0, toBin3(TARGET.x)+' '+toBin3(TARGET.y));
+  await sleep(300);
+  moveTo(1, toBin3(TARGET.x)+' '+toBin3(TARGET.y));
+  await sleep(900);
+  narr1.textContent = '✅ Position codée et reçue par l\'unité centrale : x='+toBin3(TARGET.x)+', y='+toBin3(TARGET.y);
+  packet.style.opacity = 0;
+  stns.forEach(s => s.classList.remove('on'));
+  phase2Block.style.display = 'block';
+  phase2Block.scrollIntoView({ behavior:'smooth', block:'nearest' });
+};
+
+btnPhase2.onclick = async () => {
+  btnPhase2.disabled = true;
+  narr2.style.display = 'block';
+  packet.style.opacity = 1;
+  narr2.textContent = 'Le code binaire part vers l\'écran pour être décodé…';
+  moveTo(1, toBin3(TARGET.x)+' '+toBin3(TARGET.y));
+  await sleep(300);
+  moveTo(2, toBin3(TARGET.x)+' '+toBin3(TARGET.y));
+  await sleep(900);
+  packet.style.opacity = 0;
+  stns.forEach(s => s.classList.remove('on'));
+
+  const target = screenGrid.querySelector('.cell[data-x="'+TARGET.x+'"][data-y="'+TARGET.y+'"]');
+  target.classList.add('cursor');
+  target.textContent = '🖱️';
+  narr2.textContent = 'Décodé : x='+TARGET.x+', y='+TARGET.y+' → le curseur apparaît exactement à cette position !';
+  msg.textContent = '🎉 Bravo ! La position de la souris a voyagé, codée en binaire, jusqu\'à l\'écran.';
+  msg.className = 'msg ok';
+};
+
+resetBtn.onclick = () => {
+  chosen = false;
+  buildPad(); buildScreen();
+  coords.innerHTML = '';
+  btnPhase1.disabled = true; btnPhase2.disabled = false;
+  narr1.style.display = 'none'; narr1.textContent = '';
+  narr2.style.display = 'none'; narr2.textContent = '';
+  phase2Block.style.display = 'none';
+  msg.textContent = ''; msg.className = 'msg';
+  packet.style.opacity = 0;
+  stns.forEach(s => s.classList.remove('on'));
+};
+
+buildPad(); buildScreen();
+</script>
+<!-- a11y-clavier -->
+<script>
+(function(){
+  // Rend utilisables au clavier (Tab, Entrée/Espace, flèches) les éléments cliquables qui ne sont pas des boutons natifs.
+  var NATIVE = 'button,a[href],input,select,textarea,summary';
+  function enhance(){
+    document.querySelectorAll('body *').forEach(function(el){
+      if (typeof el.onclick !== 'function' || el.matches(NATIVE) || el.hasAttribute('data-kbd')) return;
+      el.setAttribute('data-kbd', '');
+      if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+      if (!el.hasAttribute('role')) el.setAttribute('role', 'button');
+      if (!el.textContent.trim() && !el.hasAttribute('aria-label')) {
+        el.setAttribute('aria-label', 'Case ' + (Array.prototype.indexOf.call(el.parentNode.children, el) + 1));
+      }
+    });
+  }
+  document.addEventListener('keydown', function(e){
+    var el = e.target;
+    if (!(el instanceof Element) || !el.hasAttribute('data-kbd')) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      el.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true}));
+      return;
+    }
+    var dir = {ArrowRight: 1, ArrowLeft: -1, ArrowDown: 'down', ArrowUp: 'up'}[e.key];
+    if (!dir) return;
+    var sibs = Array.prototype.filter.call(el.parentNode.children, function(s){ return s.hasAttribute('data-kbd'); });
+    if (sibs.length < 2) return;
+    var cols = getComputedStyle(el.parentNode).gridTemplateColumns.split(' ').filter(function(c){ return c && c !== 'none'; }).length || 1;
+    var step = dir === 'down' ? cols : dir === 'up' ? -cols : dir;
+    var next = sibs[sibs.indexOf(el) + step];
+    if (next) { e.preventDefault(); next.focus(); }
+  });
+  document.querySelectorAll('#msg,.msg,#progress,.progress,.narr').forEach(function(el){
+    if (!el.hasAttribute('aria-live')) el.setAttribute('aria-live', 'polite');
+  });
+  var pending = false;
+  new MutationObserver(function(){
+    if (pending) return;
+    pending = true;
+    setTimeout(function(){ pending = false; enhance(); }, 0);
+  }).observe(document.body, {childList: true, subtree: true});
+  enhance();
+})();
+</script>
+</body>
+</html>
