@@ -132,81 +132,37 @@ const MODULES = [
       {
         label: "Vue d'ensemble du module",
         folder: "vue-ensemble",
-        groups: [ { label: "Cahier", items: [
-          { file: "Module1_Vue_Ensemble.html", ic: "📓", label: "Vue d'ensemble : les 4 leçons (cahier zoomable)", sem: "S1-S5" },
-          { file: "Lecon2_Structure_Ordinateur.html", ic: "📓", label: "Leçon 2 (cahier) : Structure de base d'un ordinateur", sem: "S1-S5" },
-          { file: "Lecon3_Types_Logiciels.html", ic: "📓", label: "Leçon 3 (cahier) : Types de logiciels", sem: "S1-S5" },
-          { file: "Lecon4_Domaines_Application.html", ic: "📓", label: "Leçon 4 (cahier) : Domaines d'application", sem: "S1-S5" }
+        groups: [ { items: [
+          { file: "Module1_Vue_Ensemble.html", ic: "📓", label: "Vue d'ensemble : les 4 leçons (cahier zoomable)", sem: "S1-S5" }
         ]}]
       },
       {
-        label: "Séquence 1 — Définitions et vocabulaire de base",
+        label: "Leçon 1 — Définitions et vocabulaire",
         folder: "sequence1-definitions-vocabulaire",
-        groups: [
-          { label: "Leçons interactives", items: [
-            { file: "TC_M1_L1_definitions.html", ic: "📋", label: "Leçon 1 : Définitions et vocabulaire de base", sem: "S1" },
-            { file: "Lecon1_Definitions_vocabulaire.html", ic: "📓", label: "Leçon 1 (version cahier) : trace écrite animée", sem: "S1" },
-            { file: "TC_M1_L3_bit_octet.html", ic: "🔌", label: "Leçon 3 : Le bit et l'octet", sem: "S1" }
-          ]},
-          { label: "Cours", items: [
-            { file: "cours_definitions_vocabulaire.html", ic: "📘", label: "Cours : Définitions et vocabulaire", sem: "S1" },
-            { file: "cours_langage_machine_binaire.html", ic: "📘", label: "Cours : Langage machine et binaire", sem: "S1" }
-          ]},
-          { label: "Animations", items: [
-            { file: "animations/image.html", ic: "🅰️", label: "Codage/décodage : la lettre T (noir & blanc)", sem: "S1" },
-            { file: "animations/couleur-5x5.html", ic: "🤖", label: "Codage couleur : image 5×5 (2 bits)", sem: "S1" },
-            { file: "animations/couleur-8x8.html", ic: "🤖", label: "Codage couleur : image 8×8 (3 bits, tablette)", sem: "S1" },
-            { file: "animations/clavier-ecran.html", ic: "⌨️", label: "Codage/décodage : la lettre A", sem: "S1" },
-            { file: "animations/mot-salut.html", ic: "⌨️", label: "Codage/décodage : le mot SALUT", sem: "S1" },
-            { file: "animations/son.html", ic: "🎙️", label: "Codage/décodage : le son", sem: "S1" },
-            { file: "animations/scanner-imprimante.html", ic: "🖨️", label: "Scanner → Unité centrale → Imprimante", sem: "S1" },
-            { file: "animations/souris-ecran.html", ic: "🖱️", label: "Souris → Unité centrale → Écran", sem: "S1" },
-            { file: "animations/calcul.html", ic: "🧮", label: "Un calcul : 12 + 7", sem: "S1" },
-            { file: "animations/circuit-bit.html", ic: "🔌", label: "Du circuit électrique au bit", sem: "S1" },
-            { file: "animations/zoom-microscope.html", ic: "🔬", label: "Zoom : de la carte mémoire au transistor", sem: "S1" },
-            { file: "animations/compteur-bit-to.html", ic: "📈", label: "Compteur qui s'emballe (1 bit → 1 To)", sem: "S1" },
-            { file: "animations/combien-1to.html", ic: "📦", label: "Combien ça tient dans 1 To ?", sem: "S1" },
-            { file: "animations/ram-stockage.html", ic: "🧠", label: "RAM vs Stockage", sem: "S1" }
-          ]}
-        ]
+        groups: [ { items: [
+          { file: "Lecon1_Definitions_vocabulaire.html", ic: "📓", label: "Leçon 1 (cahier) : Définitions et vocabulaire", sem: "S1" }
+        ]}]
       },
       {
-        label: "Séquence 2 — Unité centrale et mémoire",
-        folder: "sequence2-unite-centrale-memoire",
-        groups: [
-          { label: "Cours", items: [
-            { file: "cours_unite_centrale_memoire.html", ic: "📘", label: "Cours : Unité centrale et mémoire", sem: "S2-S3" }
-          ]},
-          { label: "Animations", items: [
-            { file: "au_coeur_unite_centrale.html", ic: "🔧", label: "Au cœur de l'unité centrale (8 composants)", sem: "S2" },
-            { file: "animations_dedans_dehors.html", ic: "🖥️", label: "Jeu : Dedans ou dehors l'unité centrale ?", sem: "S2" }
-          ]}
-        ]
+        label: "Leçon 2 — Structure de l'ordinateur",
+        folder: "vue-ensemble",
+        groups: [ { items: [
+          { file: "Lecon2_Structure_Ordinateur.html", ic: "📓", label: "Leçon 2 (cahier) : Structure de base d'un ordinateur", sem: "S2-S3" }
+        ]}]
       },
       {
-        label: "Séquence 3 — Les périphériques",
-        folder: "sequence3-peripheriques",
-        groups: [
-          { label: "Cours", items: [
-            { file: "cours_peripheriques.html", ic: "📘", label: "Cours : Les périphériques", sem: "S3" }
-          ]},
-          { label: "Animations", items: [
-            { file: "peripheriques.html", ic: "🔍", label: "Les périphériques (scène interactive)", sem: "S3" },
-            { file: "animations_tri_peripheriques.html", ic: "🖱️", label: "Jeu : Trie les périphériques", sem: "S3" }
-          ]}
-        ]
+        label: "Leçon 3 — Types de logiciels",
+        folder: "vue-ensemble",
+        groups: [ { items: [
+          { file: "Lecon3_Types_Logiciels.html", ic: "📓", label: "Leçon 3 (cahier) : Types de logiciels", sem: "S4-S5" }
+        ]}]
       },
       {
-        label: "Séquence 4 — Logiciels et domaines d'application",
-        folder: "sequence4-logiciels-domaines",
-        groups: [
-          { label: "Cours", items: [
-            { file: "cours_logiciels_domaines.html", ic: "📘", label: "Cours : Logiciels et domaines d'application", sem: "S4-S5" }
-          ]},
-          { label: "Animations", items: [
-            { file: "animations_tri_logiciels.html", ic: "💿", label: "Jeu : Logiciel de base ou d'application ?", sem: "S4" }
-          ]}
-        ]
+        label: "Leçon 4 — Domaines d'application",
+        folder: "vue-ensemble",
+        groups: [ { items: [
+          { file: "Lecon4_Domaines_Application.html", ic: "📓", label: "Leçon 4 (cahier) : Domaines d'application", sem: "S4-S5" }
+        ]}]
       }
     ]
   },
@@ -297,17 +253,38 @@ const MODULES = [
     root: "module4-reseaux-internet",
     sections: [
       {
-        label: "Notion de réseau informatique",
-        folder: "notion-reseau",
-        groups: [ { label: "Atelier", items: [
-          { file: "Atelier_Reseau_Informatique.html", ic: "🖧", label: "Atelier : Notion de réseau informatique", sem: "S27-S28" }
+        label: "Vue d'ensemble du module",
+        folder: "vue-ensemble",
+        groups: [ { items: [
+          { file: "Module4_Vue_Ensemble.html", ic: "📓", label: "Vue d'ensemble : les 4 leçons (cahier zoomable)", sem: "S27-S33" }
         ]}]
       },
       {
-        label: "Réseau Internet",
-        folder: "reseau-internet",
-        groups: [ { label: "Atelier", items: [
-          { file: "Atelier_Reseau_Internet.html", ic: "🌐", label: "Atelier : Réseau Internet", sem: "S29-S33" }
+        label: "Leçon 1 — Notion de réseau",
+        folder: "vue-ensemble",
+        groups: [ { items: [
+          { file: "Lecon1_Notion_Reseau.html", ic: "📓", label: "Leçon 1 (cahier) : Notion de réseau", sem: "S27-S28" }
+        ]}]
+      },
+      {
+        label: "Leçon 2 — Types et topologies",
+        folder: "vue-ensemble",
+        groups: [ { items: [
+          { file: "Lecon2_Types_Topologies.html", ic: "📓", label: "Leçon 2 (cahier) : Types et topologies de réseau", sem: "S27-S28" }
+        ]}]
+      },
+      {
+        label: "Leçon 3 — Internet et ses services",
+        folder: "vue-ensemble",
+        groups: [ { items: [
+          { file: "Lecon3_Internet_Services.html", ic: "📓", label: "Leçon 3 (cahier) : Internet et ses services", sem: "S29-S33" }
+        ]}]
+      },
+      {
+        label: "Leçon 4 — Usage responsable",
+        folder: "vue-ensemble",
+        groups: [ { items: [
+          { file: "Lecon4_Usage_Responsable.html", ic: "📓", label: "Leçon 4 (cahier) : Usage responsable d'Internet", sem: "S29-S33" }
         ]}]
       }
     ]

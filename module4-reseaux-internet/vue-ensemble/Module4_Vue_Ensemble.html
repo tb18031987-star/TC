@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>📓 Module 4 — Vue d'ensemble (cahier)</title>
+<style>
+:root{
+  --paper:#fffdf6;
+  --thin:rgba(125,110,205,.20);
+  --bold:rgba(110,92,205,.46);
+  --vert:rgba(125,110,205,.17);
+  --marge:#e0525a;
+  --encre:#1b3c93;
+  --rouge:#d1232e;
+  --vert-stylo:#17804a;
+  --navy:#123A6B; --bleu:#1F5FA8; --bleu-l:#E5F2FC;
+  --vert-d:#1E8E5A; --vert-l:#E7F7EE;
+  --tan-d:#A3620A; --tan-l:#FBEBDE;
+  --main:"Segoe Print","Comic Sans MS","Chalkboard SE","Bradley Hand",cursive;
+  --ui:"Segoe UI",system-ui,-apple-system,sans-serif;
+  --mono:"Consolas","SF Mono","Courier New",monospace;
+  --l:8px; --L:32px; --mg:72px; --off:-8px;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:90px}
+body{margin:0;min-height:100vh;color:var(--encre);font-family:var(--main);
+  background:linear-gradient(135deg,#d7e0ea 0%,#c5d1de 100%) fixed}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid #f2b705;outline-offset:2px}
+
+.bar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;
+  padding:.55rem 1rem;background:#16305c;color:#fff;font-family:var(--ui);box-shadow:0 2px 10px rgba(0,0,0,.25)}
+.bar .t{font-weight:700;font-size:.98rem;white-space:nowrap}
+.bar .t small{opacity:.75;font-weight:500}
+.bar .home{color:#cfe0ff;text-decoration:none;font-size:.85rem;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:.15rem .7rem}
+.bar .home:hover{background:rgba(255,255,255,.12)}
+.bar .zoomout{margin-left:auto;border:0;border-radius:999px;padding:.35rem .9rem;font-weight:700;font-size:.86rem;cursor:pointer;background:#f2b705;color:#16305c;display:none}
+.bar .zoomout.show{display:inline-block}
+.bar .zoomout:hover{background:#ffc928}
+
+.cahier{position:relative;max-width:1180px;margin:22px auto 70px;
+  padding:calc(var(--L)*1.4) 40px calc(var(--L)*2) calc(var(--mg) + 20px);
+  background-color:var(--paper);
+  background-image:
+    linear-gradient(to right,transparent calc(var(--mg) - 2px),var(--marge) calc(var(--mg) - 2px),var(--marge) var(--mg),transparent var(--mg)),
+    repeating-linear-gradient(to right,transparent 0 calc(var(--L) - 1px),var(--vert) calc(var(--L) - 1px) var(--L)),
+    repeating-linear-gradient(to bottom,transparent 0 calc(var(--L) - 1px),var(--bold) calc(var(--L) - 1px) var(--L)),
+    repeating-linear-gradient(to bottom,transparent 0 calc(var(--l) - 1px),var(--thin) calc(var(--l) - 1px) var(--l));
+  background-position:0 0,var(--mg) 0,0 var(--off),0 var(--off);
+  border-radius:4px 12px 12px 4px;
+  box-shadow:0 1px 2px rgba(0,0,0,.08),0 16px 36px rgba(20,35,70,.22)}
+.cahier::before{content:"";position:absolute;left:0;top:0;bottom:0;width:calc(var(--mg) - 2px);border-radius:4px 0 0 4px;
+  background-color:var(--paper);
+  background-image:
+    repeating-linear-gradient(to bottom,transparent 0 calc(var(--L) - 1px),var(--bold) calc(var(--L) - 1px) var(--L)),
+    repeating-linear-gradient(to bottom,transparent 0 calc(var(--l) - 1px),var(--thin) calc(var(--l) - 1px) var(--l));
+  background-position:0 var(--off),0 var(--off)}
+.cahier::after{content:"";position:absolute;left:16px;top:22px;bottom:22px;width:18px;
+  background:radial-gradient(circle at 9px 9px,#c9d4df 0 6px,rgba(40,50,70,.28) 6.5px 7.5px,transparent 8px) 0 0/18px 60px repeat-y}
+.cahier > *{position:relative;z-index:1}
+
+.date{margin:0 0 4px;text-align:right;font-size:17px;line-height:var(--L);color:var(--encre)}
+.module{margin:0;text-align:center;font-size:19px;line-height:var(--L);color:var(--vert-stylo);font-weight:700}
+.sous{margin:0 0 10px;text-align:center;font-size:15px;line-height:1.3;color:#5B6B7C;font-family:var(--ui)}
+.titre1{margin:0 0 calc(var(--L)*.6);text-align:center;font-size:27px;line-height:calc(var(--L)*1.4);color:var(--rouge);font-weight:700}
+.titre1 span{position:relative;display:inline-block}
+.titre1 span::after{content:"";position:absolute;left:-6px;right:-6px;bottom:6px;height:0;border-bottom:3px double var(--rouge)}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px 22px}
+@media (max-width:760px){ .grid{grid-template-columns:1fr} }
+.tile{position:relative;text-align:left;border:2.5px solid var(--navy);border-radius:14px;background:rgba(255,255,255,.72);
+  padding:14px 16px 12px;cursor:pointer;box-shadow:2px 3px 0 rgba(18,58,107,.15);transition:transform .18s,box-shadow .18s}
+.tile:hover{transform:translateY(-3px);box-shadow:4px 7px 0 rgba(18,58,107,.18)}
+.tile .num{position:absolute;left:-14px;top:-14px;width:30px;height:30px;border:2px solid var(--rouge);border-radius:50%;
+  background:var(--paper);display:grid;place-items:center;font-size:14px;font-weight:700;color:var(--rouge);transform:rotate(-6deg)}
+.tile h2{margin:0 0 6px;font-size:19px;color:var(--navy);font-weight:700}
+.tile p.hint{margin:6px 0 0;font-family:var(--ui);font-size:.74rem;color:#7D7A9A;font-weight:600}
+.tile .ic{font-size:1.3rem;margin-right:4px}
+
+.mini-flow{display:flex;align-items:center;gap:5px;flex-wrap:wrap;font-family:var(--ui);font-size:11px;margin-top:6px}
+.mini-box{border:2px solid var(--bleu);border-radius:8px;background:var(--bleu-l);color:var(--navy);font-weight:700;padding:3px 6px}
+.mini-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.mini-chip{font-family:var(--ui);font-size:11px;font-weight:700;border:1.5px solid var(--navy);border-radius:999px;background:#fff;padding:2px 8px;color:var(--navy)}
+.mini-url{font-family:var(--mono);font-size:11px;font-weight:700;background:#16305c;color:#f2b705;border-radius:8px;padding:5px 8px;margin-top:6px}
+
+.detail{display:none}
+.detail.show{display:block}
+.grid.hidden{display:none}
+.detail-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.detail-head .num{position:static;transform:rotate(-6deg);flex:none}
+.detail-head h1{margin:0;font-size:26px;color:var(--rouge);font-weight:700}
+.detail-intro{font-family:var(--ui);font-size:15px;color:#3b4a63;margin:0 0 14px;line-height:1.45}
+
+.flow{display:flex;align-items:stretch;gap:8px;margin:10px 0 18px;flex-wrap:wrap}
+.box{flex:1 1 0;min-width:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  padding:8px 8px;border:2.5px solid var(--bleu);border-radius:12px;background:var(--bleu-l);color:var(--navy);
+  font-weight:700;font-size:14px;line-height:1.25;box-shadow:2px 3px 0 rgba(18,58,107,.15);font-family:var(--ui)}
+.box small{font-weight:400;font-size:11.5px;color:#5B6B7C;display:block;margin-top:3px}
+
+.rows{display:flex;flex-direction:column;gap:7px;margin:12px 0}
+.row{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:10px}
+.row .a{border:2px solid var(--navy);border-radius:10px;background:var(--bleu-l);color:var(--navy);font-weight:800;
+  font-size:13px;padding:5px 9px;text-align:center}
+.row .e{font-family:var(--ui);font-size:13px;color:#3b4a63}
+
+.compareRow2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+@media (max-width:600px){ .compareRow2{grid-template-columns:1fr} }
+.compCol{border:2.5px solid var(--navy);border-radius:14px;padding:10px 12px;font-family:var(--ui);font-size:13px}
+.compCol.oui{background:var(--vert-l);border-color:var(--vert-d)}
+.compCol.non{background:var(--tan-l);border-color:var(--tan-d)}
+.compCol h3{margin:0 0 4px;font-size:13.5px}
+.compCol ul{margin:0;padding-left:1.1rem}
+.compCol li{margin-bottom:3px}
+
+.animLink{display:inline-flex;align-items:center;gap:8px;margin-top:4px;border:2px solid var(--navy);border-radius:999px;
+  background:#16305c;color:#fff;font-family:var(--ui);font-weight:700;font-size:.9rem;padding:.5rem 1.1rem;cursor:pointer;
+  box-shadow:2px 3px 0 rgba(18,58,107,.25)}
+.animLink:hover{background:#1f4580}
+
+.modal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;background:rgba(15,25,45,.62);padding:14px}
+.modal.open{display:flex}
+.mcard{width:min(1300px,100%);height:min(880px,100%);display:flex;flex-direction:column;background:#fff;border-radius:14px;overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.4);font-family:var(--ui)}
+.mhead{display:flex;align-items:center;gap:.6rem;padding:.55rem .8rem;background:#16305c;color:#fff}
+.mhead h2{margin:0;font-size:1rem;flex:1 1 auto}
+.mhead a,.mhead .x{border:0;border-radius:999px;padding:.28rem .75rem;font-size:.82rem;font-weight:700;background:#fff;color:#16305c;text-decoration:none;cursor:pointer}
+.mframe{flex:1;border:0;width:100%;background:#fff}
+
+@media (max-width:760px){
+  :root{--mg:48px}
+  .cahier{padding-left:calc(var(--mg) + 12px);padding-right:16px;margin:10px 6px 50px}
+  .cahier::after{left:5px}
+  .titre1{font-size:21px}
+}
+@media print{ .bar,.modal{display:none!important} body{background:#fff} .cahier{box-shadow:none;margin:0 auto} }
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <a class="home" href="../../index.html" target="_top" title="Retour au portail">🏠 Portail</a>
+  <div class="t">📓 Module 4 <small>— vue d'ensemble (cahier)</small></div>
+  <button class="zoomout" id="bZoomOut">🔍− Vue d'ensemble</button>
+</header>
+
+<main class="cahier" id="cahier">
+  <p class="date" id="date"></p>
+  <p class="module">Module 4 : Réseaux et Internet</p>
+  <h1 class="titre1"><span>Vue d'ensemble — les 4 leçons</span></h1>
+  <p class="sous">Clique sur une leçon pour zoomer et la développer en détail.</p>
+
+  <div class="grid" id="grid">
+
+    <button class="tile" data-lecon="1">
+      <span class="num">1</span>
+      <h2><span class="ic">🖧</span>Notion de réseau</h2>
+      <div class="mini-flow">
+        <span class="mini-box">Carte réseau</span><span class="mini-box">Switch</span>
+        <span class="mini-box">Routeur</span><span class="mini-box">Serveur</span>
+      </div>
+      <p class="hint">Protocole (TCP/IP) · Adresse IP</p>
+    </button>
+
+    <button class="tile" data-lecon="2">
+      <span class="num">2</span>
+      <h2><span class="ic">🌐</span>Types et topologies</h2>
+      <div class="mini-chips">
+        <span class="mini-chip">LAN</span><span class="mini-chip">MAN</span><span class="mini-chip">WAN</span>
+        <span class="mini-chip">Bus</span><span class="mini-chip">Étoile</span><span class="mini-chip">Anneau</span>
+      </div>
+      <p class="hint">Avantages / inconvénients de chaque topologie</p>
+    </button>
+
+    <button class="tile" data-lecon="3">
+      <span class="num">3</span>
+      <h2><span class="ic">🔗</span>Internet et ses services</h2>
+      <div class="mini-url">https:// · www.men.gov.ma · /fr</div>
+      <p class="hint">Web, e-mail, chat pédagogique</p>
+    </button>
+
+    <button class="tile" data-lecon="4">
+      <span class="num">4</span>
+      <h2><span class="ic">🛡️</span>Usage responsable</h2>
+      <div class="mini-chips">
+        <span class="mini-chip">✅ Je fais</span><span class="mini-chip">❌ Je ne fais pas</span>
+      </div>
+      <p class="hint">Curiosité, prudence et respect</p>
+    </button>
+
+  </div>
+
+  <!-- ===== Détail Leçon 1 ===== -->
+  <section class="detail" id="detail-1">
+    <div class="detail-head"><span class="num">1</span><h1>Notion de réseau</h1></div>
+    <p class="detail-intro">Ensemble d'appareils reliés (câbles, Wi-Fi) pour échanger des informations et partager des ressources.</p>
+    <div class="flow">
+      <div class="box">Carte réseau</div><div class="box">Câble / Wi-Fi</div>
+      <div class="box">Switch</div><div class="box">Routeur</div><div class="box">Serveur</div>
+    </div>
+    <p class="detail-intro"><b>Protocole</b> : règles communes pour communiquer (TCP/IP). <b>Adresse IP</b> : identifie un appareil (ex. : 192.168.1.10).</p>
+    <button class="animLink" id="bOpenLecon1">🎬 Ouvrir la trace écrite animée complète</button>
+  </section>
+
+  <!-- ===== Détail Leçon 2 ===== -->
+  <section class="detail" id="detail-2">
+    <div class="detail-head"><span class="num">2</span><h1>Types et topologies de réseau</h1></div>
+    <div class="rows">
+      <div class="row"><span class="a">LAN</span><span class="e">salle, immeuble — réseau du lycée</span></div>
+      <div class="row"><span class="a">MAN</span><span class="e">ville — réseau reliant les écoles d'une ville</span></div>
+      <div class="row"><span class="a">WAN</span><span class="e">pays, monde — Internet</span></div>
+    </div>
+    <div class="flow">
+      <div class="box">Bus<small>câble commun</small></div>
+      <div class="box">Étoile<small>switch central</small></div>
+      <div class="box">Anneau<small>boucle</small></div>
+    </div>
+    <button class="animLink" id="bOpenLecon2">🎬 Ouvrir la trace écrite animée complète</button>
+  </section>
+
+  <!-- ===== Détail Leçon 3 ===== -->
+  <section class="detail" id="detail-3">
+    <div class="detail-head"><span class="num">3</span><h1>Internet et ses services</h1></div>
+    <p class="detail-intro">Réseau mondial qui relie des millions de réseaux entre eux — le plus grand WAN. Accès via un FAI.</p>
+    <div class="flow">
+      <div class="box">https://<small>protocole</small></div>
+      <div class="box">www.men.gov.ma<small>domaine + extension</small></div>
+      <div class="box">/fr<small>chemin</small></div>
+    </div>
+    <p class="detail-intro"><b>E-mail</b> : identifiant@fournisseur.extension. <b>Chat pédagogique</b> : discussion encadrée par le professeur.</p>
+    <button class="animLink" id="bOpenLecon3">🎬 Ouvrir la trace écrite animée complète</button>
+  </section>
+
+  <!-- ===== Détail Leçon 4 ===== -->
+  <section class="detail" id="detail-4">
+    <div class="detail-head"><span class="num">4</span><h1>Usage responsable d'Internet</h1></div>
+    <div class="compareRow2">
+      <div class="compCol oui">
+        <h3>✅ Je fais</h3>
+        <ul><li>Je garde mes données pour moi</li><li>Je vérifie mes sources</li><li>Je reste poli</li><li>Je parle à un adulte en cas de doute</li></ul>
+      </div>
+      <div class="compCol non">
+        <h3>❌ Je ne fais pas</h3>
+        <ul><li>Je ne donne pas mon mot de passe</li><li>Je ne copie pas le travail des autres</li><li>Je ne publie pas sans accord</li><li>Je ne clique pas sur un lien suspect</li></ul>
+      </div>
+    </div>
+    <p class="detail-intro"><b>Internet ouvre au monde</b> : à utiliser avec curiosité, prudence et respect.</p>
+    <button class="animLink" id="bOpenLecon4">🎬 Ouvrir la trace écrite animée complète</button>
+  </section>
+
+</main>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="mcard">
+    <div class="mhead">
+      <h2 id="mTitle">🎬 Version animée complète</h2>
+      <a id="mOpen" href="#" target="_blank" title="Ouvrir dans un nouvel onglet">↗ Onglet</a>
+      <button class="x" id="mClose" title="Fermer (Échap)">✕ Fermer</button>
+    </div>
+    <iframe class="mframe" id="mFrame" title="Leçon animée"></iframe>
+  </div>
+</div>
+
+<script>
+const d = new Date().toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+document.getElementById('date').textContent = d.charAt(0).toUpperCase() + d.slice(1);
+
+const grid = document.getElementById('grid');
+const bZoomOut = document.getElementById('bZoomOut');
+const tiles = [...document.querySelectorAll('.tile')];
+const details = [...document.querySelectorAll('.detail')];
+let current = null;
+
+function zoomTo(n){
+  const tile = tiles.find(t => t.dataset.lecon === String(n));
+  const detail = document.getElementById('detail-' + n);
+  const r = tile.getBoundingClientRect();
+  grid.classList.add('hidden');
+  details.forEach(dd => dd.classList.remove('show'));
+  detail.classList.add('show');
+  detail.animate(
+    [ { transform:`translateY(${r.top - detail.getBoundingClientRect().top}px) scale(.55)`, opacity:0 },
+      { transform:'none', opacity:1 } ],
+    { duration: 380, easing:'cubic-bezier(.3,1.3,.4,1)' }
+  );
+  bZoomOut.classList.add('show');
+  current = n;
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+function zoomOut(){
+  if (current == null) return;
+  grid.classList.remove('hidden');
+  details.forEach(dd => dd.classList.remove('show'));
+  grid.animate([{ opacity:0, transform:'scale(.92)' }, { opacity:1, transform:'none' }], { duration:260, easing:'ease-out' });
+  bZoomOut.classList.remove('show');
+  current = null;
+}
+tiles.forEach(t => t.onclick = () => zoomTo(t.dataset.lecon));
+bZoomOut.onclick = zoomOut;
+
+const modal = document.getElementById('modal'), mFrame = document.getElementById('mFrame'), mOpen = document.getElementById('mOpen');
+const LECON_FILES = {
+  1: 'Lecon1_Notion_Reseau.html',
+  2: 'Lecon2_Types_Topologies.html',
+  3: 'Lecon3_Internet_Services.html',
+  4: 'Lecon4_Usage_Responsable.html'
+};
+function ouvrirLeconAnimee(n){
+  const src = LECON_FILES[n];
+  mFrame.src = src;
+  mOpen.href = src;
+  document.getElementById('mTitle').textContent = '🎬 Leçon ' + n + ' — version animée complète';
+  modal.classList.add('open');
+  document.getElementById('mClose').focus();
+}
+[1,2,3,4].forEach(n => {
+  const btn = document.getElementById('bOpenLecon' + n);
+  if (btn) btn.onclick = () => ouvrirLeconAnimee(n);
+});
+function fermerModal(){ modal.classList.remove('open'); mFrame.src = 'about:blank'; }
+document.getElementById('mClose').onclick = fermerModal;
+modal.addEventListener('click', e => { if (e.target === modal) fermerModal(); });
+
+document.addEventListener('keydown', e => {
+  if (modal.classList.contains('open')) { if (e.key === 'Escape') fermerModal(); return; }
+  if (e.key === 'Escape' && current != null) zoomOut();
+});
+</script>
+<!-- a11y-clavier -->
+<script>
+(function(){
+  var NATIVE = 'button,a[href],input,select,textarea,summary';
+  function enhance(){
+    document.querySelectorAll('body *').forEach(function(el){
+      if (typeof el.onclick !== 'function' || el.matches(NATIVE) || el.hasAttribute('data-kbd')) return;
+      el.setAttribute('data-kbd', '');
+      if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+      if (!el.hasAttribute('role')) el.setAttribute('role', 'button');
+    });
+  }
+  var pending = false;
+  new MutationObserver(function(){
+    if (pending) return;
+    pending = true;
+    setTimeout(function(){ pending = false; enhance(); }, 0);
+  }).observe(document.body, {childList: true, subtree: true});
+  enhance();
+})();
+</script>
+</body>
+</html>

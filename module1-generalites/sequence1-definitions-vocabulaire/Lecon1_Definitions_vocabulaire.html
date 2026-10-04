@@ -313,6 +313,7 @@ button{font:inherit;color:inherit}
     <div class="postits">
       <button class="postit" data-group="unites"><b>🎬 Voir les animations</b>Du circuit électrique au bit · Combien ça tient dans 1 To ?</button>
       <button class="postit act" data-notion="3"><b>✏️ Activités</b>Notion 3 : les unités d’information</button>
+      <button class="postit" data-group="autres"><b>📚 Compléments</b>Les autres animations, cours et la Leçon 3</button>
     </div>
   </section>
 
@@ -361,15 +362,29 @@ button{font:inherit;color:inherit}
 ------------------------------------------------------------------ */
 const GROUPES = {
   information: { titre: "🎬 Donnée et information", items: [
-    ["clavier-ecran.html", "⌨️ Du clavier à l’écran"],
-    ["image.html", "🖼️ Coder et décoder une image"]
+    ["animations/clavier-ecran.html", "⌨️ Du clavier à l’écran"],
+    ["animations/image.html", "🖼️ Coder et décoder une image"]
   ]},
   traitement: { titre: "🎬 Le traitement de l’information", items: [
-    ["calcul.html", "🔢 Coder, calculer, décoder"]
+    ["animations/calcul.html", "🔢 Coder, calculer, décoder"]
   ]},
   unites: { titre: "🎬 Les unités d’information", items: [
-    ["circuit-bit.html", "💡 Du circuit électrique au bit"],
-    ["combien-1to.html", "📦 Combien ça tient dans 1 To ?"]
+    ["animations/circuit-bit.html", "💡 Du circuit électrique au bit"],
+    ["animations/combien-1to.html", "📦 Combien ça tient dans 1 To ?"]
+  ]},
+  autres: { titre: "📚 Compléments de la séquence", items: [
+    ["TC_M1_L3_bit_octet.html", "🔌 Leçon 3 : Le bit et l’octet"],
+    ["cours_definitions_vocabulaire.html", "📘 Cours : Définitions et vocabulaire"],
+    ["cours_langage_machine_binaire.html", "📘 Cours : Langage machine et binaire"],
+    ["animations/couleur-5x5.html", "🤖 Codage couleur : image 5×5"],
+    ["animations/couleur-8x8.html", "🤖 Codage couleur : image 8×8"],
+    ["animations/mot-salut.html", "⌨️ Le mot SALUT"],
+    ["animations/son.html", "🎙️ Codage du son"],
+    ["animations/scanner-imprimante.html", "🖨️ Scanner → Imprimante"],
+    ["animations/souris-ecran.html", "🖱️ Souris → Écran"],
+    ["animations/zoom-microscope.html", "🔬 Zoom microscope"],
+    ["animations/compteur-bit-to.html", "📈 Compteur 1 bit → 1 To"],
+    ["animations/ram-stockage.html", "🧠 RAM vs Stockage"]
   ]}
 };
 const ACTIVITES = 'TC_M1_L1_definitions.html';
@@ -585,8 +600,8 @@ document.querySelectorAll('.flow.chain').forEach(f => f.addEventListener('click'
 const modal = document.getElementById('modal'), mFrame = document.getElementById('mFrame'),
       mTabs = document.getElementById('mTabs'), mOpen = document.getElementById('mOpen');
 function ouvrirAnim(file){
-  mFrame.src = 'animations/' + file;
-  mOpen.href = 'animations/' + file;
+  mFrame.src = file;
+  mOpen.href = file;
   [...mTabs.children].forEach(b => b.classList.toggle('on', b.dataset.file === file));
 }
 function ouvrirGroupe(cle){

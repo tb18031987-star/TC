@@ -32,38 +32,25 @@ Les 4 modules sont désormais intégralement rédigés : plus aucune entrée �
 
 ### Module 1 — Généralités sur les systèmes informatiques
 
-**Séquence 1 — Définitions et vocabulaire de base** (`module1-generalites/sequence1-definitions-vocabulaire/`)
+Comme pour les Modules 2 et 3, le menu du portail ne montre plus que la **vue d'ensemble** et les **4 leçons (cahier)** — les séquences, cours et animations d'origine restent sur disque et sont reliés depuis les leçons via les post-it, plutôt que listés séparément dans la barre latérale.
 
-- Leçons interactives "jeu" autonomes (robot guide animé, chrono, phases Activité → Je déduis → Trace écrite → Exemple → Exercice, badges, bilan imprimable) : **`TC_M1_L1_definitions.html`** (donnée vs information, notions clés, unités de mesure) et **`TC_M1_L3_bit_octet.html`** (bit, octet, binaire, ASCII).
-- **`Lecon1_Definitions_vocabulaire.html`** — version alternative de la Leçon 1 : la trace écrite s'écrit à la main, lettre par lettre, sur une page de cahier Seyès animée (date du jour, schémas qui se dessinent, numéros de notion en marge). Des post-it jaunes ouvrent en fenêtre les animations liées à chaque définition, et des post-it verts ouvrent `TC_M1_L1_definitions.html` en fenêtre avec un lien direct vers la bonne notion (`#notion1/2/3`). Navigation clavier (← → Espace, Fin, Début, Échap) en plus des boutons.
+**Vue d'ensemble du module** (`module1-generalites/vue-ensemble/Module1_Vue_Ensemble.html`)
 
-**Vue d'ensemble du module** (`module1-generalites/vue-ensemble/`)
+- Page de cahier unique qui résume les **4 leçons du module** (Définitions, Structure de l'ordinateur, Types de logiciels, Domaines d'application), sur le modèle d'une fiche de synthèse une-page. Chaque leçon est une tuile cliquable qui **zoome** en plein détail ; un bouton « 🔍− Vue d'ensemble » revient à la grille, et chaque détail a son bouton « 🎬 Ouvrir la trace écrite animée complète ».
 
-- **`Module1_Vue_Ensemble.html`** — une page de cahier unique qui résume les **4 leçons du module** (Définitions, Structure de l'ordinateur, Types de logiciels, Domaines d'application), sur le modèle d'une fiche de synthèse une-page. Chaque leçon est une tuile cliquable qui **zoome** en plein détail (schémas repris du programme : unité centrale/mémoire/bus, logiciel de base vs application, grille des 10 domaines d'application) ; un bouton « 🔍− Vue d'ensemble » revient à la grille. Chaque détail a son bouton « 🎬 Ouvrir la trace écrite animée complète » qui ouvre la leçon correspondante en fenêtre.
-- **`Lecon2_Structure_Ordinateur.html`**, **`Lecon3_Types_Logiciels.html`**, **`Lecon4_Domaines_Application.html`** — même principe que `Lecon1_Definitions_vocabulaire.html` : trace écrite animée sur une page de cahier, avec schémas qui se dessinent (unité centrale ⇄ mémoire + bus, périphériques entrée/sortie/stockage, logiciel de base ≠ application, grille des 10 domaines d'application qui apparaît notion par notion). Les post-it jaunes ouvrent les animations déjà existantes (Séquences 2, 3 et 4 : au cœur de l'unité centrale, dedans/dehors, les périphériques, trie les périphériques, logiciel de base ou d'application), avec plusieurs onglets quand une notion a plusieurs animations liées ; les post-it verts ouvrent les cours correspondants (`cours_unite_centrale_memoire.html`, `cours_peripheriques.html`, `cours_logiciels_domaines.html`).
+**Leçon 1 — Définitions et vocabulaire** (`module1-generalites/sequence1-definitions-vocabulaire/Lecon1_Definitions_vocabulaire.html`)
 
-Avec ces 3 ajouts, les **4 leçons du module** ont désormais leur version « cahier » animée complète.
-- 2 cours interactifs complets (même moteur que les cours des Séquences 2 à 4 : chrono 50 min, 5 chapitres, badges, cahier de traces écrites, bilan imprimable avec carte mentale) : **`cours_definitions_vocabulaire.html`** (information, traitement, informatique, ordinateur et système informatique) et **`cours_langage_machine_binaire.html`** (langage machine, bit, codage ASCII, conversions décimal ↔ binaire).
-- 14 animations, toutes disponibles dans `animations/` : `image.html` (codage/décodage lettre T), `couleur-5x5.html` (image couleur 5×5, 4 couleurs sur 2 bits), `clavier-ecran.html` (lettre A), `mot-salut.html` (le mot SALUT, lettre par lettre), `son.html` (échantillonnage et décodage d'un son), `scanner-imprimante.html` (scanner → unité centrale → imprimante), `souris-ecran.html` (codage de la position x/y de la souris), `calcul.html` (12 + 7), `circuit-bit.html` (circuit → transistor → bit), `couleur-8x8.html` (image couleur 8×8 sur tablette, 8 couleurs sur 3 bits), `zoom-microscope.html` (zoom carte mémoire → puce → circuits → transistor), `combien-1to.html` (unités dans 1 To), `ram-stockage.html` (RAM vs stockage : capacité, vitesse, volatilité), `compteur-bit-to.html` (le compteur qui s'emballe, de 1 bit à 1 To).
+- La trace écrite s'écrit à la main sur une page de cahier Seyès animée. Post-it jaunes vers les animations clés (clavier→écran, image, circuit→bit, 1 To) ; post-it vert vers `TC_M1_L1_definitions.html` avec lien direct vers la bonne notion (`#notion1/2/3`) ; un dernier post-it **« 📚 Compléments »** regroupe en onglets tout le reste de la séquence encore accessible mais pas mis en avant ailleurs : la Leçon 3 (`TC_M1_L3_bit_octet.html`), les 2 cours (`cours_definitions_vocabulaire.html`, `cours_langage_machine_binaire.html`) et les 9 animations restantes (couleur 5×5/8×8, mot SALUT, son, scanner/imprimante, souris/écran, zoom microscope, compteur 1 bit→1 To, RAM vs stockage).
 
-**Séquence 2 — Unité centrale et mémoire** (`module1-generalites/sequence2-unite-centrale-memoire/`)
+**Leçon 2 — Structure de l'ordinateur** (`module1-generalites/vue-ensemble/Lecon2_Structure_Ordinateur.html`)
 
-- **`cours_unite_centrale_memoire.html`** — cours interactif complet (chrono 50 min, 5 chapitres : unité centrale, mémoire RAM/ROM, unités de mesure, synthèse, défis de groupe ; badges, cahier de traces écrites, bilan imprimable avec carte mentale).
-- **`au_coeur_unite_centrale.html`** — exploration interactive du boîtier ouvert : 8 composants cliquables (carte mère, processeur, RAM, carte d'extension, alimentation, lecteur-graveur, disque dur, lecteur de cartes), chacun avec son animation, ses réglages et ses explications.
-- **`animations_dedans_dehors.html`** — jeu de tri : dans l'unité centrale ou périphérique dehors ?
+- Unité centrale (UAL/Commande/Registres), mémoire RAM/ROM, le bus, entrée/sortie/stockage. Post-it vers les animations et cours des Séquences 2 et 3 (`au_coeur_unite_centrale.html`, `animations_dedans_dehors.html`, `peripheriques.html`, `animations_tri_peripheriques.html`, `cours_unite_centrale_memoire.html`, `cours_peripheriques.html`).
 
-**Séquence 3 — Les périphériques** (`module1-generalites/sequence3-peripheriques/`)
+**Leçon 3 — Types de logiciels** et **Leçon 4 — Domaines d'application** (`module1-generalites/vue-ensemble/Lecon3_Types_Logiciels.html`, `Lecon4_Domaines_Application.html`)
 
-- **`cours_peripheriques.html`** — cours interactif complet (chrono 50 min, 5 chapitres : qu'est-ce qu'un périphérique, entrée, sortie, synthèse entrée/sortie/mixte, défis de groupe ; badges, cahier de traces écrites, bilan imprimable avec carte mentale).
-- **`peripheriques.html`** — scène interactive à onglets : accueil, terminologie (voyage animé d'une information), 10 périphériques à trouver et détailler, ordinateur portable et smartphone en coupe avec pastilles cliquables, 2 exercices notés.
-- **`animations_tri_peripheriques.html`** — jeu de tri en 3 catégories : entrée, sortie, mixte.
+- Logiciel de base ≠ application ; grille des domaines d'application. Post-it vers `animations_tri_logiciels.html` et `cours_logiciels_domaines.html` (Séquence 4).
 
-**Séquence 4 — Logiciels et domaines d'application** (`module1-generalites/sequence4-logiciels-domaines/`)
-
-- **`cours_logiciels_domaines.html`** — cours interactif complet (chrono 50 min, 5 chapitres : logiciels de base, logiciels d'application, les deux familles, domaines d'application de l'informatique, défis de groupe ; badges, cahier de traces écrites, bilan imprimable avec carte mentale).
-- **`animations_tri_logiciels.html`** — jeu de tri : logiciel de base ou logiciel d'application ?
-
-Le **Module 1** est ainsi complet (4 séquences, semaines 1 à 5), avec la Séquence 1 au complet : 2 leçons interactives + 2 cours + 14 animations.
+Le **Module 1** est ainsi complet (4 leçons, semaines 1 à 5) ; l'intégralité du contenu d'origine (séquences, cours, animations) reste accessible, rien n'a été supprimé.
 
 ### Module 2 — Les logiciels
 
@@ -103,15 +90,16 @@ Le **Module 3** est ainsi complet (Scratch + Python, semaines 18 à 26). Comme p
 
 ### Module 4 — Réseaux et Internet
 
-**Notion de réseau informatique** (`module4-reseaux-internet/notion-reseau/`)
+Même principe que les autres modules : une **vue d'ensemble** (`module4-reseaux-internet/vue-ensemble/Module4_Vue_Ensemble.html`) résume les **4 leçons** du module sur une page de cahier zoomable, et chaque leçon a sa **version cahier animée** (`Lecon1_Notion_Reseau.html`, `Lecon2_Types_Topologies.html`, `Lecon3_Internet_Services.html`, `Lecon4_Usage_Responsable.html`). Le menu ne montre que la vue d'ensemble et les 4 leçons.
 
-- **`Atelier_Reseau_Informatique.html`** — même principe que les ateliers des Modules 2 et 3 (Ateliers / Aide-mémoire / Mini-défi) : qu'est-ce qu'un réseau, types de réseaux (LAN/MAN/WAN) et leurs équipements à découvrir, remise en ordre, QCM. L'aide-mémoire couvre LAN/MAN/WAN, équipements (switch, routeur, câble, Wi-Fi…) et topologies, chaque notion avec sa version texte et une démo visuelle animée (schémas de topologie, trajets de données entre appareils).
+- **Leçon 1 — Notion de réseau** : réseau (carte réseau, câble/Wi-Fi, switch, routeur, serveur), protocole (TCP/IP), adresse IP.
+- **Leçon 2 — Types et topologies de réseau** : LAN/MAN/WAN, topologies Bus/Étoile/Anneau, avantages et inconvénients.
+- **Leçon 3 — Internet et ses services** : Internet et le FAI, décomposition d'une URL (protocole/domaine/chemin), e-mail, chat pédagogique.
+- **Leçon 4 — Usage responsable d'Internet** : ce qu'on fait / ne fait pas (données personnelles, sources, respect, liens suspects).
 
-**Réseau Internet** (`module4-reseaux-internet/reseau-internet/`)
+Les post-it des Leçons 1 et 2 ouvrent **`Atelier_Reseau_Informatique.html`** (`module4-reseaux-internet/notion-reseau/`) — atelier en 3 onglets (Ateliers / Aide-mémoire / Mini-défi) sur les réseaux, équipements et topologies, avec démos visuelles animées. Les post-it des Leçons 3 et 4 ouvrent **`Atelier_Reseau_Internet.html`** (`module4-reseaux-internet/reseau-internet/`) — même principe pour Internet (navigation, URL, messagerie, sécurité), avec navigateur/messagerie/chat simulés.
 
-- **`Atelier_Reseau_Internet.html`** — même principe (Ateliers / Aide-mémoire / Mini-défi), pour Internet : navigation, adresse URL, moteur de recherche, messagerie, réseaux sociaux et sécurité de base à découvrir, remise en ordre, QCM. L'aide-mémoire simule un navigateur, une messagerie et un chat, avec pour chaque notion une démo visuelle animée montrant concrètement comment ça marche.
-
-Le **Module 4** est ainsi complet (Notion de réseau + Internet, semaines 27 à 33), ce qui achève l'ensemble du portail : les **4 modules** du programme de Tronc Commun sont désormais intégralement couverts.
+Le **Module 4** est ainsi complet (4 leçons, semaines 27 à 33), ce qui achève l'ensemble du portail : les **4 modules** du programme de Tronc Commun sont désormais intégralement couverts, chacun avec sa vue d'ensemble et ses leçons en version cahier animée.
 
 ## Ancien site (`archive-ancien-site/`)
 
