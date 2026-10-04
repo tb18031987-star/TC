@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>📓 Module 3 — Vue d'ensemble (cahier)</title>
+<style>
+:root{
+  --paper:#fffdf6;
+  --thin:rgba(125,110,205,.20);
+  --bold:rgba(110,92,205,.46);
+  --vert:rgba(125,110,205,.17);
+  --marge:#e0525a;
+  --encre:#1b3c93;
+  --rouge:#d1232e;
+  --vert-stylo:#17804a;
+  --navy:#123A6B; --bleu:#1F5FA8; --bleu-l:#E5F2FC;
+  --vert-d:#1E8E5A; --vert-l:#E7F7EE;
+  --tan-d:#A3620A; --tan-l:#FBEBDE;
+  --vio-d:#6B3FA0; --vio-l:#F1E8FB;
+  --main:"Segoe Print","Comic Sans MS","Chalkboard SE","Bradley Hand",cursive;
+  --ui:"Segoe UI",system-ui,-apple-system,sans-serif;
+  --mono:"Consolas","SF Mono","Courier New",monospace;
+  --l:8px; --L:32px; --mg:72px; --off:-8px;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:90px}
+body{margin:0;min-height:100vh;color:var(--encre);font-family:var(--main);
+  background:linear-gradient(135deg,#d7e0ea 0%,#c5d1de 100%) fixed}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid #f2b705;outline-offset:2px}
+
+.bar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;
+  padding:.55rem 1rem;background:#16305c;color:#fff;font-family:var(--ui);box-shadow:0 2px 10px rgba(0,0,0,.25)}
+.bar .t{font-weight:700;font-size:.98rem;white-space:nowrap}
+.bar .t small{opacity:.75;font-weight:500}
+.bar .home{color:#cfe0ff;text-decoration:none;font-size:.85rem;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:.15rem .7rem}
+.bar .home:hover{background:rgba(255,255,255,.12)}
+.bar .zoomout{margin-left:auto;border:0;border-radius:999px;padding:.35rem .9rem;font-weight:700;font-size:.86rem;cursor:pointer;background:#f2b705;color:#16305c;display:none}
+.bar .zoomout.show{display:inline-block}
+.bar .zoomout:hover{background:#ffc928}
+
+.cahier{position:relative;max-width:1180px;margin:22px auto 70px;
+  padding:calc(var(--L)*1.4) 40px calc(var(--L)*2) calc(var(--mg) + 20px);
+  background-color:var(--paper);
+  background-image:
+    linear-gradient(to right,transparent calc(var(--mg) - 2px),var(--marge) calc(var(--mg) - 2px),var(--marge) var(--mg),transparent var(--mg)),
+    repeating-linear-gradient(to right,transparent 0 calc(var(--L) - 1px),var(--vert) calc(var(--L) - 1px) var(--L)),
+    repeating-linear-gradient(to bottom,transparent 0 calc(var(--L) - 1px),var(--bold) calc(var(--L) - 1px) var(--L)),
+    repeating-linear-gradient(to bottom,transparent 0 calc(var(--l) - 1px),var(--thin) calc(var(--l) - 1px) var(--l));
+  background-position:0 0,var(--mg) 0,0 var(--off),0 var(--off);
+  border-radius:4px 12px 12px 4px;
+  box-shadow:0 1px 2px rgba(0,0,0,.08),0 16px 36px rgba(20,35,70,.22)}
+.cahier::before{content:"";position:absolute;left:0;top:0;bottom:0;width:calc(var(--mg) - 2px);border-radius:4px 0 0 4px;
+  background-color:var(--paper);
+  background-image:
+    repeating-linear-gradient(to bottom,transparent 0 calc(var(--L) - 1px),var(--bold) calc(var(--L) - 1px) var(--L)),
+    repeating-linear-gradient(to bottom,transparent 0 calc(var(--l) - 1px),var(--thin) calc(var(--l) - 1px) var(--l));
+  background-position:0 var(--off),0 var(--off)}
+.cahier::after{content:"";position:absolute;left:16px;top:22px;bottom:22px;width:18px;
+  background:radial-gradient(circle at 9px 9px,#c9d4df 0 6px,rgba(40,50,70,.28) 6.5px 7.5px,transparent 8px) 0 0/18px 60px repeat-y}
+.cahier > *{position:relative;z-index:1}
+
+.date{margin:0 0 4px;text-align:right;font-size:17px;line-height:var(--L);color:var(--encre)}
+.module{margin:0;text-align:center;font-size:19px;line-height:var(--L);color:var(--vert-stylo);font-weight:700}
+.sous{margin:0 0 10px;text-align:center;font-size:15px;line-height:1.3;color:#5B6B7C;font-family:var(--ui)}
+.titre1{margin:0 0 calc(var(--L)*.6);text-align:center;font-size:27px;line-height:calc(var(--L)*1.4);color:var(--rouge);font-weight:700}
+.titre1 span{position:relative;display:inline-block}
+.titre1 span::after{content:"";position:absolute;left:-6px;right:-6px;bottom:6px;height:0;border-bottom:3px double var(--rouge)}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px 22px}
+@media (max-width:760px){ .grid{grid-template-columns:1fr} }
+.tile{position:relative;text-align:left;border:2.5px solid var(--navy);border-radius:14px;background:rgba(255,255,255,.72);
+  padding:14px 16px 12px;cursor:pointer;box-shadow:2px 3px 0 rgba(18,58,107,.15);transition:transform .18s,box-shadow .18s}
+.tile:hover{transform:translateY(-3px);box-shadow:4px 7px 0 rgba(18,58,107,.18)}
+.tile .num{position:absolute;left:-14px;top:-14px;width:30px;height:30px;border:2px solid var(--rouge);border-radius:50%;
+  background:var(--paper);display:grid;place-items:center;font-size:14px;font-weight:700;color:var(--rouge);transform:rotate(-6deg)}
+.tile h2{margin:0 0 6px;font-size:19px;color:var(--navy);font-weight:700}
+.tile p.hint{margin:6px 0 0;font-family:var(--ui);font-size:.74rem;color:#7D7A9A;font-weight:600}
+.tile .ic{font-size:1.3rem;margin-right:4px}
+
+.mini-flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-family:var(--ui);font-size:12px;margin-top:6px}
+.mini-box{border:2px solid var(--bleu);border-radius:8px;background:var(--bleu-l);color:var(--navy);font-weight:700;padding:3px 7px}
+.mini-box.grn{background:var(--vert-l);border-color:var(--vert-d)}
+.mini-box.tan{background:var(--tan-l);border-color:var(--tan-d)}
+.mini-op{font-weight:700;color:var(--bleu);font-size:13px}
+.mini-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.mini-chip{font-family:var(--mono);font-size:11px;font-weight:800;border:1.5px solid var(--vio-d);border-radius:999px;background:var(--vio-l);padding:2px 9px;color:var(--vio-d)}
+.mini-code{font-family:var(--mono);font-size:11px;font-weight:700;background:#16305c;color:#f2b705;border-radius:8px;padding:6px 9px;margin-top:6px}
+
+.detail{display:none}
+.detail.show{display:block}
+.grid.hidden{display:none}
+.detail-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.detail-head .num{position:static;transform:rotate(-6deg);flex:none}
+.detail-head h1{margin:0;font-size:26px;color:var(--rouge);font-weight:700}
+.detail-intro{font-family:var(--ui);font-size:15px;color:#3b4a63;margin:0 0 14px;line-height:1.45}
+
+.flow{display:flex;align-items:stretch;gap:10px;margin:10px 0 18px;flex-wrap:wrap}
+.box{flex:1 1 0;min-width:140px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  padding:10px 12px;border:2.5px solid var(--bleu);border-radius:12px;background:var(--bleu-l);color:var(--navy);
+  font-weight:700;font-size:17px;line-height:1.25;box-shadow:2px 3px 0 rgba(18,58,107,.15);font-family:var(--ui)}
+.box.grn{background:var(--vert-l);border-color:var(--vert-d)}
+.box.tan{background:var(--tan-l);border-color:var(--tan-d)}
+.op{flex:0 0 auto;align-self:center;font-size:24px;font-weight:700;color:var(--bleu);min-width:20px;text-align:center;font-family:var(--ui)}
+
+.codebox{margin:12px 0 18px;border:2px solid var(--navy);border-radius:12px;background:#16305c;color:#e8edf7;padding:14px 18px;
+  font-family:var(--mono);font-size:15px;line-height:1.7}
+.codebox .kw{color:#f2b705;font-weight:800}
+
+.rows{display:flex;flex-direction:column;gap:7px;margin:12px 0}
+.row{display:grid;grid-template-columns:1fr auto 1.3fr;align-items:center;gap:8px}
+.row .a{border:2px solid var(--navy);border-radius:10px;background:#f1f1f6;color:var(--navy);font-family:var(--mono);font-weight:700;
+  font-size:13px;padding:5px 9px;text-align:center}
+.row .e{border:2px solid var(--vert-d);border-radius:10px;background:#16305c;color:#8FF0C8;font-family:var(--mono);font-weight:700;
+  font-size:13px;padding:5px 9px;text-align:center}
+.row .ar{font-size:16px;color:var(--bleu);text-align:center}
+
+.animLink{display:inline-flex;align-items:center;gap:8px;margin-top:4px;border:2px solid var(--navy);border-radius:999px;
+  background:#16305c;color:#fff;font-family:var(--ui);font-weight:700;font-size:.9rem;padding:.5rem 1.1rem;cursor:pointer;
+  box-shadow:2px 3px 0 rgba(18,58,107,.25)}
+.animLink:hover{background:#1f4580}
+
+.modal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;background:rgba(15,25,45,.62);padding:14px}
+.modal.open{display:flex}
+.mcard{width:min(1300px,100%);height:min(880px,100%);display:flex;flex-direction:column;background:#fff;border-radius:14px;overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.4);font-family:var(--ui)}
+.mhead{display:flex;align-items:center;gap:.6rem;padding:.55rem .8rem;background:#16305c;color:#fff}
+.mhead h2{margin:0;font-size:1rem;flex:1 1 auto}
+.mhead a,.mhead .x{border:0;border-radius:999px;padding:.28rem .75rem;font-size:.82rem;font-weight:700;background:#fff;color:#16305c;text-decoration:none;cursor:pointer}
+.mframe{flex:1;border:0;width:100%;background:#fff}
+
+@media (max-width:760px){
+  :root{--mg:48px}
+  .cahier{padding-left:calc(var(--mg) + 12px);padding-right:16px;margin:10px 6px 50px}
+  .cahier::after{left:5px}
+  .titre1{font-size:21px}
+}
+@media print{ .bar,.modal{display:none!important} body{background:#fff} .cahier{box-shadow:none;margin:0 auto} }
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <a class="home" href="../../index.html" target="_top" title="Retour au portail">🏠 Portail</a>
+  <div class="t">📓 Module 3 <small>— vue d'ensemble (cahier)</small></div>
+  <button class="zoomout" id="bZoomOut">🔍− Vue d'ensemble</button>
+</header>
+
+<main class="cahier" id="cahier">
+  <p class="date" id="date"></p>
+  <p class="module">Module 3 : Algorithmique et programmation</p>
+  <h1 class="titre1"><span>Vue d'ensemble — les 4 leçons</span></h1>
+  <p class="sous">Clique sur une leçon pour zoomer et la développer en détail.</p>
+
+  <div class="grid" id="grid">
+
+    <button class="tile" data-lecon="1">
+      <span class="num">1</span>
+      <h2><span class="ic">🧩</span>Notion d'algorithme</h2>
+      <div class="mini-flow">
+        <span class="mini-box">Entrée</span><span class="mini-op">→</span>
+        <span class="mini-box grn">Traitement</span><span class="mini-op">→</span>
+        <span class="mini-box tan">Sortie</span>
+      </div>
+      <p class="hint">Algorithme Nom / Variables / Début / Fin</p>
+    </button>
+
+    <button class="tile" data-lecon="2">
+      <span class="num">2</span>
+      <h2><span class="ic">🔤</span>Instructions de base</h2>
+      <div class="mini-chips">
+        <span class="mini-chip">Entier</span><span class="mini-chip">Réel</span>
+        <span class="mini-chip">Chaîne</span><span class="mini-chip">Booléen</span>
+      </div>
+      <p class="hint">Affectation ← : age ← 16, Lire(x), Écrire(x)</p>
+    </button>
+
+    <button class="tile" data-lecon="3">
+      <span class="num">3</span>
+      <h2><span class="ic">🔀</span>Structures de contrôle</h2>
+      <div class="mini-chips">
+        <span class="mini-chip">=</span><span class="mini-chip">≠</span><span class="mini-chip">&lt;</span>
+        <span class="mini-chip">&gt;</span><span class="mini-chip">≤</span><span class="mini-chip">≥</span>
+      </div>
+      <p class="hint">Si … Alors … Sinon … FinSi</p>
+    </button>
+
+    <button class="tile" data-lecon="4">
+      <span class="num">4</span>
+      <h2><span class="ic">🐍</span>Programmation en Python</h2>
+      <div class="mini-code">x = 5<br>if … :<br>&nbsp;&nbsp;print(x)</div>
+      <p class="hint">Un algorithme se conçoit, un programme s'exécute</p>
+    </button>
+
+  </div>
+
+  <!-- ===== Détail Leçon 1 ===== -->
+  <section class="detail" id="detail-1">
+    <div class="detail-head"><span class="num">1</span><h1>Notion d'algorithme</h1></div>
+    <p class="detail-intro">Suite finie d'étapes précises et ordonnées qui résout un problème.</p>
+    <div class="flow">
+      <div class="box">Entrée</div><div class="op">→</div>
+      <div class="box grn">Traitement</div><div class="op">→</div>
+      <div class="box tan">Sortie</div>
+    </div>
+    <div class="codebox">
+      <span class="kw">Algorithme</span> Nom<br>
+      <span class="kw">Variables</span> …<br>
+      <span class="kw">Début</span> …<br>
+      <span class="kw">Fin</span>
+    </div>
+    <button class="animLink" id="bOpenLecon1">🎬 Ouvrir la trace écrite animée complète</button>
+  </section>
+
+  <!-- ===== Détail Leçon 2 ===== -->
+  <section class="detail" id="detail-2">
+    <div class="detail-head"><span class="num">2</span><h1>Les instructions de base</h1></div>
+    <p class="detail-intro">Variable : nom + valeur (qui peut changer) + type.</p>
+    <div class="flow">
+      <div class="box">Entier<br><small style="font-weight:400">ex. : 16</small></div>
+      <div class="box grn">Réel<br><small style="font-weight:400">ex. : 12,5</small></div>
+      <div class="box tan">Chaîne<br><small style="font-weight:400">ex. : "Ali"</small></div>
+    </div>
+    <div class="rows">
+      <div class="row"><span class="a">age ← 16</span><span class="ar">→</span><span class="e">reçoit la valeur 16</span></div>
+      <div class="row"><span class="a">Lire(x)</span><span class="ar">→</span><span class="e">range une valeur dans x</span></div>
+      <div class="row"><span class="a">Écrire(x)</span><span class="ar">→</span><span class="e">affiche x</span></div>
+    </div>
+    <button class="animLink" id="bOpenLecon2">🎬 Ouvrir la trace écrite animée complète</button>
+  </section>
+
+  <!-- ===== Détail Leçon 3 ===== -->
+  <section class="detail" id="detail-3">
+    <div class="detail-head"><span class="num">3</span><h1>Les structures de contrôle</h1></div>
+    <p class="detail-intro">Structure séquentielle (l'une après l'autre) et condition (VRAI ou FAUX).</p>
+    <div class="mini-chips" style="margin-bottom:14px">
+      <span class="mini-chip">=</span><span class="mini-chip">≠</span><span class="mini-chip">&lt;</span>
+      <span class="mini-chip">&gt;</span><span class="mini-chip">≤</span><span class="mini-chip">≥</span>
+    </div>
+    <div class="codebox">
+      <span class="kw">Si</span> condition <span class="kw">Alors</span><br>
+      &nbsp;&nbsp;…<br>
+      <span class="kw">Sinon</span><br>
+      &nbsp;&nbsp;…<br>
+      <span class="kw">FinSi</span>
+    </div>
+    <button class="animLink" id="bOpenLecon3">🎬 Ouvrir la trace écrite animée complète</button>
+  </section>
+
+  <!-- ===== Détail Leçon 4 ===== -->
+  <section class="detail" id="detail-4">
+    <div class="detail-head"><span class="num">4</span><h1>La programmation en Python</h1></div>
+    <p class="detail-intro">Algorithme écrit dans un langage de programmation, traduit et exécuté par un interpréteur.</p>
+    <div class="rows">
+      <div class="row"><span class="a">x ← 5</span><span class="ar">→</span><span class="e">x = 5</span></div>
+      <div class="row"><span class="a">Lire(x)</span><span class="ar">→</span><span class="e">x = int(input("…"))</span></div>
+      <div class="row"><span class="a">Écrire(x)</span><span class="ar">→</span><span class="e">print(x)</span></div>
+      <div class="row"><span class="a">Si…Alors/Sinon</span><span class="ar">→</span><span class="e">if … : / else :</span></div>
+    </div>
+    <p class="detail-intro"><b>Un algorithme se conçoit ; un programme s'exécute</b> : la rigueur d'abord, la syntaxe ensuite.</p>
+    <button class="animLink" id="bOpenLecon4">🎬 Ouvrir la trace écrite animée complète</button>
+  </section>
+
+</main>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="mcard">
+    <div class="mhead">
+      <h2 id="mTitle">🎬 Version animée complète</h2>
+      <a id="mOpen" href="#" target="_blank" title="Ouvrir dans un nouvel onglet">↗ Onglet</a>
+      <button class="x" id="mClose" title="Fermer (Échap)">✕ Fermer</button>
+    </div>
+    <iframe class="mframe" id="mFrame" title="Leçon animée"></iframe>
+  </div>
+</div>
+
+<script>
+const d = new Date().toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+document.getElementById('date').textContent = d.charAt(0).toUpperCase() + d.slice(1);
+
+const grid = document.getElementById('grid');
+const bZoomOut = document.getElementById('bZoomOut');
+const tiles = [...document.querySelectorAll('.tile')];
+const details = [...document.querySelectorAll('.detail')];
+let current = null;
+
+function zoomTo(n){
+  const tile = tiles.find(t => t.dataset.lecon === String(n));
+  const detail = document.getElementById('detail-' + n);
+  const r = tile.getBoundingClientRect();
+  grid.classList.add('hidden');
+  details.forEach(dd => dd.classList.remove('show'));
+  detail.classList.add('show');
+  detail.animate(
+    [ { transform:`translateY(${r.top - detail.getBoundingClientRect().top}px) scale(.55)`, opacity:0 },
+      { transform:'none', opacity:1 } ],
+    { duration: 380, easing:'cubic-bezier(.3,1.3,.4,1)' }
+  );
+  bZoomOut.classList.add('show');
+  current = n;
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+function zoomOut(){
+  if (current == null) return;
+  grid.classList.remove('hidden');
+  details.forEach(dd => dd.classList.remove('show'));
+  grid.animate([{ opacity:0, transform:'scale(.92)' }, { opacity:1, transform:'none' }], { duration:260, easing:'ease-out' });
+  bZoomOut.classList.remove('show');
+  current = null;
+}
+tiles.forEach(t => t.onclick = () => zoomTo(t.dataset.lecon));
+bZoomOut.onclick = zoomOut;
+
+const modal = document.getElementById('modal'), mFrame = document.getElementById('mFrame'), mOpen = document.getElementById('mOpen');
+const LECON_FILES = {
+  1: 'Lecon1_Notion_Algorithme.html',
+  2: 'Lecon2_Instructions_Base.html',
+  3: 'Lecon3_Structures_Controle.html',
+  4: 'Lecon4_Programmation_Python.html'
+};
+function ouvrirLeconAnimee(n){
+  const src = LECON_FILES[n];
+  mFrame.src = src;
+  mOpen.href = src;
+  document.getElementById('mTitle').textContent = '🎬 Leçon ' + n + ' — version animée complète';
+  modal.classList.add('open');
+  document.getElementById('mClose').focus();
+}
+[1,2,3,4].forEach(n => {
+  const btn = document.getElementById('bOpenLecon' + n);
+  if (btn) btn.onclick = () => ouvrirLeconAnimee(n);
+});
+function fermerModal(){ modal.classList.remove('open'); mFrame.src = 'about:blank'; }
+document.getElementById('mClose').onclick = fermerModal;
+modal.addEventListener('click', e => { if (e.target === modal) fermerModal(); });
+
+document.addEventListener('keydown', e => {
+  if (modal.classList.contains('open')) { if (e.key === 'Escape') fermerModal(); return; }
+  if (e.key === 'Escape' && current != null) zoomOut();
+});
+</script>
+<!-- a11y-clavier -->
+<script>
+(function(){
+  var NATIVE = 'button,a[href],input,select,textarea,summary';
+  function enhance(){
+    document.querySelectorAll('body *').forEach(function(el){
+      if (typeof el.onclick !== 'function' || el.matches(NATIVE) || el.hasAttribute('data-kbd')) return;
+      el.setAttribute('data-kbd', '');
+      if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+      if (!el.hasAttribute('role')) el.setAttribute('role', 'button');
+    });
+  }
+  var pending = false;
+  new MutationObserver(function(){
+    if (pending) return;
+    pending = true;
+    setTimeout(function(){ pending = false; enhance(); }, 0);
+  }).observe(document.body, {childList: true, subtree: true});
+  enhance();
+})();
+</script>
+</body>
+</html>

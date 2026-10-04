@@ -89,15 +89,17 @@ Le **Module 2** est ainsi complet (Leçons 1 à 4, semaines 6 à 17). Dans le me
 
 ### Module 3 — Algorithmique et programmation
 
+Même principe que les Modules 1 et 2 : une **vue d'ensemble** (`module3-algo-programmation/vue-ensemble/Module3_Vue_Ensemble.html`) résume les **4 leçons** du module sur une page de cahier zoomable, et chaque leçon a sa **version cahier animée** (`Lecon1_Notion_Algorithme.html`, `Lecon2_Instructions_Base.html`, `Lecon3_Structures_Controle.html`, `Lecon4_Programmation_Python.html`) — trace écrite qui s'écrit à la main, avec blocs de code façon pseudocode/Python, reliée aux ateliers d'origine via post-it.
+
 **Algorithmique (Scratch)** (`module3-algo-programmation/algorithmique-scratch/`)
 
-- **`Atelier_Algorithme_Scratch.html`** — atelier en 3 onglets : « Ateliers » (qu'est-ce qu'un algorithme, les 4 familles de briques Scratch à révéler, remise en ordre des étapes d'une recette, structures de contrôle avec 2 QCM), « Aide-mémoire » (variables, capteurs, opérateurs, contrôle, apparence — chaque brique avec sa version texte et une démo visuelle simulant la palette Scratch et animant l'effet réel : variable qui change, comparaison vraie/fausse, si/alors/sinon qui bascule de branche…) et « Mini-défi » (thème + cahier des charges à cocher).
+- **`Atelier_Algorithme_Scratch.html`** — atelier en 3 onglets : « Ateliers » (qu'est-ce qu'un algorithme, les 4 familles de briques Scratch à révéler, remise en ordre des étapes d'une recette, structures de contrôle avec 2 QCM), « Aide-mémoire » (variables, capteurs, opérateurs, contrôle, apparence — chaque brique avec sa version texte et une démo visuelle simulant la palette Scratch et animant l'effet réel : variable qui change, comparaison vraie/fausse, si/alors/sinon qui bascule de branche…) et « Mini-défi » (thème + cahier des charges à cocher). Reliée depuis les Leçons 1 à 3 (cahier) via le post-it « Activités ».
 
 **Programmation (Python)** (`module3-algo-programmation/programmation-python/`)
 
-- **`Atelier_Programmation_Python.html`** — même principe (Ateliers / Aide-mémoire / Mini-défi), pour Python : variables et types, mots-clés de base (`print`, `input`, `if/elif/else`, `=` vs `==`) à révéler, remise en ordre de lignes de code, structure conditionnelle avec QCM. L'aide-mémoire montre un éditeur de code simulé avec coloration syntaxique et une console animée (résultat de `type()`, `print()`, comparaison True/False, bascule if/else selon la condition).
+- **`Atelier_Programmation_Python.html`** — même principe (Ateliers / Aide-mémoire / Mini-défi), pour Python : variables et types, mots-clés de base (`print`, `input`, `if/elif/else`, `=` vs `==`) à révéler, remise en ordre de lignes de code, structure conditionnelle avec QCM. L'aide-mémoire montre un éditeur de code simulé avec coloration syntaxique et une console animée (résultat de `type()`, `print()`, comparaison True/False, bascule if/else selon la condition). Reliée depuis la Leçon 4 (cahier).
 
-Le **Module 3** est ainsi complet (Scratch + Python, semaines 18 à 26).
+Le **Module 3** est ainsi complet (Scratch + Python, semaines 18 à 26). Comme pour le Module 2, le menu du portail ne montre plus que la vue d'ensemble et les 4 leçons (cahier) pour ce module — les ateliers Scratch et Python restent pleinement disponibles, reliés depuis chaque leçon via les post-it.
 
 ### Module 4 — Réseaux et Internet
 
