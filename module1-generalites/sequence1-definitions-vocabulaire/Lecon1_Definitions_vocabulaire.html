@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leçon 1 — Définitions et vocabulaire de base</title>
+<style>
+:root{
+  --paper:#fffdf6;
+  --thin:rgba(125,110,205,.20);
+  --bold:rgba(110,92,195,.46);
+  --vert:rgba(125,110,205,.17);
+  --marge:#e0525a;
+  --encre:#1b3c93;          /* stylo bleu */
+  --rouge:#d1232e;          /* stylo rouge */
+  --vert-stylo:#17804a;     /* stylo vert */
+  --navy:#123A6B; --bleu:#1F5FA8; --bleu-l:#E5F2FC;
+  --vert-d:#1E8E5A; --vert-l:#E7F7EE;
+  --tan-d:#A3620A; --tan-l:#FBEBDE;
+  --main:"Segoe Print","Comic Sans MS","Chalkboard SE","Bradley Hand",cursive;
+  --ui:"Segoe UI",system-ui,-apple-system,sans-serif;
+  --l:8px;                  /* petit interligne Seyès */
+  --L:32px;                 /* grand carreau */
+  --mg:96px;                /* marge rouge */
+  --off:-8px;               /* calage : la ligne de base de l'écriture tombe sur la ligne forte */
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:90px}
+body{margin:0;min-height:100vh;color:var(--encre);font-family:var(--main);
+  background:linear-gradient(135deg,#d7e0ea 0%,#c5d1de 100%) fixed}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid #f2b705;outline-offset:2px}
+
+/* ---------- barre de commande ---------- */
+.bar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;
+  padding:.55rem 1rem;background:#16305c;color:#fff;font-family:var(--ui);box-shadow:0 2px 10px rgba(0,0,0,.25)}
+.bar .t{font-weight:700;font-size:.98rem;white-space:nowrap}
+.bar .t small{opacity:.75;font-weight:500}
+.bar .home{color:#cfe0ff;text-decoration:none;font-size:.85rem;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:.15rem .7rem}
+.bar .home:hover{background:rgba(255,255,255,.12)}
+.prog{display:flex;align-items:center;gap:.45rem;margin-left:auto}
+.dots{display:flex;gap:.35rem}
+.dot{width:13px;height:13px;border-radius:50%;border:2px solid #9fb6de;background:transparent;padding:0;cursor:pointer}
+.dot.on{background:#f2b705;border-color:#f2b705}
+.lbl{font-size:.82rem;opacity:.85;min-width:5.6rem}
+.btns{display:flex;gap:.4rem;flex-wrap:wrap}
+.b{border:0;border-radius:999px;padding:.38rem .9rem;font-weight:700;font-size:.86rem;cursor:pointer;background:#2c4f8c;color:#fff}
+.b:hover{background:#3a62a8}
+.b.main{background:#f2b705;color:#16305c}
+.b.main:hover{background:#ffc928}
+.b:disabled{opacity:.4;cursor:default}
+
+/* ---------- page de cahier (Seyès) ---------- */
+.cahier{position:relative;max-width:1060px;margin:22px auto 70px;
+  padding:calc(var(--L)*2) 56px calc(var(--L)*3) calc(var(--mg) + 26px);
+  background-color:var(--paper);
+  background-image:
+    linear-gradient(to right,transparent calc(var(--mg) - 2px),var(--marge) calc(var(--mg) - 2px),var(--marge) var(--mg),transparent var(--mg)),
+    repeating-linear-gradient(to right,transparent 0 calc(var(--L) - 1px),var(--vert) calc(var(--L) - 1px) var(--L)),
+    repeating-linear-gradient(to bottom,transparent 0 calc(var(--L) - 1px),var(--bold) calc(var(--L) - 1px) var(--L)),
+    repeating-linear-gradient(to bottom,transparent 0 calc(var(--l) - 1px),var(--thin) calc(var(--l) - 1px) var(--l));
+  background-position:0 0,var(--mg) 0,0 var(--off),0 var(--off);
+  border-radius:4px 12px 12px 4px;
+  box-shadow:0 1px 2px rgba(0,0,0,.08),0 16px 36px rgba(20,35,70,.22)}
+/* la marge : lignes horizontales seulement */
+.cahier::before{content:"";position:absolute;left:0;top:0;bottom:0;width:calc(var(--mg) - 2px);border-radius:4px 0 0 4px;
+  background-color:var(--paper);
+  background-image:
+    repeating-linear-gradient(to bottom,transparent 0 calc(var(--L) - 1px),var(--bold) calc(var(--L) - 1px) var(--L)),
+    repeating-linear-gradient(to bottom,transparent 0 calc(var(--l) - 1px),var(--thin) calc(var(--l) - 1px) var(--l));
+  background-position:0 var(--off),0 var(--off)}
+/* perforations */
+.cahier::after{content:"";position:absolute;left:18px;top:24px;bottom:24px;width:20px;
+  background:radial-gradient(circle at 10px 10px,#c9d4df 0 6.5px,rgba(40,50,70,.28) 7px 8px,transparent 8.5px) 0 0/20px 64px repeat-y}
+.cahier > *{position:relative;z-index:1}
+
+.date{position:absolute;top:var(--L);right:56px;margin:0;font-size:18px;line-height:var(--L);color:var(--encre)}
+.module{margin:0;text-align:center;font-size:19px;line-height:var(--L);color:var(--vert-stylo);font-weight:700}
+.lecon{margin:0 0 var(--L);text-align:center;font-size:30px;line-height:calc(var(--L)*2);color:var(--rouge);font-weight:700}
+.lecon > span{position:relative;display:inline-block;top:11px}
+.lecon > span::after{content:"";position:absolute;left:-6px;right:-6px;bottom:10px;height:0;border-bottom:3px double var(--rouge);
+  transform-origin:left;transform:scaleX(0);transition:transform .7s ease}
+.lecon.ruled > span::after{transform:scaleX(1)}
+
+/* ---------- blocs de la trace écrite ---------- */
+.bloc{position:relative;visibility:hidden;margin:0}
+.bloc.shown{visibility:visible}
+.num{position:absolute;left:calc(-1 * var(--mg) + 22px);top:3px;width:30px;height:30px;border:2px solid var(--rouge);border-radius:50%;
+  display:grid;place-items:center;font-size:15px;font-weight:700;color:var(--rouge);transform:rotate(-6deg)}
+.def{margin:0;font-size:21px;line-height:var(--L)}
+.term{color:var(--rouge);font-weight:700;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px}
+.c{opacity:0;transition:opacity .08s}
+.c.on{opacity:1}
+.all .c{opacity:1;transition:none}
+
+/* schémas (repris de la trace écrite) */
+.flow{display:flex;align-items:stretch;gap:10px;margin:10px 0 0;flex-wrap:nowrap}
+.box{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  padding:6px 10px;border:2.5px solid var(--bleu);border-radius:12px;background:var(--bleu-l);color:var(--navy);
+  font-weight:700;font-size:19px;line-height:1.25;box-shadow:2px 3px 0 rgba(18,58,107,.15)}
+.box small{font-weight:400;font-size:14px;color:#5B6B7C}
+.box .ico{font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif;font-size:20px;line-height:1.2}
+.box.res{background:var(--navy);border-color:var(--navy);color:#fff}
+.box.tan{background:var(--tan-l);border-color:var(--tan-d)}
+.box.grn{background:var(--vert-l);border-color:var(--vert-d)}
+.op{flex:0 0 auto;align-self:center;font-size:28px;font-weight:700;color:var(--bleu);min-width:22px;text-align:center}
+.hl{color:var(--rouge);text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px}
+.pc{opacity:0;transform:scale(.6) rotate(-4deg)}
+.pc.show{opacity:1;transform:none;transition:opacity .35s ease,transform .45s cubic-bezier(.3,1.6,.5,1)}
+.box.res.show{animation:tampon .6s ease}
+@keyframes tampon{0%{transform:scale(1.45) rotate(-5deg);opacity:0}60%{transform:scale(.94) rotate(1deg);opacity:1}100%{transform:none}}
+.box.lit{animation:lit .7s ease}
+@keyframes lit{40%{transform:translateY(-6px) scale(1.06);box-shadow:0 0 0 5px rgba(30,142,90,.25),2px 3px 0 rgba(18,58,107,.15)}}
+.flow.chain{cursor:pointer}
+.flow.chain .op{position:relative}
+
+/* chaîne des unités */
+.units{display:flex;align-items:flex-end;gap:4px;margin:10px 0 0}
+.u{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  border:2.5px solid var(--navy);border-radius:12px;padding:6px 4px;font-weight:700;font-size:19px;line-height:1.2;color:var(--navy);
+  box-shadow:2px 3px 0 rgba(18,58,107,.15)}
+.u small{font-weight:400;font-size:13.5px;color:#5B6B7C}
+.u.w{color:#fff} .u.w small{color:#e6f0fb}
+.u1{background:#E5F2FC;height:62px} .u2{background:#CFE7FA;height:66px} .u3{background:#A9D3F5;height:70px}
+.u4{background:#7DBBEE;height:74px} .u5{background:#4A9CE0;height:78px} .u6{background:#1F5FA8;height:82px}
+.step{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:18px;color:var(--bleu);font-weight:700}
+.step .x{font-size:14px;line-height:1;background:#fff3c4;border:1.5px solid #e2b93b;border-radius:8px;padding:2px 5px;color:#7a5200;margin-bottom:3px}
+.step .ar{font-size:22px;line-height:1}
+
+/* post-it : jaune = animations, vert = activités */
+.postits{display:flex;justify-content:flex-end;align-items:flex-start;flex-wrap:wrap;gap:16px 26px;margin:16px 8px 0 0}
+.postit{--rot:2deg;position:relative;display:block;width:270px;padding:9px 14px 10px;border:0;cursor:pointer;text-align:left;
+  background:linear-gradient(170deg,#fff59a 0%,#ffe866 100%);color:#5a4300;font-size:15px;line-height:1.3;
+  box-shadow:0 8px 14px rgba(60,50,0,.22);transform:rotate(var(--rot)) scale(.5);opacity:0;pointer-events:none;transition:transform .45s cubic-bezier(.3,1.6,.5,1),opacity .3s}
+.postit.show{opacity:1;transform:rotate(var(--rot));pointer-events:auto}
+.postit.show:hover{transform:rotate(0deg) scale(1.04)}
+.postit b{display:block;font-size:16px;color:#3d2d00}
+.postit::before{content:"";position:absolute;top:-9px;left:50%;width:60px;height:18px;margin-left:-30px;background:rgba(210,220,235,.75);transform:rotate(-3deg)}
+.postit.act{--rot:-2deg;width:250px;background:linear-gradient(170deg,#ddfbd8 0%,#bff3b8 100%);color:#24521e;box-shadow:0 8px 14px rgba(20,70,20,.2)}
+.postit.act b{color:#123d0e}
+
+/* engrenage décoratif (Automatique) */
+.gear{position:absolute;right:34px;top:0;width:58px;height:58px;opacity:0;transition:opacity .4s}
+.def.avec-gear{padding-right:130px}
+.gear.show{opacity:.9}
+.gear svg{width:100%;height:100%;animation:spin 6s linear infinite}
+.gear svg + svg{position:absolute;width:34px;height:34px;right:-26px;top:30px;animation:spin 4s linear infinite reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* stylo */
+.stylo{position:absolute;z-index:5;left:0;top:0;width:46px;height:46px;pointer-events:none;opacity:0;transition:opacity .2s}
+.stylo.on{opacity:1}
+
+/* fenêtre des animations */
+.modal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;background:rgba(15,25,45,.62);padding:14px}
+.modal.open{display:flex}
+.mcard{width:min(1200px,100%);height:min(860px,100%);display:flex;flex-direction:column;background:#fff;border-radius:14px;overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.4);font-family:var(--ui)}
+.mhead{display:flex;align-items:center;gap:.5rem .6rem;flex-wrap:wrap;padding:.55rem .8rem;background:#16305c;color:#fff}
+.mhead h2{margin:0;font-size:1rem;flex:1 1 auto;min-width:0}
+.tabs{order:3;flex:1 1 100%;display:flex;gap:.3rem;flex-wrap:wrap}
+.tab{border:0;border-radius:999px;padding:.25rem .7rem;font-size:.8rem;font-weight:600;background:#2c4f8c;color:#fff;cursor:pointer;white-space:nowrap}
+.tab.on{background:#f2b705;color:#16305c}
+.mhead a,.mhead .x{border:0;border-radius:999px;padding:.28rem .75rem;font-size:.82rem;font-weight:700;background:#fff;color:#16305c;text-decoration:none;cursor:pointer}
+.mframe{flex:1;border:0;width:100%;background:#fff}
+.mcard.grand{width:min(1400px,100%);height:100%}
+.mcard.grand .mhead{background:#1f5a2a}
+.mcard.grand .tab{background:#2f7a3c}
+.mcard.grand .tab.on{background:#bff3b8;color:#123d0e}
+.b.act{background:#2f7a3c}
+.b.act:hover{background:#3a9149}
+
+@media (max-width:760px){
+  :root{--mg:54px}
+  .cahier{padding-left:calc(var(--mg) + 14px);padding-right:18px;margin:10px 6px 50px}
+  .cahier::after{left:6px}
+  .num{left:calc(-1 * var(--mg) + 12px);width:26px;height:26px}
+  .date{right:18px;font-size:15px}
+  .lecon{font-size:24px}
+  .def{font-size:18px}
+  .flow{flex-wrap:wrap}
+  .box{flex:1 1 38%;font-size:16px}
+  .units{flex-wrap:wrap;align-items:center}
+  .u{flex:1 1 26%;font-size:16px}
+  .postit,.postit.act{width:230px}
+  .def.avec-gear{padding-right:0}
+  .gear{position:relative;right:auto;margin:6px 34px 0 auto;display:block}
+  .prog{margin-left:0}
+}
+@media print{
+  .bar,.postits,.stylo,.modal{display:none!important}
+  body{background:#fff}
+  .cahier{box-shadow:none;margin:0 auto}
+  .bloc{visibility:visible!important}
+  .c,.pc{opacity:1!important;transform:none!important}
+  .gear{opacity:.9!important}
+  .lecon > span::after{transform:scaleX(1)!important}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <a class="home" href="../../index.html" target="_top" title="Retour au portail">🏠 Portail</a>
+  <div class="t">📓 Module 1 · Leçon 1 <small>— trace écrite</small></div>
+  <div class="prog">
+    <div class="dots" id="dots"></div>
+    <div class="lbl" id="lbl"></div>
+  </div>
+  <div class="btns">
+    <button class="b" id="bPrev" title="Étape précédente (←)">◀ Précédent</button>
+    <button class="b main" id="bNext" title="Étape suivante (→ ou Espace)">Suivant ▶</button>
+    <button class="b" id="bAll" title="Afficher toute la trace écrite (Fin)">Tout afficher</button>
+    <button class="b" id="bRestart" title="Recommencer (Début)">↺</button>
+    <button class="b act" id="bAct" title="Ouvrir les activités de la leçon">✏️ Activités</button>
+  </div>
+</header>
+
+<main class="cahier" id="cahier">
+  <p class="date" id="date"></p>
+
+  <section class="bloc" data-step="0">
+    <p class="module type">Module 1 : Généralités sur les systèmes informatiques</p>
+    <h1 class="lecon"><span class="type">Leçon 1 : Définitions et vocabulaire de base</span></h1>
+  </section>
+
+  <section class="bloc" data-step="1">
+    <span class="num">1</span>
+    <p class="def type"><span class="term">Informatique</span>&nbsp;: science du traitement automatique de l’information.</p>
+    <div class="flow" data-anim="etym">
+      <div class="box pc"><span><span class="hl" data-src="1">Infor</span>mation</span></div>
+      <div class="op pc">+</div>
+      <div class="box tan pc"><span>Auto<span class="hl" data-src="2">matique</span></span></div>
+      <div class="op pc">=</div>
+      <div class="box res pc"><span><span data-dst="1">Infor</span><span data-dst="2">matique</span></span></div>
+    </div>
+  </section>
+
+  <section class="bloc" data-step="2">
+    <span class="num">2</span>
+    <p class="def type"><span class="term">Information</span>&nbsp;: support de la connaissance — une donnée à laquelle on donne du sens.</p>
+    <div class="flow" data-anim="plus">
+      <div class="box pc"><span class="ico" aria-hidden="true">🔢</span>Donnée</div>
+      <div class="op pc">+</div>
+      <div class="box pc"><span class="ico" aria-hidden="true">💡</span>Sens</div>
+      <div class="op pc">=</div>
+      <div class="box res pc">Information</div>
+    </div>
+    <div class="postits">
+      <button class="postit" data-group="information"><b>🎬 Voir les animations</b>Du clavier à l’écran · Coder et décoder une image</button>
+      <button class="postit act" data-notion="1"><b>✏️ Activités</b>Notion 1 : donnée et information</button>
+    </div>
+  </section>
+
+  <section class="bloc" data-step="3">
+    <span class="num">3</span>
+    <p class="def type"><span class="term">Traitement</span>&nbsp;: techniques pour stocker, accéder, manipuler et exploiter l’information.</p>
+    <div class="flow chain" data-anim="chain" title="Clique pour rejouer">
+      <div class="box grn pc"><span class="ico" aria-hidden="true">💾</span>Stocker</div>
+      <div class="op pc">→</div>
+      <div class="box grn pc"><span class="ico" aria-hidden="true">🔎</span>Accéder</div>
+      <div class="op pc">→</div>
+      <div class="box grn pc"><span class="ico" aria-hidden="true">✏️</span>Manipuler</div>
+      <div class="op pc">→</div>
+      <div class="box grn pc"><span class="ico" aria-hidden="true">📊</span>Exploiter</div>
+    </div>
+    <div class="postits">
+      <button class="postit" data-group="traitement"><b>🎬 Voir l’animation</b>Coder, calculer, décoder : le voyage de 12 + 7</button>
+    </div>
+  </section>
+
+  <section class="bloc" data-step="4">
+    <span class="num">4</span>
+    <p class="def type avec-gear"><span class="term">Automatique</span>&nbsp;: réalisé par une machine, sans intervention manuelle à chaque étape.</p>
+    <div class="gear" aria-hidden="true">
+      <svg viewBox="0 0 100 100"><path fill="#7d94b8" d="M43 4h14l2 12a36 36 0 0 1 9 4l10-7 10 10-7 10a36 36 0 0 1 4 9l12 2v14l-12 2a36 36 0 0 1-4 9l7 10-10 10-10-7a36 36 0 0 1-9 4l-2 12H43l-2-12a36 36 0 0 1-9-4l-10 7-10-10 7-10a36 36 0 0 1-4-9L3 57V43l12-2a36 36 0 0 1 4-9l-7-10 10-10 10 7a36 36 0 0 1 9-4z"/><circle cx="50" cy="50" r="15" fill="#fffdf6"/></svg>
+      <svg viewBox="0 0 100 100"><path fill="#e0a526" d="M43 4h14l2 12a36 36 0 0 1 9 4l10-7 10 10-7 10a36 36 0 0 1 4 9l12 2v14l-12 2a36 36 0 0 1-4 9l7 10-10 10-10-7a36 36 0 0 1-9 4l-2 12H43l-2-12a36 36 0 0 1-9-4l-10 7-10-10 7-10a36 36 0 0 1-4-9L3 57V43l12-2a36 36 0 0 1 4-9l-7-10 10-10 10 7a36 36 0 0 1 9-4z"/><circle cx="50" cy="50" r="15" fill="#fffdf6"/></svg>
+    </div>
+  </section>
+
+  <section class="bloc" data-step="5">
+    <span class="num">5</span>
+    <p class="def type"><span class="term">Système informatique</span>&nbsp;: combinaison interdépendante de matériel et de logiciels.</p>
+    <div class="flow" data-anim="plus">
+      <div class="box pc"><span class="ico" aria-hidden="true">🖥️</span>Matériel</div>
+      <div class="op pc">+</div>
+      <div class="box pc"><span class="ico" aria-hidden="true">💿</span>Logiciels</div>
+      <div class="op pc">=</div>
+      <div class="box res pc">Système informatique</div>
+    </div>
+    <div class="postits">
+      <button class="postit act" data-notion="2"><b>✏️ Activités</b>Notion 2 : les notions clés</button>
+    </div>
+  </section>
+
+  <section class="bloc" data-step="6">
+    <span class="num">6</span>
+    <p class="def type"><span class="term">Unités d’information</span>&nbsp;: 1 bit = 0 ou 1 ; 8 bits = 1 octet.</p>
+    <div class="units" data-anim="units">
+      <div class="u u1 pc">Bit<small>0 ou 1</small></div>
+      <div class="step pc"><span class="x">×8</span><span class="ar">→</span></div>
+      <div class="u u2 pc">Octet<small>8 bits</small></div>
+      <div class="step pc"><span class="x">×1000</span><span class="ar">→</span></div>
+      <div class="u u3 pc">Ko<small>≈ texte</small></div>
+      <div class="step pc"><span class="x">×1000</span><span class="ar">→</span></div>
+      <div class="u u4 pc">Mo<small>≈ photo</small></div>
+      <div class="step pc"><span class="x">×1000</span><span class="ar">→</span></div>
+      <div class="u u5 w pc">Go<small>≈ film</small></div>
+      <div class="step pc"><span class="x">×1000</span><span class="ar">→</span></div>
+      <div class="u u6 w pc">To<small>≈ bibli.</small></div>
+    </div>
+    <div class="postits">
+      <button class="postit" data-group="unites"><b>🎬 Voir les animations</b>Du circuit électrique au bit · Combien ça tient dans 1 To ?</button>
+      <button class="postit act" data-notion="3"><b>✏️ Activités</b>Notion 3 : les unités d’information</button>
+    </div>
+  </section>
+
+  <svg class="stylo" id="stylo" viewBox="0 0 64 64" aria-hidden="true">
+    <g transform="rotate(-38 32 32)">
+      <rect x="28" y="2" width="9" height="40" rx="3" fill="#1b3c93"/>
+      <rect x="28" y="30" width="9" height="6" fill="#c9d3e6"/>
+      <path d="M28 42h9l-4.5 14z" fill="#e2b93b"/>
+      <path d="M32.5 50l-1.2 6h2.4z" fill="#1b3c93"/>
+    </g>
+  </svg>
+</main>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="mcard">
+    <div class="mhead">
+      <h2 id="mTitle">🎬 Animations</h2>
+      <div class="tabs" id="mTabs"></div>
+      <a id="mOpen" href="#" target="_blank" title="Ouvrir dans un nouvel onglet">↗ Onglet</a>
+      <button class="x" id="mClose" title="Fermer (Échap)">✕ Fermer</button>
+    </div>
+    <iframe class="mframe" id="mFrame" title="Animation"></iframe>
+  </div>
+</div>
+
+<div class="modal" id="modalAct" role="dialog" aria-modal="true" aria-labelledby="aTitle">
+  <div class="mcard grand">
+    <div class="mhead">
+      <h2 id="aTitle">✏️ Activités — Leçon 1 : Définitions et vocabulaire de base</h2>
+      <div class="tabs" id="aTabs">
+        <button class="tab" data-notion="1">Notion 1 : donnée et information</button>
+        <button class="tab" data-notion="2">Notion 2 : les notions clés</button>
+        <button class="tab" data-notion="3">Notion 3 : les unités d’information</button>
+      </div>
+      <a id="aOpen" href="TC_M1_L1_definitions.html" target="_blank" title="Ouvrir le parcours complet dans un nouvel onglet">↗ Onglet</a>
+      <button class="x" id="aClose" title="Fermer (Échap) — ta progression est gardée">✕ Fermer</button>
+    </div>
+    <iframe class="mframe" id="aFrame" title="Activités de la leçon"></iframe>
+  </div>
+</div>
+
+<script>
+/* ------------------------------------------------------------------
+   Animations de la page d'activités TC_M1_L1_definitions.html
+   (sous-dossier animations/, mêmes fichiers que sa galerie)
+------------------------------------------------------------------ */
+const GROUPES = {
+  information: { titre: "🎬 Donnée et information", items: [
+    ["clavier-ecran.html", "⌨️ Du clavier à l’écran"],
+    ["image.html", "🖼️ Coder et décoder une image"]
+  ]},
+  traitement: { titre: "🎬 Le traitement de l’information", items: [
+    ["calcul.html", "🔢 Coder, calculer, décoder"]
+  ]},
+  unites: { titre: "🎬 Les unités d’information", items: [
+    ["circuit-bit.html", "💡 Du circuit électrique au bit"],
+    ["combien-1to.html", "📦 Combien ça tient dans 1 To ?"]
+  ]}
+};
+const ACTIVITES = 'TC_M1_L1_definitions.html';
+
+const cahier = document.getElementById('cahier');
+const stylo = document.getElementById('stylo');
+const blocs = [...document.querySelectorAll('.bloc')].sort((a,b) => a.dataset.step - b.dataset.step);
+const N = blocs.length - 1;              // étapes 1..N (0 = titre)
+let etape = -1;                          // dernière étape affichée
+let tl = null;                           // animation en cours
+
+/* date du jour, écrite comme dans un cahier */
+const d = new Date().toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+document.getElementById('date').textContent = d.charAt(0).toUpperCase() + d.slice(1);
+
+/* découpe chaque texte « écrit » en caractères (les mots restent insécables) */
+function decouper(el){
+  [...el.childNodes].forEach(n => {
+    if (n.nodeType === 3) {
+      const frag = document.createDocumentFragment();
+      n.textContent.split(/(\s+)/).forEach(part => {
+        if (!part) return;
+        if (/^\s+$/.test(part)) { const s = document.createElement('span'); s.className = 'c'; s.textContent = part; frag.append(s); return; }
+        const w = document.createElement('span'); w.style.whiteSpace = 'nowrap';
+        [...part].forEach(ch => { const s = document.createElement('span'); s.className = 'c'; s.textContent = ch; w.append(s); });
+        frag.append(w);
+      });
+      n.replaceWith(frag);
+    } else if (n.nodeType === 1) decouper(n);
+  });
+}
+document.querySelectorAll('.type').forEach(decouper);
+
+/* chaque bloc occupe un nombre entier de grands carreaux : l'écriture reste posée sur les lignes */
+function caler(){
+  blocs.forEach(b => b.style.paddingBottom = '0px');
+  const haut = cahier.getBoundingClientRect().top;
+  blocs.forEach((b, i) => {
+    const bas = b.getBoundingClientRect().bottom - haut;
+    const espace = i > 0 && i < N && !b.querySelector('.postit') ? 32 : 0;
+    const cible = Math.ceil((bas - 0.5) / 32) * 32 + espace;
+    b.style.paddingBottom = (cible - bas) + 'px';
+  });
+}
+let calerTimer;
+addEventListener('resize', () => { clearTimeout(calerTimer); calerTimer = setTimeout(caler, 150); });
+
+/* ------------------------------------------------------------------
+   Petite ligne du temps annulable : finish() saute à l'état final
+------------------------------------------------------------------ */
+class Timeline {
+  constructor(){ this.t = 0; this.q = []; this.done = false; this.cleanups = []; }
+  add(delay, fn){ this.t += delay; this.q.push({ at: this.t, fn, ran: false }); return this; }
+  play(onEnd){
+    this.onEnd = onEnd;
+    this.timers = this.q.map(item => setTimeout(() => { item.ran = true; item.fn(false); }, item.at));
+    this.endTimer = setTimeout(() => this.finish(), this.t + 30);
+  }
+  finish(){
+    if (this.done) return;
+    this.done = true;
+    this.timers.forEach(clearTimeout); clearTimeout(this.endTimer);
+    this.cleanups.forEach(f => f());
+    this.q.forEach(item => { if (!item.ran) { item.ran = true; item.fn(true); } });
+    rangerStylo();
+    if (this.onEnd) this.onEnd();
+  }
+}
+
+function placerStylo(ch){
+  const r = ch.getBoundingClientRect(), c = cahier.getBoundingClientRect();
+  stylo.style.transform = `translate(${r.right - c.left - 6}px, ${r.bottom - c.top - 44}px)`;
+}
+function rangerStylo(){ stylo.classList.remove('on'); stylo.style.transform = 'translate(0,0)'; }
+
+/* écriture caractère par caractère */
+function ecrire(t, el, vitesse = 34){
+  const chars = [...el.querySelectorAll('.c')];
+  t.add(0, () => stylo.classList.add('on'));
+  chars.forEach((ch, i) => t.add(i ? vitesse : 60, instant => {
+    ch.classList.add('on');
+    if (!instant && ch.textContent.trim()) placerStylo(ch);
+  }));
+  t.add(120, rangerStylo);
+}
+
+function montrer(t, el, delai){ t.add(delai, () => el.classList.add('show')); }
+
+/* animation « lettres qui volent » : INFORmation + autoMATIQUE = INFORMATIQUE */
+function etymologie(t, flow){
+  const pcs = [...flow.querySelectorAll('.pc')];
+  montrer(t, pcs[0], 150); montrer(t, pcs[1], 350); montrer(t, pcs[2], 350); montrer(t, pcs[3], 450);
+  t.add(250, instant => {
+    if (instant) return;
+    flow.querySelectorAll('.hl').forEach(h => h.animate([{ transform:'scale(1)' }, { transform:'scale(1.25)' }, { transform:'scale(1)' }], { duration: 600 }));
+  });
+  t.add(650, instant => {
+    if (instant) return;
+    const clones = [];
+    ['1','2'].forEach(k => {
+      const src = flow.querySelector(`[data-src="${k}"]`), dst = flow.querySelector(`[data-dst="${k}"]`);
+      const a = src.getBoundingClientRect(), b = dst.getBoundingClientRect();
+      const cl = document.createElement('span');
+      cl.textContent = src.textContent;
+      Object.assign(cl.style, { position:'fixed', left: a.left + 'px', top: a.top + 'px', margin: 0, zIndex: 50,
+        font: getComputedStyle(src).font, color: '#d1232e', textDecoration: 'underline', pointerEvents: 'none' });
+      document.body.append(cl); clones.push(cl);
+      cl.animate([{ transform: 'translate(0,0)' }, { transform: `translate(${(b.left - a.left) / 2}px, -38px) scale(1.15)` },
+        { transform: `translate(${b.left - a.left}px, ${b.top - a.top}px)` }], { duration: 1100, easing: 'ease-in-out', fill: 'forwards' });
+    });
+    const nettoyer = () => clones.forEach(c => c.remove());
+    t.cleanups.push(nettoyer);
+    setTimeout(nettoyer, 1250);
+  });
+  t.add(1150, () => pcs[4].classList.add('show'));
+}
+
+function plus(t, flow){ flow.querySelectorAll('.pc').forEach((p, i) => montrer(t, p, i === 0 ? 150 : (p.classList.contains('res') ? 450 : 300))); }
+
+function balayer(flow){
+  flow.querySelectorAll('.box').forEach((b, i) => setTimeout(() => {
+    b.classList.remove('lit'); void b.offsetWidth; b.classList.add('lit');
+  }, i * 420));
+}
+function chaine(t, flow){
+  flow.querySelectorAll('.pc').forEach((p, i) => montrer(t, p, i === 0 ? 150 : 260));
+  t.add(400, instant => { if (!instant) balayer(flow); });
+}
+function unites(t, flow){ flow.querySelectorAll('.pc').forEach((p, i) => montrer(t, p, i === 0 ? 150 : 230)); }
+
+/* ------------------------------------------------------------------
+   Afficher / masquer une étape
+------------------------------------------------------------------ */
+function afficher(n, instant){
+  const b = blocs[n];
+  b.classList.add('shown');
+  const t = new Timeline();
+  b.querySelectorAll('.type').forEach(el => ecrire(t, el, el.classList.contains('module') ? 14 : (n === 0 ? 38 : 30)));
+  if (n === 0) t.add(100, () => b.querySelector('.lecon').classList.add('ruled'));
+  const flow = b.querySelector('[data-anim]');
+  if (flow) ({ etym: etymologie, plus, chain: chaine, units: unites })[flow.dataset.anim](t, flow);
+  const gear = b.querySelector('.gear'); if (gear) montrer(t, gear, 200);
+  b.querySelectorAll('.postit').forEach((p, i) => montrer(t, p, i ? 250 : 450));
+  tl = t;
+  t.play(() => { if (tl === t) tl = null; majUI(); });
+  if (instant) t.finish();
+  else if (n > 0) b.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function masquer(n){
+  const b = blocs[n];
+  b.classList.remove('shown');
+  b.querySelectorAll('.c.on').forEach(c => c.classList.remove('on'));
+  b.querySelectorAll('.show').forEach(c => c.classList.remove('show'));
+  const lec = b.querySelector('.lecon'); if (lec) lec.classList.remove('ruled');
+}
+
+function suivant(){
+  if (tl) { tl.finish(); return; }
+  if (etape < N) { etape++; afficher(etape); }
+  majUI();
+}
+function precedent(){
+  if (tl) tl.finish();
+  if (etape > 0) { masquer(etape); etape--; blocs[etape].scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+  majUI();
+}
+function toutAfficher(){
+  if (tl) tl.finish();
+  while (etape < N) { etape++; afficher(etape, true); }
+  majUI();
+}
+function recommencer(){
+  if (tl) tl.finish();
+  for (let i = N; i >= 0; i--) masquer(i);
+  etape = -1;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(() => { etape = 0; afficher(0); majUI(); }, 350);
+}
+function allerA(n){
+  if (tl) tl.finish();
+  while (etape > n) { masquer(etape); etape--; }
+  while (etape < n) { etape++; afficher(etape, etape < n); }
+  majUI();
+}
+
+/* ------------------------------------------------------------------
+   Barre de progression et boutons
+------------------------------------------------------------------ */
+const dots = document.getElementById('dots'), lbl = document.getElementById('lbl');
+for (let i = 1; i <= N; i++) {
+  const b = document.createElement('button');
+  b.className = 'dot'; b.title = 'Aller à la définition ' + i; b.setAttribute('aria-label', b.title);
+  b.onclick = () => allerA(i);
+  dots.append(b);
+}
+function majUI(){
+  [...dots.children].forEach((d, i) => d.classList.toggle('on', i + 1 <= etape));
+  lbl.textContent = etape >= N ? 'Trace complète ✔' : `Définition ${Math.max(etape, 0)} / ${N}`;
+  document.getElementById('bPrev').disabled = etape <= 0;
+  document.getElementById('bNext').disabled = etape >= N && !tl;
+}
+document.getElementById('bNext').onclick = suivant;
+document.getElementById('bPrev').onclick = precedent;
+document.getElementById('bAll').onclick = toutAfficher;
+document.getElementById('bRestart').onclick = recommencer;
+
+document.querySelectorAll('.flow.chain').forEach(f => f.addEventListener('click', () => balayer(f)));
+
+/* ------------------------------------------------------------------
+   Fenêtre des animations
+------------------------------------------------------------------ */
+const modal = document.getElementById('modal'), mFrame = document.getElementById('mFrame'),
+      mTabs = document.getElementById('mTabs'), mOpen = document.getElementById('mOpen');
+function ouvrirAnim(file){
+  mFrame.src = 'animations/' + file;
+  mOpen.href = 'animations/' + file;
+  [...mTabs.children].forEach(b => b.classList.toggle('on', b.dataset.file === file));
+}
+function ouvrirGroupe(cle){
+  const g = GROUPES[cle];
+  document.getElementById('mTitle').textContent = g.titre;
+  mTabs.innerHTML = '';
+  g.items.forEach(([file, label]) => {
+    const b = document.createElement('button');
+    b.className = 'tab'; b.textContent = label; b.dataset.file = file;
+    b.onclick = () => ouvrirAnim(file);
+    mTabs.append(b);
+  });
+  ouvrirAnim(g.items[0][0]);
+  modal.classList.add('open');
+  document.getElementById('mClose').focus();
+}
+function fermerAnim(){ modal.classList.remove('open'); mFrame.src = 'about:blank'; }
+document.querySelectorAll('.postit[data-group]').forEach(p => p.onclick = () => ouvrirGroupe(p.dataset.group));
+document.getElementById('mClose').onclick = fermerAnim;
+modal.addEventListener('click', e => { if (e.target === modal) fermerAnim(); });
+
+/* ------------------------------------------------------------------
+   Fenêtre des activités : la page TC_M1_L1_definitions.html reste
+   chargée quand on ferme, pour garder la progression (score, badges)
+------------------------------------------------------------------ */
+const modalAct = document.getElementById('modalAct'), aFrame = document.getElementById('aFrame'),
+      aTabs = document.getElementById('aTabs');
+function ouvrirActivites(notion){
+  if (notion) aFrame.src = `${ACTIVITES}#notion${notion}-${Date.now()}`;   // saute à la notion sans recharger la page
+  else if (!aFrame.getAttribute('src')) aFrame.src = ACTIVITES;
+  [...aTabs.children].forEach(b => b.classList.toggle('on', !!notion && b.dataset.notion === String(notion)));
+  modalAct.classList.add('open');
+  document.getElementById('aClose').focus();
+}
+function fermerActivites(){ modalAct.classList.remove('open'); }
+document.querySelectorAll('[data-notion]').forEach(b => b.onclick = () => ouvrirActivites(+b.dataset.notion));
+document.getElementById('bAct').onclick = () => ouvrirActivites();
+document.getElementById('aClose').onclick = fermerActivites;
+modalAct.addEventListener('click', e => { if (e.target === modalAct) fermerActivites(); });
+
+document.addEventListener('keydown', e => {
+  if (modal.classList.contains('open')) { if (e.key === 'Escape') fermerAnim(); return; }
+  if (modalAct.classList.contains('open')) { if (e.key === 'Escape') fermerActivites(); return; }
+  if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); suivant(); }
+  else if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); precedent(); }
+  else if (e.key === 'End') { e.preventDefault(); toutAfficher(); }
+  else if (e.key === 'Home') { e.preventDefault(); recommencer(); }
+});
+
+/* démarrage : le titre s'écrit tout seul */
+const reduit = matchMedia('(prefers-reduced-motion: reduce)').matches;
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(() => {
+  caler();
+  if (reduit) { toutAfficher(); return; }
+  etape = 0; afficher(0); majUI();
+});
+majUI();
+</script>
+</body>
+</html>
