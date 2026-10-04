@@ -261,7 +261,7 @@ button{font:inherit;color:inherit}
       <div class="box grn">Sortie<small>Écran, imprimante, haut-parleurs…</small></div>
       <div class="box grn">Stockage<small>Disque dur, CD-Rom, clé USB…</small></div>
     </div>
-    <p class="futureNote">Version future possible : trace écrite animée + lien vers les animations déjà en ligne (« Au cœur de l'unité centrale », « Dedans ou dehors »).</p>
+    <button class="animLink" id="bOpenLecon2">🎬 Ouvrir la trace écrite animée complète</button>
   </section>
 
   <!-- ===== Détail Leçon 3 ===== -->
@@ -283,7 +283,7 @@ button{font:inherit;color:inherit}
         <p class="ex">Ex. : Word, Excel, PowerPoint, Photoshop, antivirus, navigateur, WhatsApp, TikTok, Zoom, Canva…</p>
       </div>
     </div>
-    <p class="futureNote">Version future possible : trace écrite animée + lien vers l'animation déjà en ligne (« Logiciel de base ou d'application ? »).</p>
+    <button class="animLink" id="bOpenLecon3">🎬 Ouvrir la trace écrite animée complète</button>
   </section>
 
   <!-- ===== Détail Leçon 4 ===== -->
@@ -303,7 +303,7 @@ button{font:inherit;color:inherit}
       <div class="dom"><span class="ic">🌾</span>Agriculture</div>
     </div>
     <p class="detail-intro"><b>Outil incontournable, quel que soit le métier exercé.</b></p>
-    <p class="futureNote">Version future possible : trace écrite animée + jeu de tri par domaine.</p>
+    <button class="animLink" id="bOpenLecon4">🎬 Ouvrir la trace écrite animée complète</button>
   </section>
 
 </main>
@@ -311,8 +311,8 @@ button{font:inherit;color:inherit}
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
   <div class="mcard">
     <div class="mhead">
-      <h2 id="mTitle">🎬 Leçon 1 — version animée complète</h2>
-      <a id="mOpen" href="../sequence1-definitions-vocabulaire/Lecon1_Definitions_vocabulaire.html" target="_blank" title="Ouvrir dans un nouvel onglet">↗ Onglet</a>
+      <h2 id="mTitle">🎬 Version animée complète</h2>
+      <a id="mOpen" href="#" target="_blank" title="Ouvrir dans un nouvel onglet">↗ Onglet</a>
       <button class="x" id="mClose" title="Fermer (Échap)">✕ Fermer</button>
     </div>
     <iframe class="mframe" id="mFrame" title="Leçon 1 animée"></iframe>
@@ -356,12 +356,25 @@ function zoomOut(){
 tiles.forEach(t => t.onclick = () => zoomTo(t.dataset.lecon));
 bZoomOut.onclick = zoomOut;
 
-const modal = document.getElementById('modal'), mFrame = document.getElementById('mFrame');
-document.getElementById('bOpenLecon1').onclick = () => {
-  mFrame.src = '../sequence1-definitions-vocabulaire/Lecon1_Definitions_vocabulaire.html';
+const modal = document.getElementById('modal'), mFrame = document.getElementById('mFrame'), mOpen = document.getElementById('mOpen');
+const LECON_FILES = {
+  1: '../sequence1-definitions-vocabulaire/Lecon1_Definitions_vocabulaire.html',
+  2: 'Lecon2_Structure_Ordinateur.html',
+  3: 'Lecon3_Types_Logiciels.html',
+  4: 'Lecon4_Domaines_Application.html'
+};
+function ouvrirLeconAnimee(n){
+  const src = LECON_FILES[n];
+  mFrame.src = src;
+  mOpen.href = src;
+  document.getElementById('mTitle').textContent = '🎬 Leçon ' + n + ' — version animée complète';
   modal.classList.add('open');
   document.getElementById('mClose').focus();
-};
+}
+[1,2,3,4].forEach(n => {
+  const btn = document.getElementById('bOpenLecon' + n);
+  if (btn) btn.onclick = () => ouvrirLeconAnimee(n);
+});
 function fermerModal(){ modal.classList.remove('open'); mFrame.src = 'about:blank'; }
 document.getElementById('mClose').onclick = fermerModal;
 modal.addEventListener('click', e => { if (e.target === modal) fermerModal(); });
