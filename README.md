@@ -67,19 +67,25 @@ Le **Module 1** est ainsi complet (4 séquences, semaines 1 à 5), avec la Séqu
 
 ### Module 2 — Les logiciels
 
-**Leçon 1 — Système d'exploitation** (`module2-logiciels/lecon1-systeme-exploitation/`)
+Même principe que le Module 1 : une **vue d'ensemble** (`module2-logiciels/vue-ensemble/Module2_Vue_Ensemble.html`) résume les **4 leçons** du module sur une page de cahier, chacune zoomable en détail, et chaque leçon a sa **version cahier animée** (`Lecon1_Systeme_Exploitation.html`, `Lecon2_Traitement_Texte.html`, `Lecon3_Tableur.html`, `Lecon4_Raccourcis_Clavier.html`) — trace écrite qui s'écrit à la main, avec post-it vers les projets d'origine.
 
-- **`Module2_Lecon1_Interactif.html`** — leçon jeu autonome en 6 ateliers (découvrir le S.E., fenêtres et applications avec une vraie fenêtre manipulable, interface graphique avec bureau/barre des tâches simulés, personnalisation, fichiers et dossiers avec explorateur simulé, organiser ses fichiers), synthèse à trous débloquant la trace écrite complète, défi final noté, espace professeur protégé par mot de passe avec fiche pédagogique imprimable.
+**Leçon 1 — Le système d'exploitation** (`module2-logiciels/lecon1-systeme-exploitation/`)
 
-**Leçon 2 — Traitement de texte** (`module2-logiciels/lecon2-traitement-texte/`)
+- **`Module2_Lecon1_Interactif.html`** — leçon jeu autonome en 6 ateliers (découvrir le S.E., fenêtres et applications avec une vraie fenêtre manipulable, interface graphique avec bureau/barre des tâches simulés, personnalisation, fichiers et dossiers avec explorateur simulé, organiser ses fichiers), synthèse à trous débloquant la trace écrite complète, défi final noté, espace professeur protégé par mot de passe avec fiche pédagogique imprimable. Reliée depuis la Leçon 1 (cahier) via le post-it « Activités ».
 
-- **`Projet_TraitementTexte_Virtuel.html`** — projet en 2 onglets : « Le projet » (choix d'un thème, cahier des charges à cocher au fur et à mesure du travail dans Word) et « Aide-mémoire » (où trouver chaque fonction dans le ruban Word, avec pour chaque fonction une version texte et un bouton « 🎬 Version visuelle » qui simule le ruban Word et anime l'effet obtenu — gras/italique, couleur, alignement, interligne, listes…).
+**Leçon 2 — Le traitement de texte** (`module2-logiciels/lecon2-traitement-texte/`)
 
-**Leçon 3 — Tableur** (`module2-logiciels/lecon3-tableur/`)
+- **`Projet_TraitementTexte_Virtuel.html`** — projet en 2 onglets : « Le projet » (choix d'un thème, cahier des charges à cocher au fur et à mesure du travail dans Word) et « Aide-mémoire » (où trouver chaque fonction dans le ruban Word, avec pour chaque fonction une version texte et un bouton « 🎬 Version visuelle » qui simule le ruban Word et anime l'effet obtenu — gras/italique, couleur, alignement, interligne, listes…). Reliée depuis la Leçon 2 (cahier).
 
-- **`Projet_Tableur_Virtuel.html`** — même principe que la Leçon 2 (projet + aide-mémoire), pour Excel : thème, cahier des charges (saisie et mise en forme, formules et calculs, tri et graphique, mise en page, finalisation), et pour chaque fonction une démo visuelle du ruban Excel qui anime l'effet réel obtenu (fusionner/centrer, somme automatique avec compteur animé, avant/après tri, barres de graphique qui poussent…).
+**Leçon 3 — Le tableur** (`module2-logiciels/lecon3-tableur/`)
 
-Le **Module 2** est ainsi complet (Leçons 1 à 3, semaines 6 à 17).
+- **`Projet_Tableur_Virtuel.html`** — même principe que la Leçon 2 (projet + aide-mémoire), pour Excel : thème, cahier des charges (saisie et mise en forme, formules et calculs, tri et graphique, mise en page, finalisation), et pour chaque fonction une démo visuelle du ruban Excel qui anime l'effet réel obtenu (fusionner/centrer, somme automatique avec compteur animé, avant/après tri, barres de graphique qui poussent…). Reliée depuis la Leçon 3 (cahier).
+
+**Leçon 4 — Raccourcis clavier essentiels** (nouvelle, uniquement en version cahier)
+
+- Ctrl+S, Ctrl+C/V/X, Ctrl+Z, F4 (référence absolue Excel) ; post-it « Activités » ouvrant, à onglets, les 3 projets ci-dessus pour réviser l'ensemble du module.
+
+Le **Module 2** est ainsi complet (Leçons 1 à 4, semaines 6 à 17). Dans le menu du portail, seules la vue d'ensemble et les 4 leçons (cahier) apparaissent désormais pour ce module — les anciens fichiers restent disponibles sur disque et sont reliés depuis chaque leçon via les post-it, plutôt que listés séparément dans la barre latérale.
 
 ### Module 3 — Algorithmique et programmation
 
